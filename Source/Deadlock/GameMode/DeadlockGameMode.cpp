@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "DeadlockGameMode.h"
-#include "DeadlockCharacter.h"
+#include "../Player/DeadlockCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ADeadlockGameMode::ADeadlockGameMode()
