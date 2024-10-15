@@ -44,6 +44,9 @@ class ADeadlockCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RunAction;
+
 public:
 	ADeadlockCharacter();
 	
@@ -55,6 +58,10 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	void Run(const FInputActionValue& Value);
+	void StopRun(const FInputActionValue& Value);
+
 			
 
 protected:

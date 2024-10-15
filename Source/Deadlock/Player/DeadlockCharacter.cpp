@@ -34,7 +34,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -86,6 +86,10 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Look);
+
+		//Running
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Run);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
 	}
 	else
 	{
@@ -127,4 +131,16 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ADeadlockCharacter::Run(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+}
+
+void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Stop Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 }
