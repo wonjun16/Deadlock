@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
+#include "../GameMode/DeadlockPlayerController.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -60,6 +62,10 @@ void ADeadlockCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ADeadlockCharacter::GetNearestItem()
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -90,6 +96,12 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Running
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Run);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
+
+		//Reload
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Reload);
+
+		//Grab
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Grab);
 	}
 	else
 	{
@@ -143,4 +155,40 @@ void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Stop Run"));
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+}
+
+void ADeadlockCharacter::Attack(const FInputActionValue& Value)
+{
+}
+
+void ADeadlockCharacter::Drop(const FInputActionValue& Value)
+{
+}
+
+void ADeadlockCharacter::C2S_Grab_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Grab");
+
+	S2C_Grab(Value);
+}
+
+void ADeadlockCharacter::S2C_Grab_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+}
+
+void ADeadlockCharacter::C2S_Reload_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
+
+	S2C_Reload(Value);
+}
+
+void ADeadlockCharacter::S2C_Reload_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
+}
+
+void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
+{
 }
