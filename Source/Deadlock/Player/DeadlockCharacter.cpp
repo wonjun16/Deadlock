@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
+#include "../GameMode/DeadlockPlayerController.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,7 +36,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -58,6 +60,18 @@ void ADeadlockCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+}
+
+AActor* ADeadlockCharacter::GetNearestItem()
+{
+	TArray<AActor*> OverlapActors;
+	AActor* NearestActor = nullptr;
+	GetCapsuleComponent()->GetOverlappingActors(OverlapActors);
+	for (AActor* actor : OverlapActors)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap actor");
+	}
+	return NearestActor;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,6 +100,16 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Look);
+
+		//Running
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Run);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
+
+		//Reload
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Reload);
+
+		//Grab
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Grab);
 	}
 	else
 	{
@@ -127,4 +151,52 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ADeadlockCharacter::Run(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+}
+
+void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Stop Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+}
+
+void ADeadlockCharacter::Attack(const FInputActionValue& Value)
+{
+}
+
+void ADeadlockCharacter::Drop(const FInputActionValue& Value)
+{
+}
+
+void ADeadlockCharacter::C2S_Grab_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Grab");
+
+	S2C_Grab(Value);
+}
+
+void ADeadlockCharacter::S2C_Grab_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+}
+
+void ADeadlockCharacter::C2S_Reload_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
+
+	S2C_Reload(Value);
+}
+
+void ADeadlockCharacter::S2C_Reload_Implementation(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
+}
+
+void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
+{
 }
