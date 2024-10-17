@@ -12,6 +12,8 @@
 #include "InputActionValue.h"
 
 #include "../GameMode/DeadlockPlayerController.h"
+#include "../Data/Enums.h"
+#include "../Interface/ItemInterface.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -69,7 +71,13 @@ AActor* ADeadlockCharacter::GetNearestItem()
 	GetCapsuleComponent()->GetOverlappingActors(OverlapActors);
 	for (AActor* actor : OverlapActors)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap actor");
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap Actor");
+		IItemInterface* Item = Cast<IItemInterface>(actor);
+		if (Item)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is item");
+		}
+		
 	}
 	return NearestActor;
 }
@@ -183,6 +191,7 @@ void ADeadlockCharacter::C2S_Grab_Implementation(const FInputActionValue& Value)
 void ADeadlockCharacter::S2C_Grab_Implementation(const FInputActionValue& Value)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+	GetNearestItem();
 }
 
 void ADeadlockCharacter::C2S_Reload_Implementation(const FInputActionValue& Value)

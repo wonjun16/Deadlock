@@ -22,5 +22,6 @@ class DEADLOCK_API IItemInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual class EItemType EventGrab(ACharacter* Character) = 0;
+	UFUNCTION()
+	virtual EItemType EventGrab(ACharacter* Character) = 0;
 };
