@@ -104,7 +104,7 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
-	void GetNearestItem();
+	AActor* GetNearestItem();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

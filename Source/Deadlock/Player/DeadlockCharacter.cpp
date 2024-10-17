@@ -62,8 +62,16 @@ void ADeadlockCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ADeadlockCharacter::GetNearestItem()
+AActor* ADeadlockCharacter::GetNearestItem()
 {
+	TArray<AActor*> OverlapActors;
+	AActor* NearestActor = nullptr;
+	GetCapsuleComponent()->GetOverlappingActors(OverlapActors);
+	for (AActor* actor : OverlapActors)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap actor");
+	}
+	return NearestActor;
 }
 
 //////////////////////////////////////////////////////////////////////////
