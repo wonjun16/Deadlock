@@ -14,6 +14,7 @@
 #include "../GameMode/DeadlockPlayerController.h"
 #include "../Data/Enums.h"
 #include "../Interface/ItemInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -72,11 +73,25 @@ AActor* ADeadlockCharacter::GetNearestItem()
 	for (AActor* actor : OverlapActors)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap Actor");
-		IItemInterface* Item = Cast<IItemInterface>(actor);
+		UItemInterface* Item = Cast<UItemInterface>(actor);
 		if (Item)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is item");
 		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is not a item");
+		}
+
+		/*if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is interface");
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is not interface");
+		}*/
+
+		//UKismetSystemLibrary::DoesImplementInterface(actor, IItemInterface);
 		
 	}
 	return NearestActor;
