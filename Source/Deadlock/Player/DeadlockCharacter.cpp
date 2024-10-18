@@ -14,7 +14,9 @@
 #include "../GameMode/DeadlockPlayerController.h"
 #include "../Data/Enums.h"
 #include "../Interface/ItemInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "../Interface/WeaponInterface.h"
+#include "../GameMode/DeadlockPlayerState.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -63,38 +65,110 @@ void ADeadlockCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	GetPS();
 }
 
 AActor* ADeadlockCharacter::GetNearestItem()
 {
 	TArray<AActor*> OverlapActors;
 	AActor* NearestActor = nullptr;
+	float NearestDistance = 9999.f;
+
 	GetCapsuleComponent()->GetOverlappingActors(OverlapActors);
 	for (AActor* actor : OverlapActors)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap Actor");
-		UItemInterface* Item = Cast<UItemInterface>(actor);
-		if (Item)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is item");
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is not a item");
-		}
 
-		/*if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is interface");
+			
+			float distance = UKismetMathLibrary::Vector_Distance(actor->GetActorLocation(), GetActorLocation());
+			if (NearestDistance > distance)
+			{
+				NearestDistance = distance;
+				NearestActor = actor;
+			}
 		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is not interface");
-		}*/
-
-		//UKismetSystemLibrary::DoesImplementInterface(actor, IItemInterface);
 		
 	}
 	return NearestActor;
+}
+
+void ADeadlockCharacter::GetPS()
+{
+	if (IsValid(GetPlayerState()))
+	{
+		PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "PS Successed");
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "PS Failed");
+		GetPS();
+	}
+}
+
+void ADeadlockCharacter::C2S_Drop_Implementation()
+{
+}
+
+void ADeadlockCharacter::S2C_Drop_Implementation()
+{
+}
+
+void ADeadlockCharacter::C2S_Grab_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Grab");
+	TObjectPtr<AActor> NearestItem = GetNearestItem();
+	if (IsValid(NearestItem))
+	{
+		if (NearestItem->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+		{
+			NearestItem->SetOwner(APawn::GetController());
+		}
+		else
+		{
+			//It is not a weapon.
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
+		}
+	}
+
+	S2C_Grab(NearestItem);
+}
+
+void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+
+	if (PS && Item->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+	{
+		S2C_Drop();
+		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
+
+		//For C++ implementation
+		IWeaponInterface* Weapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		uint8 WeaponNum = (uint8)Weapon->EventGrabWeapon(this);
+		PS->EquipWeaponType.Insert(WeaponNum, PS->CurEqiupWeapon);
+	}
+	else
+	{
+		//It is not a weapon
+	}
+
+}
+
+void ADeadlockCharacter::C2S_Reload_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
+
+	S2C_Reload();
+}
+
+void ADeadlockCharacter::S2C_Reload_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -129,10 +203,13 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
 
 		//Reload
-		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Reload);
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Reload);
 
 		//Grab
-		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &ADeadlockCharacter::C2S_Grab);
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Grab);
+
+		//Drop
+		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 	}
 	else
 	{
@@ -194,31 +271,17 @@ void ADeadlockCharacter::Attack(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 {
+	C2S_Drop();
 }
 
-void ADeadlockCharacter::C2S_Grab_Implementation(const FInputActionValue& Value)
+void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Grab");
-
-	S2C_Grab(Value);
+	C2S_Grab();
 }
 
-void ADeadlockCharacter::S2C_Grab_Implementation(const FInputActionValue& Value)
+void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
-	GetNearestItem();
-}
-
-void ADeadlockCharacter::C2S_Reload_Implementation(const FInputActionValue& Value)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
-
-	S2C_Reload(Value);
-}
-
-void ADeadlockCharacter::S2C_Reload_Implementation(const FInputActionValue& Value)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
+	C2S_Reload();
 }
 
 void ADeadlockCharacter::Zoom(const FInputActionValue& Value)

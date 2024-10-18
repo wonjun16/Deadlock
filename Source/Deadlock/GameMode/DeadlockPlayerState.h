@@ -13,5 +13,21 @@ UCLASS()
 class DEADLOCK_API ADeadlockPlayerState : public APlayerState
 {
 	GENERATED_BODY()
-	
+
+public:
+	ADeadlockPlayerState();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TObjectPtr<AActor>> EquipWeapon;
+
+	/** Index of EquipWeapon and EquipWeaponType */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	uint8 CurEqiupWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float HP;
+
+	/** EWeaponType */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<uint8> EquipWeaponType;
 };
