@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include <Deadlock/Data/Enums.h>
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
@@ -51,4 +52,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool EventDrop(ACharacter* Character);
+
 };
