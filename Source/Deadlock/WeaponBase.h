@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/Character.h"
 #include "Interface/WeaponInterface.h"
 #include "Data/Enums.h"
@@ -41,13 +42,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	void CalcStartForwadVector(int& a, int& b , int c);
+	void CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc);
 	void UseAmmo();
 	void BindAmmo();
 	void UnBindAmmo();
 	void ChangeMag();
 	void IsCanChangeMag(bool IsCanChangeMag);
 	void GetShootDelayByRPM(float& DeltaTime);
+	UFUNCTION(BlueprintCallable, Category = "MyCategory")
 	void Grab(ACharacter* pOwnChar);
 
 

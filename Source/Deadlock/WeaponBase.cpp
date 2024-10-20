@@ -2,6 +2,11 @@
 
 
 #include "WeaponBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraActor.h"
+#include "Kismet/KismetMathLibrary.h"
+
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -24,12 +29,28 @@ void AWeaponBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWeaponBase::CalcStartForwadVector(int& a, int& b, int c)
+void AWeaponBase::CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc)
 {
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	FVector ActorLocation = CameraManager->GetCameraLocation();
+	FVector ActorForwardVector = CameraManager->GetActorForwardVector();
+
+	float Distance = UKismetMathLibrary::Vector_Distance(MuzzleLoc, ActorLocation);
+
+
+	FVector MultiplyVector = ActorForwardVector * Distance;
+	FVector PlusVector = ActorLocation + MultiplyVector;
+	FVector Multiply5000Vector = ActorForwardVector * 5000;
+	FVector PlusVector2 = ActorLocation + Multiply5000Vector;
+
+	StartVec = PlusVector;
+	MuzzleLoc = PlusVector2;
 }
 
 void AWeaponBase::UseAmmo()
 {
+	Ammo = Ammo - 1;
 }
 
 void AWeaponBase::BindAmmo()
