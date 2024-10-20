@@ -13,5 +13,27 @@ UCLASS()
 class DEADLOCK_API ADeadlockPlayerState : public APlayerState
 {
 	GENERATED_BODY()
-	
+
+public:
+	ADeadlockPlayerState();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	TArray<TObjectPtr<AActor>> EquipWeapon;
+
+	/** Index of EquipWeapon and EquipWeaponType */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	uint8 CurEqiupWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	float HP;
+
+	/** EWeaponType */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	TArray<uint8> EquipWeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	uint8 CurAmmo;
+
+	UFUNCTION()
+	bool IsCanReload();
 };

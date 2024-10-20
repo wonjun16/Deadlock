@@ -11,6 +11,13 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
+#include "../GameMode/DeadlockPlayerController.h"
+#include "../Data/Enums.h"
+#include "../Interface/ItemInterface.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "../Interface/WeaponInterface.h"
+#include "../GameMode/DeadlockPlayerState.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,7 +41,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -58,6 +65,149 @@ void ADeadlockCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+}
+
+AActor* ADeadlockCharacter::GetNearestItem()
+{
+	TArray<AActor*> OverlapActors;
+	AActor* NearestActor = nullptr;
+	float NearestDistance = 9999.f;
+
+	GetCapsuleComponent()->GetOverlappingActors(OverlapActors);
+	for (AActor* actor : OverlapActors)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap Actor");
+
+		if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()) ||
+			actor->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is Weapon or Item");
+			
+			float distance = UKismetMathLibrary::Vector_Distance(actor->GetActorLocation(), GetActorLocation());
+			if (NearestDistance > distance)
+			{
+				NearestDistance = distance;
+				NearestActor = actor;
+			}
+		}
+		
+	}
+	return NearestActor;
+}
+
+void ADeadlockCharacter::C2S_Drop_Implementation()
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		PS->EquipWeapon[PS->CurEqiupWeapon]->SetOwner(nullptr);
+		S2C_Drop();
+	}
+}
+
+void ADeadlockCharacter::S2C_Drop_Implementation()
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
+		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
+}
+
+void ADeadlockCharacter::C2S_Grab_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Grab");
+	TObjectPtr<AActor> NearestItem = GetNearestItem();
+	if (IsValid(NearestItem))
+	{
+		if (NearestItem->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+		{
+			NearestItem->SetOwner(APawn::GetController());
+		}
+		else
+		{
+			//It is not a weapon.
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
+		}
+
+		S2C_Grab(NearestItem);
+	}
+}
+
+void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+	TObjectPtr< ADeadlockPlayerState> PS;
+	if (GetPlayerState())
+	{
+		PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Can't get PS");
+	}
+	
+
+	if (PS && Item->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+	{
+		S2C_Drop();
+		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
+
+		//For C++ implementation
+		
+		if (PS->EquipWeapon[PS->CurEqiupWeapon])
+		{
+			IWeaponInterface* Weapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+			uint8 WeaponNum = (uint8)Weapon->Execute_EventGrabWeapon(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Weapon Type Num : %d"), WeaponNum));
+			PS->EquipWeaponType.Insert(WeaponNum, PS->CurEqiupWeapon);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : PS->EquipWeapon[PS->CurEqiupWeapon] is null");
+		}
+	}
+	else
+	{
+		//It is not a weapon
+	}
+
+}
+
+void ADeadlockCharacter::C2S_Reload_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
+
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS->IsCanReload())
+	{
+		S2C_Reload();
+	}
+
+}
+
+void ADeadlockCharacter::S2C_Reload_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
+
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+	if (CurWeapon)
+	{
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventReload(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Reload");
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,6 +236,19 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Look);
+
+		//Running
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Run);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
+
+		//Reload
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Reload);
+
+		//Grab
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Grab);
+
+		//Drop
+		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 	}
 	else
 	{
@@ -127,4 +290,43 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ADeadlockCharacter::Run(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+}
+
+void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Stop Run"));
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+}
+
+void ADeadlockCharacter::Attack(const FInputActionValue& Value)
+{
+}
+
+void ADeadlockCharacter::Drop(const FInputActionValue& Value)
+{
+	C2S_Drop();
+}
+
+void ADeadlockCharacter::Grab(const FInputActionValue& Value)
+{
+	C2S_Grab();
+}
+
+void ADeadlockCharacter::Reload(const FInputActionValue& Value)
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS->IsCanReload())
+	{
+		C2S_Reload();
+	}
+}
+
+void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
+{
 }
