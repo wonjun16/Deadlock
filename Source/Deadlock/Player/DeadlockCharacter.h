@@ -100,8 +100,6 @@ protected:
 	void Run(const FInputActionValue& Value);
 	void StopRun(const FInputActionValue& Value);
 
-	void Attack(const FInputActionValue& Value);
-
 	void Drop(const FInputActionValue& Value);
 
 	void Grab(const FInputActionValue& Value);
@@ -109,6 +107,8 @@ protected:
 	void Reload(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+
+	void Attack(const FInputActionValue& Value);
 
 protected:
 	// APawn interface
@@ -119,10 +119,6 @@ protected:
 
 	AActor* GetNearestItem();
 
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<ADeadlockPlayerState> PS;
-
-	void GetPS();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

@@ -65,8 +65,6 @@ void ADeadlockCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
-	GetPS();
 }
 
 AActor* ADeadlockCharacter::GetNearestItem()
@@ -80,9 +78,10 @@ AActor* ADeadlockCharacter::GetNearestItem()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Overlap Actor");
 
-		if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		if (actor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()) ||
+			actor->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is interface");
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "It is Weapon or Item");
 			
 			float distance = UKismetMathLibrary::Vector_Distance(actor->GetActorLocation(), GetActorLocation());
 			if (NearestDistance > distance)
@@ -96,26 +95,33 @@ AActor* ADeadlockCharacter::GetNearestItem()
 	return NearestActor;
 }
 
-void ADeadlockCharacter::GetPS()
-{
-	if (IsValid(GetPlayerState()))
-	{
-		PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "PS Successed");
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "PS Failed");
-		GetPS();
-	}
-}
-
 void ADeadlockCharacter::C2S_Drop_Implementation()
 {
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		PS->EquipWeapon[PS->CurEqiupWeapon]->SetOwner(nullptr);
+		S2C_Drop();
+	}
 }
 
 void ADeadlockCharacter::S2C_Drop_Implementation()
 {
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
+		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
 }
 
 void ADeadlockCharacter::C2S_Grab_Implementation()
@@ -133,14 +139,24 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 			//It is not a weapon.
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
 		}
-	}
 
-	S2C_Grab(NearestItem);
+		S2C_Grab(NearestItem);
+	}
 }
 
 void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
+	TObjectPtr< ADeadlockPlayerState> PS;
+	if (GetPlayerState())
+	{
+		PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Can't get PS");
+	}
+	
 
 	if (PS && Item->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
 	{
@@ -148,9 +164,18 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
 
 		//For C++ implementation
-		IWeaponInterface* Weapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
-		uint8 WeaponNum = (uint8)Weapon->EventGrabWeapon(this);
-		PS->EquipWeaponType.Insert(WeaponNum, PS->CurEqiupWeapon);
+		
+		if (PS->EquipWeapon[PS->CurEqiupWeapon])
+		{
+			IWeaponInterface* Weapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+			uint8 WeaponNum = (uint8)Weapon->Execute_EventGrabWeapon(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Weapon Type Num : %d"), WeaponNum));
+			PS->EquipWeaponType.Insert(WeaponNum, PS->CurEqiupWeapon);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : PS->EquipWeapon[PS->CurEqiupWeapon] is null");
+		}
 	}
 	else
 	{
@@ -163,12 +188,26 @@ void ADeadlockCharacter::C2S_Reload_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
 
-	S2C_Reload();
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS->IsCanReload())
+	{
+		S2C_Reload();
+	}
+
 }
 
 void ADeadlockCharacter::S2C_Reload_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
+
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+	if (CurWeapon)
+	{
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventReload(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Reload");
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -281,7 +320,11 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 {
-	C2S_Reload();
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS->IsCanReload())
+	{
+		C2S_Reload();
+	}
 }
 
 void ADeadlockCharacter::Zoom(const FInputActionValue& Value)

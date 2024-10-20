@@ -2,14 +2,50 @@
 
 
 #include "DeadlockPlayerState.h"
+#include "Net/UnrealNetwork.h"
+#include "../Interface/WeaponInterface.h"
 
 ADeadlockPlayerState::ADeadlockPlayerState()
 {
-    EquipWeapon = TArray<TObjectPtr<AActor>>();
+    EquipWeapon.Init(nullptr, 2);
 
     CurEqiupWeapon = 0;
 
     HP = 100.0f;
 
-    EquipWeaponType = TArray<uint8>();
+    EquipWeaponType.Init(0, 2);
+
+    CurAmmo = 0;
+}
+
+void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADeadlockPlayerState, HP);
+    DOREPLIFETIME(ADeadlockPlayerState, EquipWeapon);
+    DOREPLIFETIME(ADeadlockPlayerState, CurEqiupWeapon);
+    DOREPLIFETIME(ADeadlockPlayerState, EquipWeaponType);
+    DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
+}
+
+bool ADeadlockPlayerState::IsCanReload()
+{
+    bool Reloadable = false;
+    if (EquipWeapon[CurEqiupWeapon])
+    {
+        IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(EquipWeapon[CurEqiupWeapon]);
+        Reloadable = ICurWeapon->Execute_IsCanReload(EquipWeapon[CurEqiupWeapon]);
+    }
+    else
+    {
+        Reloadable = false;
+    }
+    
+    if (CurAmmo == 0)
+    {
+        Reloadable = false;
+    }
+
+    return Reloadable;
 }
