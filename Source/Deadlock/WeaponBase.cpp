@@ -6,6 +6,9 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Engine/World.h"
+
 
 
 // Sets default values
@@ -15,6 +18,7 @@ AWeaponBase::AWeaponBase()
 	WeaponMesh->SetCollisionProfileName("Weapon");
 	WeaponMesh->SetSimulatePhysics(true);
 	SetRootComponent(WeaponMesh);
+	bReplicates = true; // Actor가 복제되도록 설정
 }
 
 // Called when the game starts or when spawned
@@ -73,18 +77,101 @@ void AWeaponBase::GetShootDelayByRPM(float& DeltaTime)
 {
 }
 
-void AWeaponBase::Grab(ACharacter* pOwnChar)
+void AWeaponBase::SpawnProjectile()
 {
-	Character = pOwnChar;
-	Character->bUseControllerRotationYaw = true;
+	if (ProjectileClass)
+	{
+		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f; // 발사 위치
+		FRotator SpawnRotation = GetActorRotation(); // 발사 각도
 
-	WeaponMesh->SetSimulatePhysics(false);
-	AttachToComponent(pOwnChar->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
+		AActor* Projectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
 
-	//OnUpdateAmmoToHud(m_Ammo);
+		if (Projectile)
+		{
+			// 총알의 속도 설정
+			UProjectileMovementComponent* ProjectileMovement = Projectile->FindComponentByClass<UProjectileMovementComponent>();
+			if (ProjectileMovement)
+			{
+				ProjectileMovement->Velocity = GetActorForwardVector() * 1000.0f; // 발사 속도
+			}
+		}
+	}
+}
+
+void AWeaponBase::Fire()
+{
+	if (HasAuthority()) // 서버일 때
+	{
+		ExecuteFire();
+	}
+	else // 클라이언트일 때 서버에 요청
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "124124123");
+		ServerFire();
+	}
 
 }
 
+// 서버에서 발사 요청
+void AWeaponBase::ServerFire_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fire");
+	ExecuteFire(); // 서버에서 실제 발사
+}
+
+// 실제 발사 로직
+void AWeaponBase::ExecuteFire()
+{
+	if (ProjectileClass)
+	{
+		// 총알 발사 로직
+		FVector SpawnLocation = GetActorLocation(); // 발사 위치
+		FRotator SpawnRotation = GetActorRotation(); // 발사 방향
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
+
+		//// 사운드 재생
+		//if (FireSound)
+		//{
+		//	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		//}
+	}
+}
+
+
+void AWeaponBase::Grab(ACharacter* pOwnChar)
+{
+	//if (HasAuthority())
+	{
+		// 서버에서 직접 호출
+		MulticastGrab(pOwnChar);
+	}
+	//else
+	//{
+	//	// 클라이언트에서 서버 호출
+	//	ServerGrab(pOwnChar);
+	//}
+}
+
+void AWeaponBase::ServerGrab_Implementation(ACharacter* pOwnChar)
+{
+	if (pOwnChar)
+	{
+		MulticastGrab(pOwnChar);
+	}
+}
+
+void AWeaponBase::MulticastGrab_Implementation(ACharacter* pOwnChar)
+{
+	if (pOwnChar)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Grabbed the weapon!");
+		Character = pOwnChar;
+		Character->bUseControllerRotationYaw = true;
+
+		WeaponMesh->SetSimulatePhysics(false);
+		AttachToComponent(pOwnChar->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
+	}
+}
 
 
 
