@@ -12,6 +12,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class ADeadlockPlayerState;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -65,6 +66,29 @@ class ADeadlockCharacter : public ACharacter
 public:
 	ADeadlockCharacter();
 	
+	UFUNCTION(Server, Reliable)
+	void C2S_Drop();
+	void C2S_Drop_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Drop();
+	void S2C_Drop_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Grab();
+	void C2S_Grab_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Grab(AActor* Item);
+	void S2C_Grab_Implementation(AActor* Item);
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Reload();
+	void C2S_Reload_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Reload();
+	void S2C_Reload_Implementation();
 protected:
 
 	/** Called for movement input */
@@ -76,26 +100,15 @@ protected:
 	void Run(const FInputActionValue& Value);
 	void StopRun(const FInputActionValue& Value);
 
-	void Attack(const FInputActionValue& Value);
 	void Drop(const FInputActionValue& Value);
 
-	UFUNCTION(Server, Reliable)
-	void C2S_Grab(const FInputActionValue& Value);
-	void C2S_Grab_Implementation(const FInputActionValue& Value);
+	void Grab(const FInputActionValue& Value);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void S2C_Grab(const FInputActionValue& Value);
-	void S2C_Grab_Implementation(const FInputActionValue& Value);
-
-	UFUNCTION(Server, Reliable)
-	void C2S_Reload(const FInputActionValue& Value);
-	void C2S_Reload_Implementation(const FInputActionValue& Value);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void S2C_Reload(const FInputActionValue& Value);
-	void S2C_Reload_Implementation(const FInputActionValue& Value);
+	void Reload(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+
+	void Attack(const FInputActionValue& Value);
 
 protected:
 	// APawn interface
@@ -105,6 +118,7 @@ protected:
 	virtual void BeginPlay();
 
 	AActor* GetNearestItem();
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
