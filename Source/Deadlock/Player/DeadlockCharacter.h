@@ -89,6 +89,14 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void S2C_Reload();
 	void S2C_Reload_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Attack(bool bPressed);
+	void C2S_Attack_Implementation(bool bPressed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Attack(bool bPressed);
+	void S2C_Attack_Implementation(bool bPressed);
 protected:
 
 	/** Called for movement input */
@@ -106,9 +114,10 @@ protected:
 
 	void Reload(const FInputActionValue& Value);
 
-	void Zoom(const FInputActionValue& Value);
-
 	void Attack(const FInputActionValue& Value);
+	void StopAttack(const FInputActionValue& Value);
+
+	void Zoom(const FInputActionValue& Value);
 
 protected:
 	// APawn interface
@@ -118,6 +127,8 @@ protected:
 	virtual void BeginPlay();
 
 	AActor* GetNearestItem();
+
+	bool IsCanShoot();
 
 public:
 	/** Returns CameraBoom subobject **/
