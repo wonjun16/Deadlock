@@ -38,3 +38,4 @@ enum class EWeaponType : uint8
 	E_Sniper 			UMETA(DisplayName = "Sniper"),
 	E_ShotGun 			UMETA(DisplayName = "ShotGun"),
 };
+
