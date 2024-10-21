@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "../Interface/WeaponInterface.h"
-#include "../Data/Enums.h"
 #include "WeaponBase.generated.h"
 
 class ACharacter;

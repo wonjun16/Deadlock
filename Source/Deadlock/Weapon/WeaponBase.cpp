@@ -9,11 +9,14 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
+#include "../Data/Enums.h"
 
 
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
+	SetRootComponent(WeaponMesh);
 	bReplicates = true;
 
 	MaxAmmo = 30;
@@ -139,7 +142,6 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	WeaponMesh->SetSimulatePhysics(false);
 	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
 
-
-	return EWeaponType();
+	return EWeaponType::E_Rifle;
 }
 
