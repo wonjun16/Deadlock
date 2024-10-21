@@ -6,8 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Character.h"
-#include "Interface/WeaponInterface.h"
-#include "Data/Enums.h"
+#include "../Interface/WeaponInterface.h"
+#include "../Data/Enums.h"
 #include "WeaponBase.generated.h"
 
 UCLASS()
