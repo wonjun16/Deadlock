@@ -95,6 +95,22 @@ AActor* ADeadlockCharacter::GetNearestItem()
 	return NearestActor;
 }
 
+bool ADeadlockCharacter::IsCanShoot()
+{
+	bool bShootable = false;
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		/** Equip weapon is a gun */
+		if (PS->EquipWeapon[PS->CurEqiupWeapon]->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
+		{
+			IWeaponInterface* IWeapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+			bShootable = IWeapon->Execute_IsCanAttack(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		}
+	}
+	return bShootable;
+}
+
 void ADeadlockCharacter::C2S_Drop_Implementation()
 {
 	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
@@ -210,6 +226,33 @@ void ADeadlockCharacter::S2C_Reload_Implementation()
 	}
 }
 
+void ADeadlockCharacter::C2S_Attack_Implementation(bool bPressed)
+{
+	if (IsCanShoot())
+	{
+		if (bPressed)
+		{
+			S2C_Attack(true);
+		}
+		else
+		{
+			S2C_Attack(false);
+		}
+		
+	}
+}
+
+void ADeadlockCharacter::S2C_Attack_Implementation(bool bPressed)
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventAttackTrigger(PS->EquipWeapon[PS->CurEqiupWeapon], bPressed);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -249,6 +292,10 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
+
+		//Attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Attack);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopAttack);
 	}
 	else
 	{
@@ -294,18 +341,37 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Run(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Run"));
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 }
 
 void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Stop Run"));
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 }
 
 void ADeadlockCharacter::Attack(const FInputActionValue& Value)
 {
+	//hand?
+	if (IsCanShoot())
+	{
+		C2S_Attack(true);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Can't Attack");
+	}
+}
+
+void ADeadlockCharacter::StopAttack(const FInputActionValue& Value)
+{
+	if (IsCanShoot())
+	{
+		C2S_Attack(false);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Can't Stop Attack");
+	}
 }
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
@@ -321,7 +387,7 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 {
 	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	if (PS->IsCanReload())
+	if (PS && PS->IsCanReload())
 	{
 		C2S_Reload();
 	}
