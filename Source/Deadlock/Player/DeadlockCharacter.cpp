@@ -249,6 +249,9 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
+
+		//Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Crouch);
 	}
 	else
 	{
@@ -306,6 +309,11 @@ void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Attack(const FInputActionValue& Value)
 {
+}
+
+void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Crouch"));
 }
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
