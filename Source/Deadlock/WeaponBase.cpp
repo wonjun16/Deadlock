@@ -10,7 +10,6 @@
 #include "Engine/World.h"
 
 
-
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
@@ -128,50 +127,84 @@ void AWeaponBase::ExecuteFire()
 		FVector SpawnLocation = GetActorLocation(); // 발사 위치
 		FRotator SpawnRotation = GetActorRotation(); // 발사 방향
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
-
-		//// 사운드 재생
-		//if (FireSound)
-		//{
-		//	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		//}
 	}
 }
 
 
-void AWeaponBase::Grab(ACharacter* pOwnChar)
+bool AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 {
-	//if (HasAuthority())
+	// 리로드 트리거 로직 작성
+	if (bPress)
 	{
-		// 서버에서 직접 호출
-		MulticastGrab(pOwnChar);
+		UE_LOG(LogTemp, Log, TEXT("Reload Trigger Pressed"));
+		// 리로드 로직 수행
+		return true;  // 리로드 성공 시 true 반환
 	}
-	//else
-	//{
-	//	// 클라이언트에서 서버 호출
-	//	ServerGrab(pOwnChar);
-	//}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Reload Trigger Released"));
+		// 리로드 중단 등의 로직 수행
+		return false;
+	}
 }
 
-void AWeaponBase::ServerGrab_Implementation(ACharacter* pOwnChar)
+bool AWeaponBase::EventReload_Implementation()
 {
-	if (pOwnChar)
-	{
-		MulticastGrab(pOwnChar);
-	}
+	return false;
 }
 
-void AWeaponBase::MulticastGrab_Implementation(ACharacter* pOwnChar)
+bool AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 {
-	if (pOwnChar)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Grabbed the weapon!");
-		Character = pOwnChar;
-		Character->bUseControllerRotationYaw = true;
-
-		WeaponMesh->SetSimulatePhysics(false);
-		AttachToComponent(pOwnChar->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
-	}
+	return false;
 }
 
+bool AWeaponBase::EventAttack_Implementation()
+{
+	return false;
+}
 
+bool AWeaponBase::EventSwitchWeaponTrigger_Implementation(bool bPress)
+{
+	return false;
+}
+
+bool AWeaponBase::EventSwitchWeapon_Implementation()
+{
+	return false;
+}
+
+bool AWeaponBase::IsCanAttack_Implementation()
+{
+	return false;
+}
+
+bool AWeaponBase::IsCanReload_Implementation()
+{
+	return false;
+}
+
+bool AWeaponBase::IsCanSwitchWeapon_Implementation()
+{
+	return false;
+}
+
+bool AWeaponBase::EventDrop_Implementation(ACharacter* Character)
+{
+	return false;
+}
+
+EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
+{
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "ServerGrab_Implementation");
+
+	MyCharacter = Character;
+	MyCharacter->bUseControllerRotationYaw = true;
+
+	WeaponMesh->SetSimulatePhysics(false);
+	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
+
+
+	return EWeaponType();
+}
 

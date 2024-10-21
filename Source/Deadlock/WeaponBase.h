@@ -26,7 +26,7 @@ UPROPERTY(VisibleAnywhere)
 	int32 Ammo;
 
 UPROPERTY(VisibleAnywhere)
-	ACharacter* Character;
+	ACharacter* MyCharacter;
 
 UPROPERTY(VisibleAnywhere)
 	EWeaponType WeaponData;
@@ -64,18 +64,38 @@ public:
 	// 실제 발사 로직
 	void ExecuteFire();
 
-	UFUNCTION(BlueprintCallable, Category = "MyCategory")
-	void Grab(ACharacter* pOwnChar);
 
-	// 서버에서 발사하는 메서드
-	UFUNCTION(Server, Reliable)
-	void ServerGrab(ACharacter* pOwnChar);
+	virtual bool EventReloadTrigger_Implementation(bool bPress) override;
 
+	// EventReload function implementation
+	virtual bool EventReload_Implementation() override;
 
-	// 클라이언트에서 총을 잡는 함수
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastGrab(ACharacter* pOwnChar);
+	// EventAttackTrigger function implementation
+	virtual bool EventAttackTrigger_Implementation(bool bPress) override;
 
+	// EventAttack function implementation
+	virtual bool EventAttack_Implementation() override;
+
+	// EventSwitchWeaponTrigger function implementation
+	virtual bool EventSwitchWeaponTrigger_Implementation(bool bPress) override;
+
+	// EventSwitchWeapon function implementation
+	virtual bool EventSwitchWeapon_Implementation() override;
+
+	// IsCanAttack function implementation
+	virtual bool IsCanAttack_Implementation() override;
+
+	// IsCanReload function implementation
+	virtual bool IsCanReload_Implementation() override;
+
+	// IsCanSwitchWeapon function implementation
+	virtual bool IsCanSwitchWeapon_Implementation() override;
+
+	// EventDrop function implementation
+	virtual bool EventDrop_Implementation(ACharacter* Character) override;
+
+	// EventGrabWeapon function implementation
+	virtual EWeaponType EventGrabWeapon_Implementation(ACharacter* Character) override;
 
 
 
