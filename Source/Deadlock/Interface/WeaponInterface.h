@@ -54,4 +54,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EWeaponType EventGrabWeapon(ACharacter* Character);
+
 };
