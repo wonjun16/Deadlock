@@ -132,7 +132,10 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 
 void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
-
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	MyCharacter = nullptr;
 }
 
 EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
@@ -144,6 +147,7 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
 
 	return WeaponType;
