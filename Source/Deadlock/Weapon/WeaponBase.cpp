@@ -17,11 +17,15 @@ AWeaponBase::AWeaponBase()
 {
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
 	bReplicates = true;
 
 	MaxAmmo = 30;
 	CurAmmo = 0;
 	MyCharacter = nullptr;
+	WeaponType = EWeaponType::E_Rifle;
+	ProjectileClass = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -137,11 +141,11 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Weapon Grab Implementation");
 
 	MyCharacter = Character;
-	MyCharacter->bUseControllerRotationYaw = true;
+	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
 	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
 
-	return EWeaponType::E_Rifle;
+	return WeaponType;
 }
 
