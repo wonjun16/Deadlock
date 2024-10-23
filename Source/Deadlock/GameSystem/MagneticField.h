@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "MagneticField.generated.h"
 
 UCLASS()
@@ -16,7 +17,7 @@ public:
 	AMagneticField();
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* WeaponMesh;
+	UStaticMeshComponent* magneticMesh;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool TakeDamage;
