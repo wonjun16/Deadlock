@@ -9,6 +9,7 @@
 #include "WeaponBase.generated.h"
 
 class ACharacter;
+class UDataTable;
 
 UCLASS()
 class DEADLOCK_API AWeaponBase : public AActor, public IWeaponInterface
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDataTable> WeaponData;
 
 protected:
 	// Called when the game starts or when spawned

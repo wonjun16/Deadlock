@@ -26,6 +26,7 @@ AWeaponBase::AWeaponBase()
 	MyCharacter = nullptr;
 	WeaponType = EWeaponType::E_Rifle;
 	ProjectileClass = nullptr;
+	ConstructorHelpers::FObjectFinder<UDataTable> WeaponData(TEXT("/Script/Engine.DataTable'/Game/Deadlock/Data/DT_WeaponData.DT_WeaponData'"));
 }
 
 // Called when the game starts or when spawned
@@ -122,6 +123,9 @@ bool AWeaponBase::IsCanAttack_Implementation()
 
 bool AWeaponBase::IsCanReload_Implementation()
 {
+	//ammo 최대값 아닐때
+
+	//몽타주 플레이중 아닐때
 	return false;
 }
 
