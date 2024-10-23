@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Enums.h"
+#include "Engine/DataTable.h"
 #include "WeaponStruct.generated.h"
 
 

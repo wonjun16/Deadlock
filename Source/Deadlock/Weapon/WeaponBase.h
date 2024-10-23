@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "../Interface/WeaponInterface.h"
+#include "../Data/WeaponStruct.h"
 #include "WeaponBase.generated.h"
 
 class ACharacter;
@@ -40,6 +41,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDataTable> WeaponData;
+
+	FWeaponStruct* Row;
 
 protected:
 	// Called when the game starts or when spawned

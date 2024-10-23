@@ -10,11 +10,19 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "../Data/Enums.h"
+#include "Engine/DataTable.h"
 
 
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataTable(TEXT("/Script/Engine.DataTable'/Game/Deadlock/Data/DT_WeaponData.DT_WeaponData'"));
+	if (DataTable.Succeeded())
+	{
+		WeaponData = DataTable.Object;
+		static const FString ContextString(TEXT("GENERAL"));
+		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
+	}
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
 	WeaponMesh->SetSimulatePhysics(true);
@@ -26,7 +34,7 @@ AWeaponBase::AWeaponBase()
 	MyCharacter = nullptr;
 	WeaponType = EWeaponType::E_Rifle;
 	ProjectileClass = nullptr;
-	ConstructorHelpers::FObjectFinder<UDataTable> WeaponData(TEXT("/Script/Engine.DataTable'/Game/Deadlock/Data/DT_WeaponData.DT_WeaponData'"));
+	
 }
 
 // Called when the game starts or when spawned
@@ -123,7 +131,12 @@ bool AWeaponBase::IsCanAttack_Implementation()
 
 bool AWeaponBase::IsCanReload_Implementation()
 {
-	//ammo 최대값 아닐때
+	bool bCanReload = false;
+	
+	if (GEngine && Row)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%d"), Row->MaxAmmo));
+	}
 
 	//몽타주 플레이중 아닐때
 	return false;
