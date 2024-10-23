@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ShapeComponent.h"
-#include "TP_PickUpComponent.generated.h"
+#include "GameFramework/HUD.h"
+#include "DeadlockHUD.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADLOCK_API UTP_PickUpComponent : public UShapeComponent
+class DEADLOCK_API ADeadlockHUD : public AHUD
 {
 	GENERATED_BODY()
 	

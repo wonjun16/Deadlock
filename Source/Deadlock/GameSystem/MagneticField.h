@@ -37,6 +37,6 @@ public:
 	void SetHp();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void CheckRemainTime();
+	void CheckRemainTime(float DeltaTime);
 
 };

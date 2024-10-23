@@ -22,7 +22,7 @@ void AMagneticField::BeginPlay()
 
 	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 2.0f, true);
 	//FVector randomVec = 
-	SetActorLocation()
+	//SetActorLocation()
 	
 }
 
@@ -37,7 +37,7 @@ void AMagneticField::SetHp()
 {
 }
 
-void AMagneticField::CheckRemainTime()
+void AMagneticField::CheckRemainTime(float DeltaTime)
 {
 }
 
