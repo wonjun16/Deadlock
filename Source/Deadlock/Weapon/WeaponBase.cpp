@@ -30,7 +30,7 @@ AWeaponBase::AWeaponBase()
 	bReplicates = true;
 
 	MaxAmmo = 30;
-	CurAmmo = 0;
+	CurAmmo = 29;
 	MyCharacter = nullptr;
 	WeaponType = EWeaponType::E_Rifle;
 	ProjectileClass = nullptr;
@@ -73,6 +73,25 @@ void AWeaponBase::GetShootDelayByRPM(float& DeltaTime)
 {
 }
 
+void AWeaponBase::CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc)
+{
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	FVector ActorLocation = CameraManager->GetCameraLocation();
+	FVector ActorForwardVector = CameraManager->GetActorForwardVector();
+
+	float Distance = UKismetMathLibrary::Vector_Distance(MuzzleLoc, ActorLocation);
+
+
+	FVector MultiplyVector = ActorForwardVector * Distance;
+	FVector PlusVector = ActorLocation + MultiplyVector;
+	FVector Multiply5000Vector = ActorForwardVector * 5000;
+	FVector PlusVector2 = ActorLocation + Multiply5000Vector;
+
+	StartVec = PlusVector;
+	MuzzleLoc = PlusVector2;
+}
+
 void AWeaponBase::SpawnProjectile()
 {
 	if (ProjectileClass)
@@ -96,7 +115,10 @@ void AWeaponBase::SpawnProjectile()
 
 void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 {
-
+	if (MyCharacter && Row)
+	{
+		MyCharacter->PlayAnimMontage(Row->ReloadMontage);
+	}
 }
 
 void AWeaponBase::EventReload_Implementation()
@@ -106,12 +128,18 @@ void AWeaponBase::EventReload_Implementation()
 
 void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 {
-
+	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
+	{
+		MyCharacter->PlayAnimMontage(Row->AttackMontage);
+	}
 }
 
 void AWeaponBase::EventAttack_Implementation()
 {
-
+	if (Execute_IsCanAttack(this))
+	{
+		WeaponMesh->GetStaticMesh();
+	}
 }
 
 void AWeaponBase::EventSwitchWeaponTrigger_Implementation(bool bPress)
@@ -126,20 +154,36 @@ void AWeaponBase::EventSwitchWeapon_Implementation()
 
 bool AWeaponBase::IsCanAttack_Implementation()
 {
-	return false;
+	bool bAttackable = false;
+
+	if (CurAmmo > 0)
+	{
+		bAttackable = true;
+	}
+
+	return bAttackable;
 }
 
 bool AWeaponBase::IsCanReload_Implementation()
 {
-	bool bCanReload = false;
+	bool bCanReload = true;
 	
-	if (GEngine && Row)
+	if (Row)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%d"), Row->MaxAmmo));
-	}
+		if (Row->MaxAmmo <= CurAmmo)
+		{
+			bCanReload = false;
+		}
 
-	//¸ùÅ¸ÁÖ ÇÃ·¹ÀÌÁß ¾Æ´Ò¶§
-	return false;
+		if (MyCharacter)
+		{
+			if (MyCharacter->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage() == Row->ReloadMontage)
+			{
+				bCanReload = false;
+			}
+		}
+	}
+	return bCanReload;
 }
 
 bool AWeaponBase::IsCanSwitchWeapon_Implementation()

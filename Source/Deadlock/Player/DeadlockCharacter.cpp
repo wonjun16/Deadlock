@@ -221,7 +221,7 @@ void ADeadlockCharacter::S2C_Reload_Implementation()
 	if (CurWeapon)
 	{
 		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
-		ICurWeapon->Execute_EventReload(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		ICurWeapon->Execute_EventReloadTrigger(PS->EquipWeapon[PS->CurEqiupWeapon], true);
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Reload");
 	}
 }

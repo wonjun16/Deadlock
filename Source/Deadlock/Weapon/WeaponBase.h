@@ -60,6 +60,8 @@ public:
 	void IsCanChangeMag(bool IsCanChangeMag);
 	void GetShootDelayByRPM(float& DeltaTime);
 	void SpawnProjectile();
+	
+	void CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc);
 
 	virtual void EventReloadTrigger_Implementation(bool bPress) override;
 

@@ -15,7 +15,7 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     EquipWeaponType.Init(0, 2);
 
-    CurAmmo = 0;
+    CurAmmo = 50;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
