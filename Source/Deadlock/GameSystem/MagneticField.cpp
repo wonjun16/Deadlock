@@ -2,6 +2,7 @@
 
 
 #include "MagneticField.h"
+#include "GameMode/DeadlockHUD.h"
 
 // Sets default values
 AMagneticField::AMagneticField()
@@ -21,8 +22,10 @@ void AMagneticField::BeginPlay()
 	Super::BeginPlay();
 
 	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 2.0f, true);
-	//FVector randomVec = 
-	//SetActorLocation()
+	float RandomX = FMath::FRandRange(-10.0f, 10.0f);
+	float RandomZ = FMath::FRandRange(-10.0f, 10.0f);
+	FVector randomVec(RandomX, 0, RandomZ);
+	SetActorLocation(randomVec);
 	
 }
 
@@ -39,5 +42,12 @@ void AMagneticField::SetHp()
 
 void AMagneticField::CheckRemainTime(float DeltaTime)
 {
+	RemainTime -= DeltaTime;
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+	if (MyHUD)
+	{
+		// HUD를 사용할 수 있는 코드 추가
+	}
 }
 
