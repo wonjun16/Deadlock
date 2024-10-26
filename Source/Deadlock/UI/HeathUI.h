@@ -13,5 +13,8 @@ UCLASS()
 class DEADLOCK_API UHeathUI : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float CurHP;
 	
 };

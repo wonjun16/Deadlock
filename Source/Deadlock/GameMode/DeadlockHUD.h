@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MagneticUI.h"
+#include "HeathUI.h"
 #include "GameFramework/HUD.h"
-#include "UI/MagneticUI.h"
 #include "DeadlockHUD.generated.h"
 
 /**
@@ -15,9 +16,13 @@ class DEADLOCK_API ADeadlockHUD : public AHUD
 {
 	GENERATED_BODY()
 
+public:
 	// 위젯 인스턴스를 저장할 변수
-	UPROPERTY()
-	UMagneticUI* MyWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMagneticUI* MagneticUIInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UHeathUI* HeathUIInstance;
 
 	
 

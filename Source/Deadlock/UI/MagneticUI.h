@@ -14,6 +14,7 @@ class DEADLOCK_API UMagneticUI : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	FString Time;
 	

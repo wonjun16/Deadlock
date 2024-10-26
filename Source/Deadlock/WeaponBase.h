@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/WeaponInterface.h"
 #include "Data/Enums.h"
+#include "GameSystem/MagneticField.h"
 #include "WeaponBase.generated.h"
 
 UCLASS()
