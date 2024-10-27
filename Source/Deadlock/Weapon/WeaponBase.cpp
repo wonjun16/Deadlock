@@ -6,18 +6,37 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
-
+#include "GameFramework/Character.h"
+#include "../Data/Enums.h"
+#include "Engine/DataTable.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Bullet.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
-	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
-	WeaponMesh->SetCollisionProfileName("Weapon");
-	WeaponMesh->SetSimulatePhysics(true);
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataTable(TEXT("/Script/Engine.DataTable'/Game/Deadlock/Data/DT_WeaponData.DT_WeaponData'"));
+	if (DataTable.Succeeded())
+	{
+		WeaponData = DataTable.Object;
+		static const FString ContextString(TEXT("GENERAL"));
+		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
+	}
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
-	bReplicates = true; // Actor가 복제되도록 설정
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
+	bReplicates = true;
+	SetReplicateMovement(true);
+
+	MaxAmmo = 30;
+	CurAmmo = 29;
+	MyCharacter = nullptr;
+	WeaponType = EWeaponType::E_Rifle;
+	Bullet = nullptr;
+	
 }
 
 // Called when the game starts or when spawned
@@ -32,28 +51,8 @@ void AWeaponBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWeaponBase::CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc)
-{
-	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-
-	FVector ActorLocation = CameraManager->GetCameraLocation();
-	FVector ActorForwardVector = CameraManager->GetActorForwardVector();
-
-	float Distance = UKismetMathLibrary::Vector_Distance(MuzzleLoc, ActorLocation);
-
-
-	FVector MultiplyVector = ActorForwardVector * Distance;
-	FVector PlusVector = ActorLocation + MultiplyVector;
-	FVector Multiply5000Vector = ActorForwardVector * 5000;
-	FVector PlusVector2 = ActorLocation + Multiply5000Vector;
-
-	StartVec = PlusVector;
-	MuzzleLoc = PlusVector2;
-}
-
 void AWeaponBase::UseAmmo()
 {
-	Ammo = Ammo - 1;
 }
 
 void AWeaponBase::BindAmmo()
@@ -76,111 +75,116 @@ void AWeaponBase::GetShootDelayByRPM(float& DeltaTime)
 {
 }
 
-void AWeaponBase::SpawnProjectile()
+FVector AWeaponBase::CalcStartForwadVector(FVector MuzzleLoc)
 {
-	if (ProjectileClass)
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	FVector ActorLocation = CameraManager->GetCameraLocation();
+	FVector ActorForwardVector = CameraManager->GetActorForwardVector();
+
+	float Distance = UKismetMathLibrary::Vector_Distance(MuzzleLoc, ActorLocation);
+
+
+	FVector MultiplyVector = ActorForwardVector * Distance;
+	FVector StartVector = ActorLocation + MultiplyVector;
+
+	return StartVector;
+}
+
+void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
+{
+	Bullet = GetWorld()->SpawnActor<ABullet>(BulletClass, SpawnLocation, SpawnRotation);
+	FVector Direction = SpawnRotation.Vector();
+	if (Bullet && Direction.Normalize())
 	{
-		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f; // 발사 위치
-		FRotator SpawnRotation = GetActorRotation(); // 발사 각도
+		Bullet->Fire(Direction);
+	}
+}
 
-		AActor* Projectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
+void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
+{
+	if (MyCharacter && Row)
+	{
+		MyCharacter->PlayAnimMontage(Row->ReloadMontage);
+	}
+}
 
-		if (Projectile)
+void AWeaponBase::EventReload_Implementation()
+{
+
+}
+
+void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
+{
+	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
+	{
+		MyCharacter->PlayAnimMontage(Row->AttackMontage);
+		//몽타주에서 실행으로 교체
+		Execute_EventAttack(this);
+	}
+}
+
+void AWeaponBase::EventAttack_Implementation()
+{
+	if (Execute_IsCanAttack(this) && WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
+	{
+		FTransform MuzzleTransform = WeaponMesh->USkeletalMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
+
+		//emitter, sound
+		if (BulletClass)
 		{
-			// 총알의 속도 설정
-			UProjectileMovementComponent* ProjectileMovement = Projectile->FindComponentByClass<UProjectileMovementComponent>();
-			if (ProjectileMovement)
-			{
-				ProjectileMovement->Velocity = GetActorForwardVector() * 1000.0f; // 발사 속도
-			}
+			SpawnBullet(SpawnLocation, MuzzleTransform.Rotator());
 		}
-	}
-}
-
-void AWeaponBase::Fire()
-{
-	if (HasAuthority()) // 서버일 때
-	{
-		ExecuteFire();
-	}
-	else // 클라이언트일 때 서버에 요청
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "124124123");
-		ServerFire();
-	}
-
-}
-
-// 서버에서 발사 요청
-void AWeaponBase::ServerFire_Implementation()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fire");
-	ExecuteFire(); // 서버에서 실제 발사
-}
-
-// 실제 발사 로직
-void AWeaponBase::ExecuteFire()
-{
-	if (ProjectileClass)
-	{
-		// 총알 발사 로직
-		FVector SpawnLocation = GetActorLocation(); // 발사 위치
-		FRotator SpawnRotation = GetActorRotation(); // 발사 방향
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
-	}
-}
-
-
-bool AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
-{
-	// 리로드 트리거 로직 작성
-	if (bPress)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Reload Trigger Pressed"));
-		// 리로드 로직 수행
-		return true;  // 리로드 성공 시 true 반환
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("Reload Trigger Released"));
-		// 리로드 중단 등의 로직 수행
-		return false;
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : there is no muzzle");
 	}
 }
 
-bool AWeaponBase::EventReload_Implementation()
+void AWeaponBase::EventSwitchWeaponTrigger_Implementation(bool bPress)
 {
-	return false;
+
 }
 
-bool AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
+void AWeaponBase::EventSwitchWeapon_Implementation()
 {
-	return false;
-}
 
-bool AWeaponBase::EventAttack_Implementation()
-{
-	return false;
-}
-
-bool AWeaponBase::EventSwitchWeaponTrigger_Implementation(bool bPress)
-{
-	return false;
-}
-
-bool AWeaponBase::EventSwitchWeapon_Implementation()
-{
-	return false;
 }
 
 bool AWeaponBase::IsCanAttack_Implementation()
 {
-	return false;
+	bool bAttackable = false;
+
+	if (CurAmmo > 0)
+	{
+		bAttackable = true;
+	}
+
+	return bAttackable;
 }
 
 bool AWeaponBase::IsCanReload_Implementation()
 {
-	return false;
+	bool bCanReload = true;
+	
+	if (Row)
+	{
+		if (Row->MaxAmmo <= CurAmmo)
+		{
+			bCanReload = false;
+		}
+
+		if (MyCharacter)
+		{
+			if (MyCharacter->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage() == Row->ReloadMontage)
+			{
+				bCanReload = false;
+			}
+		}
+	}
+	return bCanReload;
 }
 
 bool AWeaponBase::IsCanSwitchWeapon_Implementation()
@@ -188,23 +192,26 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 	return false;
 }
 
-bool AWeaponBase::EventDrop_Implementation(ACharacter* Character)
+void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
-	return false;
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	MyCharacter = nullptr;
 }
 
 EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 {
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "ServerGrab_Implementation");
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Weapon Grab Implementation");
 
 	MyCharacter = Character;
-	MyCharacter->bUseControllerRotationYaw = true;
+	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
 
-
-	return EWeaponType();
+	return WeaponType;
 }
 

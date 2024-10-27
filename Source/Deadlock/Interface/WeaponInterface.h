@@ -23,22 +23,22 @@ class DEADLOCK_API IWeaponInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventReloadTrigger(bool bPress);
+	void EventReloadTrigger(bool bPress);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventReload();
+	void EventReload();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventAttackTrigger(bool bPress);
+	void EventAttackTrigger(bool bPress);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventAttack();
+	void EventAttack();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventSwitchWeaponTrigger(bool bPress);
+	void EventSwitchWeaponTrigger(bool bPress);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventSwitchWeapon();
+	void EventSwitchWeapon();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool IsCanAttack();
@@ -50,7 +50,7 @@ public:
 	bool IsCanSwitchWeapon();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool EventDrop(ACharacter* Character);
+	void EventDrop(ACharacter* Character);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EWeaponType EventGrabWeapon(ACharacter* Character);
