@@ -11,6 +11,8 @@
 
 class ACharacter;
 class UDataTable;
+class USkeletalMeshComponent;
+class ABullet;
 
 UCLASS()
 class DEADLOCK_API AWeaponBase : public AActor, public IWeaponInterface
@@ -22,7 +24,7 @@ public:
 	AWeaponBase();
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* WeaponMesh;
+	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere)
 	uint8 MaxAmmo;
@@ -36,14 +38,16 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	EWeaponType WeaponType;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<AActor> ProjectileClass;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Bullet")
+	TSubclassOf<ABullet> BulletClass;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDataTable> WeaponData;
 
 	FWeaponStruct* Row;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ABullet> Bullet;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -59,9 +63,10 @@ public:
 	void ChangeMag();
 	void IsCanChangeMag(bool IsCanChangeMag);
 	void GetShootDelayByRPM(float& DeltaTime);
-	void SpawnProjectile();
+
+	void SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation);
 	
-	void CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc);
+	FVector CalcStartForwadVector(FVector MuzzleLoc);
 
 	virtual void EventReloadTrigger_Implementation(bool bPress) override;
 

@@ -6,12 +6,13 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "../Data/Enums.h"
 #include "Engine/DataTable.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "Bullet.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -23,17 +24,18 @@ AWeaponBase::AWeaponBase()
 		static const FString ContextString(TEXT("GENERAL"));
 		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
 	}
-	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
-	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
 	bReplicates = true;
+	SetReplicateMovement(true);
 
 	MaxAmmo = 30;
 	CurAmmo = 29;
 	MyCharacter = nullptr;
 	WeaponType = EWeaponType::E_Rifle;
-	ProjectileClass = nullptr;
+	Bullet = nullptr;
 	
 }
 
@@ -73,7 +75,7 @@ void AWeaponBase::GetShootDelayByRPM(float& DeltaTime)
 {
 }
 
-void AWeaponBase::CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVector MuzzleLoc)
+FVector AWeaponBase::CalcStartForwadVector(FVector MuzzleLoc)
 {
 	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
@@ -84,32 +86,18 @@ void AWeaponBase::CalcStartForwadVector(FVector& StartVec, FVector& EndVec, FVec
 
 
 	FVector MultiplyVector = ActorForwardVector * Distance;
-	FVector PlusVector = ActorLocation + MultiplyVector;
-	FVector Multiply5000Vector = ActorForwardVector * 5000;
-	FVector PlusVector2 = ActorLocation + Multiply5000Vector;
+	FVector StartVector = ActorLocation + MultiplyVector;
 
-	StartVec = PlusVector;
-	MuzzleLoc = PlusVector2;
+	return StartVector;
 }
 
-void AWeaponBase::SpawnProjectile()
+void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
 {
-	if (ProjectileClass)
+	Bullet = GetWorld()->SpawnActor<ABullet>(BulletClass, SpawnLocation, SpawnRotation);
+	FVector Direction = SpawnRotation.Vector();
+	if (Bullet && Direction.Normalize())
 	{
-		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f; // 발사 위치
-		FRotator SpawnRotation = GetActorRotation(); // 발사 각도
-
-		AActor* Projectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
-
-		if (Projectile)
-		{
-			// 총알의 속도 설정
-			UProjectileMovementComponent* ProjectileMovement = Projectile->FindComponentByClass<UProjectileMovementComponent>();
-			if (ProjectileMovement)
-			{
-				ProjectileMovement->Velocity = GetActorForwardVector() * 1000.0f; // 발사 속도
-			}
-		}
+		Bullet->Fire(Direction);
 	}
 }
 
@@ -131,14 +119,27 @@ void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
 	{
 		MyCharacter->PlayAnimMontage(Row->AttackMontage);
+		//몽타주에서 실행으로 교체
+		Execute_EventAttack(this);
 	}
 }
 
 void AWeaponBase::EventAttack_Implementation()
 {
-	if (Execute_IsCanAttack(this))
+	if (Execute_IsCanAttack(this) && WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
 	{
-		WeaponMesh->GetStaticMesh();
+		FTransform MuzzleTransform = WeaponMesh->USkeletalMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
+
+		//emitter, sound
+		if (BulletClass)
+		{
+			SpawnBullet(SpawnLocation, MuzzleTransform.Rotator());
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : there is no muzzle");
 	}
 }
 
@@ -194,7 +195,7 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	MyCharacter = nullptr;
 }
