@@ -9,5 +9,6 @@ public class Deadlock : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AnimGraphRuntime" });
-	}
+        PublicIncludePaths.AddRange(new string[] { "Deadlock/UI", "Deadlock/GameMode" });
+    }
 }
