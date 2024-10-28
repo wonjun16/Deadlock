@@ -63,6 +63,9 @@ class ADeadlockCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ZoomAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CrouchAction;
+
 public:
 	ADeadlockCharacter();
 	
@@ -118,6 +121,8 @@ protected:
 	void StopAttack(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+
+	void Crouch(const FInputActionValue& Value);
 
 protected:
 	// APawn interface

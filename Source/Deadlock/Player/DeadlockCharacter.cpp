@@ -221,7 +221,7 @@ void ADeadlockCharacter::S2C_Reload_Implementation()
 	if (CurWeapon)
 	{
 		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
-		ICurWeapon->Execute_EventReload(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		ICurWeapon->Execute_EventReloadTrigger(PS->EquipWeapon[PS->CurEqiupWeapon], true);
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Reload");
 	}
 }
@@ -293,6 +293,9 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 
+		//Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Crouch);
+		
 		//Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Attack);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopAttack);
@@ -372,6 +375,11 @@ void ADeadlockCharacter::StopAttack(const FInputActionValue& Value)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Can't Stop Attack");
 	}
+}
+
+void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Crouch"));
 }
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
