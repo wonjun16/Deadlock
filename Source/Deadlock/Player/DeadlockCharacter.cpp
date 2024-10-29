@@ -50,10 +50,10 @@ ADeadlockCharacter::ADeadlockCharacter()
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(GetMesh(), GetMesh()->GetSocketBoneName(TEXT("Head")));
-	CameraBoom->TargetArmLength = 250.0f; // The camera follows at this distance behind the character	
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = ArmLength; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->AddRelativeLocation(FVector(15, 25, 0));
+	CameraBoom->AddRelativeLocation(ArmRelativeLoc);
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -61,6 +61,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	PlayerRotator = FRotator(0, 0, 0);
+	IronSightRelativeLoc = FVector(0, 0, 0);
 
 	ZoomTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ZoomTimeline"));
 
@@ -146,7 +147,11 @@ bool ADeadlockCharacter::IsCanShoot()
 
 void ADeadlockCharacter::ZoomUpdate(float Alpha)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Zoom");
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%f"), Alpha));
+	FVector ZoomCameraLoc = FMath::Lerp(ArmRelativeLoc, IronSightRelativeLoc, Alpha);
+	float Length = FMath::Lerp(ArmLength, 20, Alpha);
+	CameraBoom->SetRelativeLocation(ZoomCameraLoc);
+	CameraBoom->TargetArmLength = Length;
 }
 
 void ADeadlockCharacter::C2S_Drop_Implementation()
@@ -339,8 +344,8 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopAttack);
 
 		//Zoom
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Zoom);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopZoom);
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Zoom);
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopZoom);
 	}
 	else
 	{
@@ -445,12 +450,19 @@ void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
 {
-	bIsZoom = true;
-	ZoomTimeline->Play();
-
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		IWeaponInterface* IWeapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		FVector IronSightLoc = IWeapon->Execute_GetIronSightLoc(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		IronSightRelativeLoc = IronSightLoc - GetActorLocation();
+		bIsZoom = true;
+		ZoomTimeline->Play();
+	}
 }
 
 void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 {
+	ZoomTimeline->Reverse();
 	bIsZoom = false;
 }

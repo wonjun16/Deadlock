@@ -70,6 +70,12 @@ class ADeadlockCharacter : public ACharacter
 public:
 	ADeadlockCharacter();
 	
+	FVector IronSightRelativeLoc;
+
+	FVector ArmRelativeLoc = FVector(15, 20, 90);
+
+	float ArmLength = 250.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
 

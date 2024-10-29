@@ -89,4 +89,6 @@ public:
 	virtual void EventDrop_Implementation(ACharacter* Character) override;
 
 	virtual EWeaponType EventGrabWeapon_Implementation(ACharacter* Character) override;
+
+	virtual FVector GetIronSightLoc_Implementation() override;
 };
