@@ -4,16 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Deadlock/Interface/ItemInterface.h"
 #include "ItemBase.generated.h"
 
+class UStaticMeshComponent;
+
 UCLASS()
-class DEADLOCK_API AItemBase : public AActor
+class DEADLOCK_API AItemBase : public AActor, public IItemInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AItemBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* ItemMesh;
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,13 +30,21 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	int MaxCount;
+	uint8 MaxItemCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	int CurrentCount;
+	uint8 CurrentItemCount;
 
-	void UseItem(int currentcount);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	float HealAmount;
 
-	void GetItem(int maxcount, int currentcount);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	float DamageAmount;
+
+
+
+	virtual void UseItem_Implementation(int CurrentItemCount)override;
+
+	virtual void GetItem_Implementation(int CurrentItemCount, int MaxItemCount)override;
 
 };
