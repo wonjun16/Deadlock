@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Components/TimelineComponent.h"
 #include "DeadlockCharacter.generated.h"
 
 class USpringArmComponent;
@@ -69,6 +70,23 @@ class ADeadlockCharacter : public ACharacter
 public:
 	ADeadlockCharacter();
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	FRotator PlayerRotator;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UTimelineComponent* ZoomTimeline;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* ZoomTimelineFloatCurve;
+
+	FOnTimelineFloat UpdateZoomFloat;
+
+	UFUNCTION()
+	void ZoomUpdate(float Alpha);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	uint8 bIsZoom : 1;
+
 	UFUNCTION(Server, Reliable)
 	void C2S_Drop();
 	void C2S_Drop_Implementation();
@@ -121,6 +139,7 @@ protected:
 	void StopAttack(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+	void StopZoom(const FInputActionValue& Value);
 
 	void Crouch(const FInputActionValue& Value);
 
@@ -130,6 +149,8 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	AActor* GetNearestItem();
 
