@@ -29,5 +29,8 @@ public:
 	void GetItem(int CurrentItemCount, int MaxItemCount);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void PlayItemEffect();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EItemType EventGrab(ACharacter* Character);
 };

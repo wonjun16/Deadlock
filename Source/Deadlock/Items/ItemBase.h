@@ -8,6 +8,8 @@
 #include "ItemBase.generated.h"
 
 class UStaticMeshComponent;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class DEADLOCK_API AItemBase : public AActor, public IItemInterface
@@ -20,6 +22,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ItemMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraComponent* ItemBaseEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraSystem* EffectAsset;
 
 protected:
 	// Called when the game starts or when spawned
@@ -41,10 +49,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	float DamageAmount;
 
-
-
 	virtual void UseItem_Implementation(int CurrentItemCount)override;
 
 	virtual void GetItem_Implementation(int CurrentItemCount, int MaxItemCount)override;
+
+	virtual void PlayItemEffect_Implementation()override;
 
 };
