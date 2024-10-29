@@ -32,5 +32,8 @@ public:
 	void PlayItemEffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ThrowMovement();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EItemType EventGrab(ACharacter* Character);
 };

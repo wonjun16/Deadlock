@@ -32,6 +32,7 @@ void AItemBase::BeginPlay()
 	UseItem_Implementation(0);
 	GetItem_Implementation(0, 1);
 	PlayItemEffect_Implementation();
+	ThrowMovement_Implementation();
 }
 
 // Called every frame
@@ -49,7 +50,7 @@ void AItemBase::UseItem_Implementation(int currentitemcount)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("UseItem Error Log"));
+		UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 	}
 }
 
@@ -61,7 +62,7 @@ void AItemBase::GetItem_Implementation(int currentitemcount, int maxitemcount)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("GetItem Error Log"));
+		UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
 	}
 }
 
@@ -70,4 +71,11 @@ void AItemBase::PlayItemEffect_Implementation()
 	UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
 	(EffectAsset, ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
 		EAttachLocation::Type::KeepRelativeOffset, true);
+}
+
+void AItemBase::ThrowMovement_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
+	//ItemMesh->AddRadialImpulse(GetActorLocation(), 300.0f, 1000.0f,ERadialImpulseFalloff::RIF_Linear, true);
+	ItemMesh->AddImpulseAtLocation(FVector(1000.0f), GetActorLocation());
 }

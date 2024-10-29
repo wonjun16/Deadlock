@@ -49,10 +49,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	float DamageAmount;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	float ThrowSpeed;
+
+
 	virtual void UseItem_Implementation(int CurrentItemCount)override;
 
 	virtual void GetItem_Implementation(int CurrentItemCount, int MaxItemCount)override;
 
 	virtual void PlayItemEffect_Implementation()override;
 
+	virtual void ThrowMovement_Implementation()override;
 };
