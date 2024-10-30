@@ -41,7 +41,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -84,10 +84,12 @@ void ADeadlockCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateZoomFloat.BindDynamic(this, &ADeadlockCharacter::ZoomUpdate);
+	FinishZoomEvent.BindDynamic(this, &ADeadlockCharacter::ZoomFinish);
 
 	if (ZoomTimelineFloatCurve)
 	{
 		ZoomTimeline->AddInterpFloat(ZoomTimelineFloatCurve, UpdateZoomFloat);
+		ZoomTimeline->SetTimelineFinishedFunc(FinishZoomEvent);
 	}
 }
 
@@ -147,11 +149,23 @@ bool ADeadlockCharacter::IsCanShoot()
 
 void ADeadlockCharacter::ZoomUpdate(float Alpha)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%f"), Alpha));
-	FVector ZoomCameraLoc = FMath::Lerp(ArmRelativeLoc, IronSightRelativeLoc, Alpha);
-	float Length = FMath::Lerp(ArmLength, 20, Alpha);
-	CameraBoom->SetRelativeLocation(ZoomCameraLoc);
-	CameraBoom->TargetArmLength = Length;
+	if (bIsZoom)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%f"), Alpha));
+		FVector ZoomCameraLoc = FMath::Lerp(ArmRelativeLoc, IronSightRelativeLoc, Alpha);
+		float Length = FMath::Lerp(ArmLength, 20, Alpha);
+		CameraBoom->SetRelativeLocation(ZoomCameraLoc);
+		CameraBoom->TargetArmLength = Length;
+	}
+}
+
+void ADeadlockCharacter::ZoomFinish()
+{
+	if (CameraBoom->TargetArmLength > 150)
+	{
+		bIsZoom = false;
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Zoom Finished");
+	}
 }
 
 void ADeadlockCharacter::C2S_Drop_Implementation()
@@ -464,5 +478,4 @@ void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
 void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 {
 	ZoomTimeline->Reverse();
-	bIsZoom = false;
 }

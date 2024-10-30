@@ -87,8 +87,13 @@ public:
 
 	FOnTimelineFloat UpdateZoomFloat;
 
+	FOnTimelineEvent FinishZoomEvent;
+
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
+
+	UFUNCTION()
+	void ZoomFinish();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	uint8 bIsZoom : 1;
