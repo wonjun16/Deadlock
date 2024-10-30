@@ -32,7 +32,10 @@ public:
 	void PlayItemEffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ThrowMovement();
+	void ThrowMovement(FVector ThrowDirection);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void EventItemAffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EItemType EventGrab(ACharacter* Character);

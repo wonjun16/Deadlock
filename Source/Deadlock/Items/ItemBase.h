@@ -7,7 +7,9 @@
 #include "Deadlock/Interface/ItemInterface.h"
 #include "ItemBase.generated.h"
 
+class UCapsuleComponent;
 class UStaticMeshComponent;
+class USceneComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
 
@@ -21,6 +23,9 @@ public:
 	AItemBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCapsuleComponent* CapsuleCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -28,6 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* EffectAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* ImpulsePosition;
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,5 +67,7 @@ public:
 
 	virtual void PlayItemEffect_Implementation()override;
 
-	virtual void ThrowMovement_Implementation()override;
+	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
+
+	virtual void EventItemAffect_Implementation()override;
 };

@@ -2,7 +2,8 @@
 
 
 #include "ItemBase.h"
-#include "components/StaticMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
@@ -16,10 +17,22 @@ AItemBase::AItemBase()
 	SetRootComponent(ItemMesh);
 	ItemMesh->SetSimulatePhysics(true);
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	/* Do not Simulate Physics Before Grab
+	*  Deactive During Test / Develop
+	ItemMesh->SetSimulatePhysics(false); */
+	
+
+	FVector RootLocation = FVector(RootComponent->GetComponentLocation().X, RootComponent->GetComponentLocation().Y, RootComponent->GetComponentLocation().Z);
+
+	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
+	CapsuleCollision->SetupAttachment(RootComponent);
+
+	ImpulsePosition = CreateDefaultSubobject<USceneComponent>("ImpulsePosition");
+	ImpulsePosition->SetupAttachment(RootComponent);
+	ImpulsePosition->SetWorldLocation(RootLocation - FVector(30.0f, 0.0f, -10.0f));
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
-
 	EffectAsset = ItemBaseEffect->GetAsset();
 }
 
@@ -27,12 +40,13 @@ AItemBase::AItemBase()
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//Test Fuction
-	UseItem_Implementation(0);
-	GetItem_Implementation(0, 1);
+	//UseItem_Implementation(0);
+	//GetItem_Implementation(0, 1);
 	PlayItemEffect_Implementation();
-	ThrowMovement_Implementation();
+	ThrowMovement_Implementation(FVector(0.0f));
+	EventItemAffect_Implementation();
 }
 
 // Called every frame
@@ -73,9 +87,15 @@ void AItemBase::PlayItemEffect_Implementation()
 		EAttachLocation::Type::KeepRelativeOffset, true);
 }
 
-void AItemBase::ThrowMovement_Implementation()
+void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 {
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
-	//ItemMesh->AddRadialImpulse(GetActorLocation(), 300.0f, 1000.0f,ERadialImpulseFalloff::RIF_Linear, true);
-	ItemMesh->AddImpulseAtLocation(FVector(1000.0f), GetActorLocation());
+	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//Test Vector
+	ItemMesh->AddImpulse(FVector(1700.0f, 0.0f, 1000.0f));
+	//ItemMesh->AddImpulse(ThrowDirection);
+}
+
+void AItemBase::EventItemAffect_Implementation()
+{
 }
