@@ -215,3 +215,13 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	return WeaponType;
 }
 
+FVector AWeaponBase::GetIronSightLoc_Implementation()
+{
+	FVector IronSightLoc(0, 0, 0);
+	if (WeaponMesh->DoesSocketExist(FName(TEXT("ironsight"))))
+	{
+		IronSightLoc = WeaponMesh->GetSocketLocation(FName(TEXT("ironsight")));
+	}
+	return IronSightLoc;
+}
+
