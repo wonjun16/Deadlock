@@ -147,11 +147,38 @@ bool ADeadlockCharacter::IsCanShoot()
 	return bShootable;
 }
 
+void ADeadlockCharacter::PlayRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+}
+
+void ADeadlockCharacter::StopPlayRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+}
+
+void ADeadlockCharacter::PlayZoom()
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		IWeaponInterface* IWeapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		FVector IronSightLoc = IWeapon->Execute_GetIronSightLoc(PS->EquipWeapon[PS->CurEqiupWeapon]);
+		IronSightRelativeLoc = IronSightLoc - GetActorLocation();
+		bIsZoom = true;
+		ZoomTimeline->Play();
+	}
+}
+
+void ADeadlockCharacter::StopPlayZoom()
+{
+	ZoomTimeline->Reverse();
+}
+
 void ADeadlockCharacter::ZoomUpdate(float Alpha)
 {
 	if (bIsZoom)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("%f"), Alpha));
 		FVector ZoomCameraLoc = FMath::Lerp(ArmRelativeLoc, IronSightRelativeLoc, Alpha);
 		float Length = FMath::Lerp(ArmLength, 20, Alpha);
 		CameraBoom->SetRelativeLocation(ZoomCameraLoc);
@@ -310,6 +337,29 @@ void ADeadlockCharacter::S2C_Attack_Implementation(bool bPressed)
 	}
 }
 
+void ADeadlockCharacter::C2S_Run_Implementation(bool bPressed)
+{
+	S2C_Run(bPressed);
+}
+
+void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
+{
+	if (bPressed)
+	{
+		StopPlayZoom();
+		PlayRun();
+	}
+	else
+	{
+		StopPlayRun();
+		const bool ZoomValue = ZoomValueBinding->GetValue().Get<bool>();
+		if (ZoomValue)
+		{
+			PlayZoom();
+		}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -340,6 +390,7 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Running
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Run);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopRun);
+		RunValueBinding = &EnhancedInputComponent->BindActionValue(RunAction);
 
 		//Reload
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Reload);
@@ -360,6 +411,7 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Zoom
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Zoom);
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Completed, this, &ADeadlockCharacter::StopZoom);
+		ZoomValueBinding = &EnhancedInputComponent->BindActionValue(ZoomAction);
 	}
 	else
 	{
@@ -405,12 +457,12 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Run(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	C2S_Run(true);
 }
 
 void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	C2S_Run(false);
 }
 
 void ADeadlockCharacter::Attack(const FInputActionValue& Value)
@@ -467,15 +519,21 @@ void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
 	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
-		IWeaponInterface* IWeapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
-		FVector IronSightLoc = IWeapon->Execute_GetIronSightLoc(PS->EquipWeapon[PS->CurEqiupWeapon]);
-		IronSightRelativeLoc = IronSightLoc - GetActorLocation();
-		bIsZoom = true;
-		ZoomTimeline->Play();
+		StopPlayRun();
+		PlayZoom();
 	}
 }
 
 void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 {
-	ZoomTimeline->Reverse();
+	StopPlayZoom();
+	const bool RunValue = RunValueBinding->GetValue().Get<bool>();
+	if (RunValue)
+	{
+		PlayRun();
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Run Value is false");
+	}
 }
