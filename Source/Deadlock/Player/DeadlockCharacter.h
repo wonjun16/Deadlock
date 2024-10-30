@@ -14,6 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class ADeadlockPlayerState;
+struct FEnhancedInputActionValueBinding;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -129,6 +130,14 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void S2C_Attack(bool bPressed);
 	void S2C_Attack_Implementation(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Run(bool bPressed);
+	void C2S_Run_Implementation(bool bPressed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Run(bool bPressed);
+	void S2C_Run_Implementation(bool bPressed);
 protected:
 
 	/** Called for movement input */
@@ -163,10 +172,18 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	FEnhancedInputActionValueBinding* RunValueBinding;
+	FEnhancedInputActionValueBinding* ZoomValueBinding;
+
 	AActor* GetNearestItem();
 
 	bool IsCanShoot();
 
+	void PlayRun();
+	void StopPlayRun();
+
+	void PlayZoom();
+	void StopPlayZoom();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
