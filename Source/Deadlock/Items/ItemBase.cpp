@@ -27,10 +27,6 @@ AItemBase::AItemBase()
 	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
 	CapsuleCollision->SetupAttachment(RootComponent);
 
-	ImpulsePosition = CreateDefaultSubobject<USceneComponent>("ImpulsePosition");
-	ImpulsePosition->SetupAttachment(RootComponent);
-	ImpulsePosition->SetWorldLocation(RootLocation - FVector(30.0f, 0.0f, -10.0f));
-
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
 	EffectAsset = ItemBaseEffect->GetAsset();
@@ -41,12 +37,6 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Test Fuction
-	//UseItem_Implementation(0);
-	//GetItem_Implementation(0, 1);
-	PlayItemEffect_Implementation();
-	ThrowMovement_Implementation(FVector(0.0f));
-	EventItemAffect_Implementation();
 }
 
 // Called every frame
@@ -58,26 +48,13 @@ void AItemBase::Tick(float DeltaTime)
 
 void AItemBase::UseItem_Implementation(int currentitemcount)
 {
-	if (currentitemcount > 0)
-	{
-		currentitemcount--;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
-	}
+	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 }
 
 void AItemBase::GetItem_Implementation(int currentitemcount, int maxitemcount)
 {
-	if (maxitemcount > currentitemcount)
-	{
-		currentitemcount++;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
-	}
+
+	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
 }
 
 void AItemBase::PlayItemEffect_Implementation()
@@ -90,7 +67,7 @@ void AItemBase::PlayItemEffect_Implementation()
 void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 {
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
-	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//Test Vector
 	ItemMesh->AddImpulse(FVector(1700.0f, 0.0f, 1000.0f));
 	//ItemMesh->AddImpulse(ThrowDirection);

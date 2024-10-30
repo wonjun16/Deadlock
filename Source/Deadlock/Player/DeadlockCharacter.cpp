@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
+#include "Deadlock/Items/ItemBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -180,7 +181,7 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
 
 		//For C++ implementation
-		
+
 		if (PS->EquipWeapon[PS->CurEqiupWeapon])
 		{
 			IWeaponInterface* Weapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
