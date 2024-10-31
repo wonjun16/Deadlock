@@ -205,7 +205,6 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Weapon Grab Implementation");
 
 	MyCharacter = Character;
-	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -32,9 +32,8 @@ ADeadlockCharacter::ADeadlockCharacter()
 		
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
-
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -353,15 +352,17 @@ void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
 	{
 		StopPlayZoom();
 		PlayRun();
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Start Run");
 	}
 	else
 	{
 		StopPlayRun();
-		const bool ZoomValue = ZoomValueBinding->GetValue().Get<bool>();
-		if (ZoomValue)
-		{
-			PlayZoom();
-		}
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Finish Run");
+		//const bool ZoomValue = ZoomValueBinding->GetValue().Get<bool>();
+		//if (ZoomValue)
+		//{
+		//	PlayZoom();
+		//}
 	}
 }
 
@@ -462,12 +463,12 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Run(const FInputActionValue& Value)
 {
-	//C2S_Run(true);
+	C2S_Run(true);
 }
 
 void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 {
-	//C2S_Run(false);
+	C2S_Run(false);
 }
 
 void ADeadlockCharacter::Attack(const FInputActionValue& Value)
