@@ -4,6 +4,7 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Kismet/GameplayStatics.h"
+#include "../GameSystem/DeadlockGameInstanceSubsystem.h"
 
 void UMatchingRoomUI::NativeConstruct()
 {
@@ -28,22 +29,24 @@ void UMatchingRoomUI::ProcessStartServerButtonClick()
 {
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("ProcessStartServerButtonClick"));
-	//UMyGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UMyGameInstanceSubsystem>();
-	//if (IsValid(MySubsystem))
-	//{
-	//	MySubsystem->UserName = UserName->GetText().ToString();
-	//}
+	UDeadlockGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UDeadlockGameInstanceSubsystem>();
+	if (IsValid(MySubsystem))
+	{
+		MySubsystem->UserName = UserName->GetText().ToString();
+	}
 
-	//UGameplayStatics::OpenLevel(GetWorld(), TEXT("Lobby"), true, TEXT("listen"));
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("Lobby"), true, TEXT("listen"));
 }
 
 void UMatchingRoomUI::ProcessConnectButtonClick()
 {
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("ProcessConnectButtonClick"));
-	/*UMyGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UMyGameInstanceSubsystem>();
+	UDeadlockGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UDeadlockGameInstanceSubsystem>();
 	if (IsValid(MySubsystem))
 	{
 		MySubsystem->UserName = UserName->GetText().ToString();
-	}*/
+	}
+
+	UGameplayStatics::OpenLevel(GetWorld(), FName(*ServerIP->GetText().ToString()));
 }
