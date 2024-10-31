@@ -10,7 +10,6 @@
 #include "GameFramework/Character.h"
 #include "../Data/Enums.h"
 #include "Engine/DataTable.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Bullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -24,9 +23,9 @@ AWeaponBase::AWeaponBase()
 		static const FString ContextString(TEXT("GENERAL"));
 		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
 	}
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
 	bReplicates = true;
 	SetReplicateMovement(true);
@@ -128,7 +127,7 @@ void AWeaponBase::EventAttack_Implementation()
 {
 	if (Execute_IsCanAttack(this) && WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
 	{
-		FTransform MuzzleTransform = WeaponMesh->USkeletalMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+		FTransform MuzzleTransform = WeaponMesh->UStaticMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
 		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
 
 		//emitter, sound
@@ -195,7 +194,7 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	MyCharacter = nullptr;
 }

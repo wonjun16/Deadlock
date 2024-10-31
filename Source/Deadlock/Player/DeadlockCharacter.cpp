@@ -175,6 +175,25 @@ void ADeadlockCharacter::StopPlayZoom()
 	ZoomTimeline->Reverse();
 }
 
+void ADeadlockCharacter::PlayDrop()
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
+		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
+}
+
 void ADeadlockCharacter::ZoomUpdate(float Alpha)
 {
 	if (bIsZoom)
@@ -207,21 +226,7 @@ void ADeadlockCharacter::C2S_Drop_Implementation()
 
 void ADeadlockCharacter::S2C_Drop_Implementation()
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	
-	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
-	{
-		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
-		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
-		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
-		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
-		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
-	}
+	PlayDrop();
 }
 
 void ADeadlockCharacter::C2S_Grab_Implementation()
@@ -260,7 +265,7 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 
 	if (PS && Item->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
 	{
-		S2C_Drop();
+		PlayDrop();
 		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
 
 		//For C++ implementation
@@ -457,12 +462,12 @@ void ADeadlockCharacter::Look(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Run(const FInputActionValue& Value)
 {
-	C2S_Run(true);
+	//C2S_Run(true);
 }
 
 void ADeadlockCharacter::StopRun(const FInputActionValue& Value)
 {
-	C2S_Run(false);
+	//C2S_Run(false);
 }
 
 void ADeadlockCharacter::Attack(const FInputActionValue& Value)

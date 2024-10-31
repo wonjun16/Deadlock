@@ -184,6 +184,8 @@ protected:
 
 	void PlayZoom();
 	void StopPlayZoom();
+
+	void PlayDrop();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

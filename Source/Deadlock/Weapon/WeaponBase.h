@@ -11,7 +11,7 @@
 
 class ACharacter;
 class UDataTable;
-class USkeletalMeshComponent;
+class UStaticMeshComponent;
 class ABullet;
 
 UCLASS()
@@ -24,7 +24,7 @@ public:
 	AWeaponBase();
 
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* WeaponMesh;
+	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere)
 	uint8 MaxAmmo;
