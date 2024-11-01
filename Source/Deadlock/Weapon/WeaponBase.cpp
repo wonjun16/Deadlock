@@ -110,7 +110,7 @@ void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 
 void AWeaponBase::EventReload_Implementation()
 {
-
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Reload from notify");
 }
 
 void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
@@ -118,8 +118,6 @@ void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
 	{
 		MyCharacter->PlayAnimMontage(Row->AttackMontage);
-		//몽타주에서 실행으로 교체
-		Execute_EventAttack(this);
 	}
 }
 
