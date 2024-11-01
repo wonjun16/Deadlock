@@ -57,4 +57,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FVector GetIronSightLoc();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UseAmmo();
 };

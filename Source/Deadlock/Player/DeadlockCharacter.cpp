@@ -320,7 +320,14 @@ void ADeadlockCharacter::C2S_Attack_Implementation(bool bPressed)
 	{
 		if (bPressed)
 		{
-			S2C_Attack(true);
+			TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+			if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+			{
+				TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+				IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+				ICurWeapon->Execute_UseAmmo(PS->EquipWeapon[PS->CurEqiupWeapon]);
+				S2C_Attack(true);
+			}
 		}
 		else
 		{
