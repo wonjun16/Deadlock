@@ -10,7 +10,6 @@
 #include "GameFramework/Character.h"
 #include "../Data/Enums.h"
 #include "Engine/DataTable.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Bullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -24,9 +23,9 @@ AWeaponBase::AWeaponBase()
 		static const FString ContextString(TEXT("GENERAL"));
 		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
 	}
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
 	bReplicates = true;
 	SetReplicateMovement(true);
@@ -111,7 +110,7 @@ void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 
 void AWeaponBase::EventReload_Implementation()
 {
-
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Reload from notify");
 }
 
 void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
@@ -119,8 +118,6 @@ void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
 	{
 		MyCharacter->PlayAnimMontage(Row->AttackMontage);
-		//몽타주에서 실행으로 교체
-		Execute_EventAttack(this);
 	}
 }
 
@@ -128,7 +125,7 @@ void AWeaponBase::EventAttack_Implementation()
 {
 	if (Execute_IsCanAttack(this) && WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
 	{
-		FTransform MuzzleTransform = WeaponMesh->USkeletalMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+		FTransform MuzzleTransform = WeaponMesh->UStaticMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
 		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
 
 		//emitter, sound
@@ -195,7 +192,7 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	MyCharacter = nullptr;
 }
@@ -206,7 +203,6 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Weapon Grab Implementation");
 
 	MyCharacter = Character;
-	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

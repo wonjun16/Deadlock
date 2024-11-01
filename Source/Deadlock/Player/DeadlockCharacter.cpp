@@ -32,9 +32,8 @@ ADeadlockCharacter::ADeadlockCharacter()
 		
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
-
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -175,6 +174,25 @@ void ADeadlockCharacter::StopPlayZoom()
 	ZoomTimeline->Reverse();
 }
 
+void ADeadlockCharacter::PlayDrop()
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+
+	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+	{
+		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
+		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
+		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
+}
+
 void ADeadlockCharacter::ZoomUpdate(float Alpha)
 {
 	if (bIsZoom)
@@ -207,21 +225,7 @@ void ADeadlockCharacter::C2S_Drop_Implementation()
 
 void ADeadlockCharacter::S2C_Drop_Implementation()
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	
-	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
-	{
-		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
-		IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
-		ICurWeapon->Execute_EventDrop(PS->EquipWeapon[PS->CurEqiupWeapon], this);
-		PS->EquipWeapon.Insert(nullptr, PS->CurEqiupWeapon);
-		PS->EquipWeaponType.Insert(0, PS->CurEqiupWeapon);
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Drop");
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
-	}
+	PlayDrop();
 }
 
 void ADeadlockCharacter::C2S_Grab_Implementation()
@@ -260,7 +264,7 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 
 	if (PS && Item->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
 	{
-		S2C_Drop();
+		PlayDrop();
 		PS->EquipWeapon.Insert(Item, PS->CurEqiupWeapon);
 
 		//For C++ implementation
@@ -348,15 +352,17 @@ void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
 	{
 		StopPlayZoom();
 		PlayRun();
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Start Run");
 	}
 	else
 	{
 		StopPlayRun();
-		const bool ZoomValue = ZoomValueBinding->GetValue().Get<bool>();
-		if (ZoomValue)
-		{
-			PlayZoom();
-		}
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Finish Run");
+		//const bool ZoomValue = ZoomValueBinding->GetValue().Get<bool>();
+		//if (ZoomValue)
+		//{
+		//	PlayZoom();
+		//}
 	}
 }
 
