@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
+class ACharacter;
 
 UCLASS()
 class DEADLOCK_API ABullet : public AActor
@@ -32,4 +33,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Fire(const FVector& Direction);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	TObjectPtr<ACharacter> OwnerCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	float Damage;
 };

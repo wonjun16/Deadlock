@@ -97,7 +97,13 @@ FVector AWeaponBase::CalcStartForwadVector(FVector MuzzleLoc)
 
 void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
 {
-	Bullet = GetWorld()->SpawnActor<ABullet>(BulletClass, SpawnLocation, SpawnRotation);
+	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
+	//Bullet = GetWorld()->SpawnActor<ABullet>(BulletClass, SpawnLocation, SpawnRotation);
+	Bullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletClass, SpawnTransform);
+	Bullet->Damage = Row->Damage;
+	Bullet->OwnerCharacter = Cast<ACharacter>(GetOwner());
+	Bullet->FinishSpawning(SpawnTransform);
+
 	FVector Direction = SpawnRotation.Vector();
 	if (Bullet && Direction.Normalize())
 	{
