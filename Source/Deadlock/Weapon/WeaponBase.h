@@ -29,7 +29,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	uint8 MaxAmmo;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	uint8 CurAmmo;
 
 	UPROPERTY(VisibleAnywhere)
@@ -57,7 +57,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	void UseAmmo();
 	void BindAmmo();
 	void UnBindAmmo();
 	void ChangeMag();
@@ -67,6 +66,10 @@ public:
 	void SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation);
 	
 	FVector CalcStartForwadVector(FVector MuzzleLoc);
+
+	UFUNCTION(Server, Reliable)
+	void ReloadUpdateAmmo();
+	void ReloadUpdateAmmo_Implementation();
 
 	virtual void EventReloadTrigger_Implementation(bool bPress) override;
 
@@ -91,4 +94,6 @@ public:
 	virtual EWeaponType EventGrabWeapon_Implementation(ACharacter* Character) override;
 
 	virtual FVector GetIronSightLoc_Implementation() override;
+
+	virtual void UseAmmo_Implementation() override;
 };
