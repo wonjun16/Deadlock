@@ -13,6 +13,7 @@
 #include "Bullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "../GameMode/DeadlockPlayerState.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -104,6 +105,32 @@ void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
 	}
 }
 
+void AWeaponBase::ReloadUpdateAmmo_Implementation()
+{
+	TObjectPtr<ACharacter> OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (OwnerCharacter)
+	{
+		TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(OwnerCharacter->GetPlayerState());
+		if (PS)
+		{
+			uint8 PlayerCurAmmo = PS->CurAmmo;
+			PS->CurAmmo = FMath::Clamp(PS->CurAmmo - (MaxAmmo - CurAmmo), 0, PS->CurAmmo);
+			CurAmmo = FMath::Clamp(CurAmmo + PlayerCurAmmo, 0, MaxAmmo);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("PS Cur Ammo : %d / Weapon Ammo : %d"), 
+				PS->CurAmmo, CurAmmo));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "No PS");
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "No Owner");
+	}
+	
+}
+
 void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 {
 	if (MyCharacter && Row)
@@ -115,6 +142,7 @@ void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 void AWeaponBase::EventReload_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Reload from notify");
+	ReloadUpdateAmmo();
 }
 
 void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)

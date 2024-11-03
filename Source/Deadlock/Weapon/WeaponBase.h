@@ -67,6 +67,10 @@ public:
 	
 	FVector CalcStartForwadVector(FVector MuzzleLoc);
 
+	UFUNCTION(Server, Reliable)
+	void ReloadUpdateAmmo();
+	void ReloadUpdateAmmo_Implementation();
+
 	virtual void EventReloadTrigger_Implementation(bool bPress) override;
 
 	virtual void EventReload_Implementation() override;

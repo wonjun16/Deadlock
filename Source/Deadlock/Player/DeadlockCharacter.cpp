@@ -236,7 +236,7 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 	{
 		if (NearestItem->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass()))
 		{
-			NearestItem->SetOwner(APawn::GetController());
+			NearestItem->SetOwner(this);
 		}
 		else
 		{
