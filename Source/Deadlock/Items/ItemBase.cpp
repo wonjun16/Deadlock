@@ -30,6 +30,8 @@ AItemBase::AItemBase()
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
 	EffectAsset = ItemBaseEffect->GetAsset();
+
+	DamageAmount = 50.0f;
 }
 
 // Called when the game starts or when spawned
@@ -48,12 +50,19 @@ void AItemBase::Tick(float DeltaTime)
 
 void AItemBase::UseItem_Implementation(int currentitemcount)
 {
+	if (currentitemcount > 0)
+	{
+		currentitemcount--;
+	}
 	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 }
 
 void AItemBase::GetItem_Implementation(int currentitemcount, int maxitemcount)
 {
-
+	if (maxitemcount > currentitemcount)
+	{
+		currentitemcount++;
+	}
 	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
 }
 

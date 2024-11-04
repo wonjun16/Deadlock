@@ -12,6 +12,7 @@ class UStaticMeshComponent;
 class USceneComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class UGameplayStatics;
 
 UCLASS()
 class DEADLOCK_API AItemBase : public AActor, public IItemInterface
