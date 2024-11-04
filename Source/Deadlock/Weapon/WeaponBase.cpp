@@ -10,9 +10,10 @@
 #include "GameFramework/Character.h"
 #include "../Data/Enums.h"
 #include "Engine/DataTable.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Bullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "../GameMode/DeadlockPlayerState.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -24,9 +25,9 @@ AWeaponBase::AWeaponBase()
 		static const FString ContextString(TEXT("GENERAL"));
 		Row = WeaponData->FindRow<FWeaponStruct>(FName(TEXT("Rifle")), ContextString);
 	}
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("Weapon");
 	SetRootComponent(WeaponMesh);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->SetCollisionProfileName(TEXT("Weapon"));
 	bReplicates = true;
 	SetReplicateMovement(true);
@@ -39,6 +40,13 @@ AWeaponBase::AWeaponBase()
 	
 }
 
+void AWeaponBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeaponBase, CurAmmo);
+}
+
 // Called when the game starts or when spawned
 void AWeaponBase::BeginPlay()
 {
@@ -49,10 +57,6 @@ void AWeaponBase::BeginPlay()
 void AWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AWeaponBase::UseAmmo()
-{
 }
 
 void AWeaponBase::BindAmmo()
@@ -101,6 +105,32 @@ void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
 	}
 }
 
+void AWeaponBase::ReloadUpdateAmmo_Implementation()
+{
+	TObjectPtr<ACharacter> OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (OwnerCharacter)
+	{
+		TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(OwnerCharacter->GetPlayerState());
+		if (PS)
+		{
+			uint8 PlayerCurAmmo = PS->CurAmmo;
+			PS->CurAmmo = FMath::Clamp(PS->CurAmmo - (MaxAmmo - CurAmmo), 0, PS->CurAmmo);
+			CurAmmo = FMath::Clamp(CurAmmo + PlayerCurAmmo, 0, MaxAmmo);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("PS Cur Ammo : %d / Weapon Ammo : %d"), 
+				PS->CurAmmo, CurAmmo));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "No PS");
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "No Owner");
+	}
+	
+}
+
 void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 {
 	if (MyCharacter && Row)
@@ -111,30 +141,30 @@ void AWeaponBase::EventReloadTrigger_Implementation(bool bPress)
 
 void AWeaponBase::EventReload_Implementation()
 {
-
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Reload from notify");
+	ReloadUpdateAmmo();
 }
 
 void AWeaponBase::EventAttackTrigger_Implementation(bool bPress)
 {
-	if (Execute_IsCanAttack(this) && bPress && MyCharacter && Row)
+	if (bPress && MyCharacter && Row)
 	{
 		MyCharacter->PlayAnimMontage(Row->AttackMontage);
-		//몽타주에서 실행으로 교체
-		Execute_EventAttack(this);
 	}
 }
 
 void AWeaponBase::EventAttack_Implementation()
 {
-	if (Execute_IsCanAttack(this) && WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
+	if (WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
 	{
-		FTransform MuzzleTransform = WeaponMesh->USkeletalMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+		FTransform MuzzleTransform = WeaponMesh->UStaticMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
 		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
 
 		//emitter, sound
 		if (BulletClass)
 		{
 			SpawnBullet(SpawnLocation, MuzzleTransform.Rotator());
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("CurAmmo : %d"), CurAmmo));
 		}
 	}
 	else
@@ -195,7 +225,7 @@ bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 void AWeaponBase::EventDrop_Implementation(ACharacter* Character)
 {
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetSimulatePhysics(true);
 	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	MyCharacter = nullptr;
 }
@@ -206,7 +236,6 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Weapon Grab Implementation");
 
 	MyCharacter = Character;
-	//MyCharacter->bUseControllerRotationYaw = true;
 
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -215,3 +244,17 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 	return WeaponType;
 }
 
+FVector AWeaponBase::GetIronSightLoc_Implementation()
+{
+	FVector IronSightLoc(0, 0, 0);
+	if (WeaponMesh->DoesSocketExist(FName(TEXT("ironsight"))))
+	{
+		IronSightLoc = WeaponMesh->GetSocketLocation(FName(TEXT("ironsight")));
+	}
+	return IronSightLoc;
+}
+
+void AWeaponBase::UseAmmo_Implementation()
+{
+	CurAmmo = CurAmmo - 1;
+}

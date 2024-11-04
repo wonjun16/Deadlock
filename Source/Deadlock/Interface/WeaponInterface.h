@@ -55,4 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EWeaponType EventGrabWeapon(ACharacter* Character);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FVector GetIronSightLoc();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UseAmmo();
 };

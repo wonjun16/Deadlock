@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Components/TimelineComponent.h"
 #include "DeadlockCharacter.generated.h"
 
 class USpringArmComponent;
@@ -13,6 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class ADeadlockPlayerState;
+struct FEnhancedInputActionValueBinding;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -69,6 +71,34 @@ class ADeadlockCharacter : public ACharacter
 public:
 	ADeadlockCharacter();
 	
+	FVector IronSightRelativeLoc;
+
+	FVector ArmRelativeLoc = FVector(15, 20, 90);
+
+	float ArmLength = 250.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	FRotator PlayerRotator;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UTimelineComponent* ZoomTimeline;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* ZoomTimelineFloatCurve;
+
+	FOnTimelineFloat UpdateZoomFloat;
+
+	FOnTimelineEvent FinishZoomEvent;
+
+	UFUNCTION()
+	void ZoomUpdate(float Alpha);
+
+	UFUNCTION()
+	void ZoomFinish();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	uint8 bIsZoom : 1;
+
 	UFUNCTION(Server, Reliable)
 	void C2S_Drop();
 	void C2S_Drop_Implementation();
@@ -100,6 +130,14 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void S2C_Attack(bool bPressed);
 	void S2C_Attack_Implementation(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Run(bool bPressed);
+	void C2S_Run_Implementation(bool bPressed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Run(bool bPressed);
+	void S2C_Run_Implementation(bool bPressed);
 protected:
 
 	/** Called for movement input */
@@ -121,6 +159,7 @@ protected:
 	void StopAttack(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+	void StopZoom(const FInputActionValue& Value);
 
 	void Crouch(const FInputActionValue& Value);
 
@@ -131,10 +170,22 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaSeconds) override;
+
+	FEnhancedInputActionValueBinding* RunValueBinding;
+	FEnhancedInputActionValueBinding* ZoomValueBinding;
+
 	AActor* GetNearestItem();
 
 	bool IsCanShoot();
 
+	void PlayRun();
+	void StopPlayRun();
+
+	void PlayZoom();
+	void StopPlayZoom();
+
+	void PlayDrop();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

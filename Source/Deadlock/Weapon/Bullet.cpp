@@ -21,6 +21,9 @@ ABullet::ABullet()
 	ProjectileMovement->MaxSpeed = 1000.0f;
 	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;
+
+	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
