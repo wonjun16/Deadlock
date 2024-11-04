@@ -95,16 +95,6 @@ FVector AWeaponBase::CalcStartForwadVector(FVector MuzzleLoc)
 	return StartVector;
 }
 
-void AWeaponBase::SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation)
-{
-	Bullet = GetWorld()->SpawnActor<ABullet>(BulletClass, SpawnLocation, SpawnRotation);
-	FVector Direction = SpawnRotation.Vector();
-	if (Bullet && Direction.Normalize())
-	{
-		Bullet->Fire(Direction);
-	}
-}
-
 void AWeaponBase::ReloadUpdateAmmo_Implementation()
 {
 	TObjectPtr<ACharacter> OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -158,13 +148,13 @@ void AWeaponBase::EventAttack_Implementation()
 	if (WeaponMesh->DoesSocketExist(FName(TEXT("muzzle"))))
 	{
 		FTransform MuzzleTransform = WeaponMesh->UStaticMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
-		FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
+		FRotator SpawnRotation = MuzzleTransform.Rotator();
+		FVector Direction = SpawnRotation.Vector();
 
-		//emitter, sound
-		if (BulletClass)
+		Execute_SpawnBullet(this);
+		if (Bullet && Direction.Normalize())
 		{
-			SpawnBullet(SpawnLocation, MuzzleTransform.Rotator());
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("CurAmmo : %d"), CurAmmo));
+			Bullet->Fire(Direction);
 		}
 	}
 	else
@@ -257,4 +247,20 @@ FVector AWeaponBase::GetIronSightLoc_Implementation()
 void AWeaponBase::UseAmmo_Implementation()
 {
 	CurAmmo = CurAmmo - 1;
+}
+
+void AWeaponBase::SpawnBullet_Implementation()
+{
+	FTransform MuzzleTransform = WeaponMesh->UStaticMeshComponent::GetSocketTransform(FName(TEXT("muzzle")));
+	FVector SpawnLocation = CalcStartForwadVector(MuzzleTransform.GetLocation());
+	FRotator SpawnRotation = MuzzleTransform.Rotator();
+	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
+
+	if (BulletClass)
+	{
+		Bullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletClass, SpawnTransform);
+		Bullet->Damage = Row->Damage;
+		Bullet->OwnerCharacter = Cast<ACharacter>(GetOwner());
+		Bullet->FinishSpawning(SpawnTransform);
+	}
 }
