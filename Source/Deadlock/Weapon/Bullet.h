@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
+class ACharacter;
 
 UCLASS()
 class DEADLOCK_API ABullet : public AActor
@@ -27,9 +28,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void Fire(const FVector& Direction);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	TObjectPtr<ACharacter> OwnerCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	float Damage;
+
+	UFUNCTION(Server, Reliable)
+	void AddDamage(AActor* OtherActor);
+	void AddDamage_Implementation(AActor* OtherActor);
 };
