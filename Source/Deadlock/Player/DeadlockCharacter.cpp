@@ -19,6 +19,7 @@
 #include "../GameMode/DeadlockPlayerState.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -100,6 +101,18 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 	{
 		PlayerRotator = GetActorRotation();
 	}
+}
+
+float ADeadlockCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	if (PS)
+	{
+		PS->HP -= DamageAmount;
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+	}
+	return 0.0f;
 }
 
 AActor* ADeadlockCharacter::GetNearestItem()

@@ -62,8 +62,6 @@ public:
 	void ChangeMag();
 	void IsCanChangeMag(bool IsCanChangeMag);
 	void GetShootDelayByRPM(float& DeltaTime);
-
-	void SpawnBullet(FVector SpawnLocation, FRotator SpawnRotation);
 	
 	FVector CalcStartForwadVector(FVector MuzzleLoc);
 
@@ -96,4 +94,6 @@ public:
 	virtual FVector GetIronSightLoc_Implementation() override;
 
 	virtual void UseAmmo_Implementation() override;
+
+	virtual void SpawnBullet_Implementation() override;
 };

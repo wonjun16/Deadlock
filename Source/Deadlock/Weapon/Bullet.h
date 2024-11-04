@@ -28,6 +28,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -39,4 +40,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	float Damage;
+
+	UFUNCTION(Server, Reliable)
+	void AddDamage(AActor* OtherActor);
+	void AddDamage_Implementation(AActor* OtherActor);
 };
