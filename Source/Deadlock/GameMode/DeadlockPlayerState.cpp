@@ -16,6 +16,8 @@ ADeadlockPlayerState::ADeadlockPlayerState()
     EquipWeaponType.Init(0, 2);
 
     CurAmmo = 100;
+
+    bReadyState = false;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,6 +29,7 @@ void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(ADeadlockPlayerState, CurEqiupWeapon);
     DOREPLIFETIME(ADeadlockPlayerState, EquipWeaponType);
     DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
+    DOREPLIFETIME(ADeadlockPlayerState, bReadyState);
 }
 
 bool ADeadlockPlayerState::IsCanReload()
@@ -48,4 +51,10 @@ bool ADeadlockPlayerState::IsCanReload()
     }
 
     return Reloadable;
+}
+
+
+void ADeadlockPlayerState::OnRep_ReadyState()
+{
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *GetName());
 }

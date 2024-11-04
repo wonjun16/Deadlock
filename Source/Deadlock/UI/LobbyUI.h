@@ -49,8 +49,8 @@ public:
 	UFUNCTION()
 	void ProcessClicked();
 
-	UFUNCTION()
-	void OnCommittedText(const FText& Text, ETextCommit::Type CommitMethod);
+	//UFUNCTION()
+	//void OnCommittedText(const FText& Text, ETextCommit::Type CommitMethod);
 
 	void SetLeftTime(FString NewLeftTime);
 
