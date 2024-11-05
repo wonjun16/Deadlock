@@ -16,12 +16,12 @@ void ULobbyUI::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	LeftTime = Cast<UTextBlock>(GetWidgetFromName(TEXT("LeftTime")));
-	AliveCount = Cast<UTextBlock>(GetWidgetFromName(TEXT("AliveCount")));
-	ChatScroll = Cast<UScrollBox>(GetWidgetFromName(TEXT("ChatScroll")));
-	ChatBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("ChatBox")));
-	ReadyButton = Cast<UButton>(GetWidgetFromName(TEXT("ReadyButton")));
-	StartButton = Cast<UButton>(GetWidgetFromName(TEXT("StartButton")));
+	LeftTime = Cast<UTextBlock>(GetWidgetFromName(TEXT("LeftTime22")));
+	AliveCount = Cast<UTextBlock>(GetWidgetFromName(TEXT("AliveCount22")));
+	ChatScroll = Cast<UScrollBox>(GetWidgetFromName(TEXT("ChatScroll22")));
+	ChatBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("ChatBox22")));
+	ReadyButton = Cast<UButton>(GetWidgetFromName(TEXT("ReadyButton22")));
+	StartButton = Cast<UButton>(GetWidgetFromName(TEXT("StartButton22")));
 
 	if (ChatBox)
 	{
