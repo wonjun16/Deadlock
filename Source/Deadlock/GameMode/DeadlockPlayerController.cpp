@@ -15,33 +15,37 @@ void ADeadlockPlayerController::BeginPlay()
 	FString Temp = FString::Printf(TEXT("%s %d %d"), *GetName(), GetLocalRole(), GetRemoteRole());
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *Temp);
 
-	//#include
-	FSoftClassPath LobbyWidgetClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UMG/WBP_Lobby.WBP_Lobby_C'"));
+	//#include 
+	FSoftClassPath LobbyWidgetClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LeeSangUk/Ui/WBP_CLoobyUI.WBP_CLoobyUI_C'"));
 
-	if (IsLocalPlayerController())
-	{
-		UClass* WidgetClass = LobbyWidgetClassPath.TryLoadClass<ULobbyUI>();
-		if (IsValid(WidgetClass))
-		{
-			LobbyWidget = CreateWidget<ULobbyUI>(this, WidgetClass);
-			if (IsValid(LobbyWidget))
-			{
-				LobbyWidget->AddToViewport();
-				SetInputMode(FInputModeGameAndUI());
-				SetShowMouseCursor(true);
+	//if (IsLocalPlayerController())
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("IsLocalPlayerController"));
+	//	UClass* WidgetClass = LobbyWidgetClassPath.TryLoadClass<ULobbyUI>();
+	//	if (IsValid(WidgetClass))
+	//	{
+	//		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("IsValid(WidgetClass)"));
+	//		LobbyWidget = CreateWidget<ULobbyUI>(this, WidgetClass);
+	//		if (IsValid(LobbyWidget))
+	//		{
 
-				if (GetLocalRole() == ENetRole::ROLE_Authority && GetRemoteRole() == ENetRole::ROLE_SimulatedProxy)
-				{
-					LobbyWidget->ShowStartrButton(true);
-				}
-				else
-				{
-					LobbyWidget->ShowStartrButton(false);
-				}
+	//			LobbyWidget->AddToViewport();
+	//			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("AddToViewport"));
+	//			SetInputMode(FInputModeGameAndUI());
+	//			SetShowMouseCursor(true);
 
-			}
-		}
-	}
+	//			/*if (GetLocalRole() == ENetRole::ROLE_Authority && GetRemoteRole() == ENetRole::ROLE_SimulatedProxy)
+	//			{
+	//				LobbyWidget->ShowStartrButton(true);
+	//			}
+	//			else
+	//			{
+	//				LobbyWidget->ShowStartrButton(false);
+	//			}*/
+
+	//		}
+	//	}
+	//}
 }
 
 bool ADeadlockPlayerController::C2S_SendMessage_Validate(const FText& Messsage)
@@ -63,7 +67,7 @@ void ADeadlockPlayerController::C2S_SendMessage_Implementation(const FText& Mess
 
 void ADeadlockPlayerController::S2C_AddMessage_Implementation(const FText& Messsage)
 {
-	LobbyWidget->AddChatMessage(Messsage);
+	//LobbyWidget->AddChatMessage(Messsage);
 }
 
 void ADeadlockPlayerController::C2S_SendReadyState_Implementation(bool NewState)

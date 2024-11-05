@@ -25,7 +25,7 @@ void ULobbyUI::NativeConstruct()
 
 	if (ChatBox)
 	{
-		//ChatBox->OnTextCommitted.AddDynamic(this, &ULobbyUI::OnCommittedText);
+		ChatBox->OnTextCommitted.AddDynamic(this, &ULobbyUI::OnCommittedText);
 	}
 	if (ReadyButton)
 	{
