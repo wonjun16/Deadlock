@@ -21,17 +21,12 @@ AItemBase::AItemBase()
 	*  Deactive During Test / Develop
 	ItemMesh->SetSimulatePhysics(false); */
 	
-
-	FVector RootLocation = FVector(RootComponent->GetComponentLocation().X, RootComponent->GetComponentLocation().Y, RootComponent->GetComponentLocation().Z);
-
 	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
 	CapsuleCollision->SetupAttachment(RootComponent);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
 	EffectAsset = ItemBaseEffect->GetAsset();
-
-	DamageAmount = 50.0f;
 }
 
 // Called when the game starts or when spawned
@@ -53,6 +48,7 @@ void AItemBase::UseItem_Implementation(int currentitemcount)
 	if (currentitemcount > 0)
 	{
 		currentitemcount--;
+		ItemMesh->SetSimulatePhysics(true);
 	}
 	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 }

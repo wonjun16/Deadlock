@@ -3,35 +3,50 @@
 
 #include "ItemGrenade.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
-#include "Deadlock/GameMode/DeadlockPlayerState.h"
-#include "Deadlock/GameMode/DeadlockPlayerController.h"
-#include "Kismet/GameplayStatics.h"
+
+void AItemGrenade::UseItem_Implementation(int currentitemcount)
+{
+	if (currentitemcount >= 0)
+	{
+		
+	}
+}
 
 void AItemGrenade::EventItemAffect_Implementation()
 {
-	//Grenade Affect (Damage, Effect)
+	//Grenade Affect (Scan Character In Range, Give Damage)
 
 	TArray<FHitResult> HitActors;
 	FVector GrenadeLocation = GetActorLocation();
 	FVector Start = GrenadeLocation;
 	FVector End = GrenadeLocation;
 
-	FCollisionShape BlowRangeSphere = FCollisionShape::MakeSphere(500.0f);
+	FCollisionShape ShortRangeSphere = FCollisionShape::MakeSphere(200.0f);
+	FCollisionShape LongRangeSphere = FCollisionShape::MakeSphere(500.0f);
 
-	bool isHit = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
-		FQuat::Identity, ECC_WorldStatic, BlowRangeSphere);
+	//Draw Two Diffrent Range Sphere
+	bool bIsHitNearRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
+		FQuat::Identity, ECC_WorldStatic, ShortRangeSphere);
+	bool bIsHitFarRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
+		FQuat::Identity, ECC_WorldStatic, LongRangeSphere);
 
-
-	if (isHit)
+	if (bIsHitNearRange)
 	{
 		for (auto& Hit : HitActors)
 		{
-			//UCapsuleComponent* CharacterCapsule = Cast<UCapsuleComponent>((Hit.GetActor())->GetRootComponent());
-			//USkeletalMeshComponent* CharacterMesh = Cast<USkeletalMeshComponent>((Hit.GetActor()->GetRootComponent()));
-			//UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>((Hit.GetActor())->GetRootComponent());
+			//Cast To Character
+			//ADeadlockCharacter* test = Cast<ADeadlockCharacter>(Hit.GetActor());
 
-			//Damage Event
-			UE_LOG(LogTemp, Log, TEXT("GrenadeEvent Success"));
+			//Near Range Damage Event
+			UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
+		}
+	}
+	else if (bIsHitFarRange && !bIsHitNearRange)
+	{
+		for (auto& Hit : HitActors)
+		{
+			//Far Range Damage Event
+			UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
 		}
 	}
 }

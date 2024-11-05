@@ -4,17 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "ItemBase.h"
-#include "ItemGrenade.generated.h"
+#include "ItemFlashbang.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADLOCK_API AItemGrenade : public AItemBase
+class DEADLOCK_API AItemFlashbang : public AItemBase
 {
 	GENERATED_BODY()
-	
-	virtual void UseItem_Implementation(int currentitemcount)override;
 
 	virtual void EventItemAffect_Implementation()override;
 	
