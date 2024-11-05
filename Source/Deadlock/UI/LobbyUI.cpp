@@ -22,6 +22,7 @@ void ULobbyUI::NativeConstruct()
 	ChatBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("ChatBox22")));
 	ReadyButton = Cast<UButton>(GetWidgetFromName(TEXT("ReadyButton22")));
 	StartButton = Cast<UButton>(GetWidgetFromName(TEXT("StartButton22")));
+	StartButton->SetIsEnabled(false);
 
 	if (ChatBox)
 	{
@@ -50,11 +51,51 @@ void ULobbyUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void ULobbyUI::ProcessStartButtonClicked()
 {
-	GetWorld()->ServerTravel(TEXT("InGame"));
+
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	UDeadlockGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UDeadlockGameInstanceSubsystem>();
+	MySubsystem->InGame = true;
+	ServerSetInGame();
+	GetWorld()->ServerTravel(TEXT("DeadlockMap"));
 }
+
+void ULobbyUI::ServerSetInGame_Implementation()
+{
+
+	TArray<AActor*> PlayerControllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadlockPlayerController::StaticClass(), PlayerControllers);
+
+	for (AActor* Actor : PlayerControllers)
+	{
+		ADeadlockPlayerController* PC = Cast<ADeadlockPlayerController>(Actor);
+		if (PC)
+		{
+			// 각 플레이어 컨트롤러에 대해 작업 수행
+			PC->ClientSetInGame(); // 예: 클라이언트에게 알리기
+		}
+	}
+}
+
 
 void ULobbyUI::ProcessClicked()
 {
+	FButtonStyle ButtonStyle = ReadyButton->WidgetStyle;
+
+	// 현재 색상 상태에 따라 색상 변경
+	if (bIsReady)
+	{
+		// 회색으로 변경
+		ButtonStyle.Normal.TintColor = FSlateColor(FLinearColor::Gray);
+	}
+	else
+	{
+		// 빨간색으로 변경
+		ButtonStyle.Normal.TintColor = FSlateColor(FLinearColor::Red);
+	}
+
+	ReadyButton->SetStyle(ButtonStyle);
+	bIsReady = !bIsReady;
+
 	ADeadlockPlayerState* PS = GetOwningPlayerState<ADeadlockPlayerState>();
 	ADeadlockPlayerController* PC = GetOwningPlayer<ADeadlockPlayerController>();
 	if (IsValid(PS) && IsValid(PC))

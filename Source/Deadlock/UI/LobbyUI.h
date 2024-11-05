@@ -42,6 +42,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	UButton* StartButton;
 
+	bool bIsReady = false;
+
+public:
+
 
 	UFUNCTION()
 	void ProcessStartButtonClicked();
@@ -60,5 +64,9 @@ public:
 	void AddChatMessage(FText AddMessage);
 
 	void ShowStartrButton(bool Server);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetInGame();
+
 	
 };

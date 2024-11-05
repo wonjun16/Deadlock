@@ -36,5 +36,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void C2S_SendReadyState(bool NewState);
 	void C2S_SendReadyState_Implementation(bool NewState);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetInGame();
 	
 };
