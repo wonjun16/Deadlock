@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "LobbyUI.h"
@@ -64,44 +64,47 @@ void ULobbyUI::ProcessClicked()
 	}
 }
 
-//void ULobbyUI::OnCommittedText(const FText& Text, ETextCommit::Type CommitMethod)
-//{
-//	switch (CommitMethod)
-//	{
-//	case ETextCommit::OnEnter:
-//	{
-//		ADeadlockPlayerController* PC = Cast<ADeadlockPlayerController>(GetOwningPlayer());
-//		if (IsValid(PC))
-//		{
-//			UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-//			UDeadlockGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UDeadlockGameInstanceSubsystem>();
-//			FString Message = "";
-//			if (IsValid(MySubsystem))
-//			{
-//				Message = FString::Printf(TEXT("%s : %s"), *MySubsystem->UserName, *Text.ToString());
-//			}
-//
-//			PC->C2S_SendMessage(FText::FromString(Message));
-//		}
-//		ChatBox->SetText(FText::FromString(TEXT("")));
-//		break;
-//	}
-//	case ETextCommit::OnCleared:
-//		ChatBox->SetUserFocus(GetOwningPlayer());
-//		break;
-//}
+
+
+void ULobbyUI::OnCommittedText(const FText& Text, ETextCommit::Type CommitMethod)
+{
+	switch (CommitMethod)
+	{
+	case ETextCommit::OnEnter:
+	{
+		ADeadlockPlayerController* PC = Cast<ADeadlockPlayerController>(GetOwningPlayer());
+		if (IsValid(PC))
+		{
+			UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+			UDeadlockGameInstanceSubsystem* MySubsystem = GameInstance->GetSubsystem<UDeadlockGameInstanceSubsystem>();
+			FString Message = "";
+			if (IsValid(MySubsystem))
+			{
+				Message = FString::Printf(TEXT("%s : %s"), *MySubsystem->UserName, *Text.ToString());
+			}
+
+			PC->C2S_SendMessage(FText::FromString(Message));
+		}
+		ChatBox->SetText(FText::FromString(TEXT("")));
+		break;
+	}
+	case ETextCommit::OnCleared:
+		ChatBox->SetUserFocus(GetOwningPlayer());
+		break;
+	}
+}
 
 void ULobbyUI::SetLeftTime(FString NewLeftTime)
 {
-	FString Temp = FString::Printf(TEXT("%sÃÊ ³²¾Ò½À´Ï´Ù."), *NewLeftTime);
+	FString Temp = FString::Printf(TEXT("%sì´ˆ ë‚¨ì•˜ìŠµë‹ˆë‹¤."), *NewLeftTime);
 	LeftTime->SetText(FText::FromString(Temp));
 }
 
 void ULobbyUI::SetAliveCount(uint32 NewAliveCount)
 {
-	//FString Temp = FString::Printf(TEXT("%d¸í"), NewAliveCount);
+	FString Temp = FString::Printf(TEXT("%dëª…"), NewAliveCount);
 
-	//AliveCount->SetText(FText::FromString(Temp));
+	AliveCount->SetText(FText::FromString(Temp));
 }
 
 void ULobbyUI::AddChatMessage(FText AddMessage)
