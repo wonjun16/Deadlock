@@ -4,6 +4,8 @@
 #include "../Player/DeadlockCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
+
+
 ADeadlockGameMode::ADeadlockGameMode()
 {
 	// set default pawn class to our Blueprinted character
@@ -12,4 +14,9 @@ ADeadlockGameMode::ADeadlockGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+}
+
+AActor* ADeadlockGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	return nullptr;
 }
