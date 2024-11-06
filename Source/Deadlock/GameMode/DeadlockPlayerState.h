@@ -36,4 +36,13 @@ public:
 
 	UFUNCTION()
 	bool IsCanReload();
+
+	//로비에 쓰일 변수들
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", ReplicatedUsing = "OnRep_ReadyState")
+	uint8 bReadyState : 1;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_ReadyState();
 };

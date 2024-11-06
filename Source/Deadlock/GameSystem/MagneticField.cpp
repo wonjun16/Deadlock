@@ -103,6 +103,7 @@ void AMagneticField::CheckRemainTime(float DeltaTime)
 			);
 
 			MyHUD->MagneticUIInstance-> Time = FormattedTime.ToString();
+			//MyHUD->MagneticUIInstance->Time = "wdwd";
 		}
 		else
 		{
