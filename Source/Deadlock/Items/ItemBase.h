@@ -12,6 +12,7 @@ class UStaticMeshComponent;
 class USceneComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class UGameplayStatics;
 
 UCLASS()
 class DEADLOCK_API AItemBase : public AActor, public IItemInterface
@@ -61,9 +62,9 @@ public:
 	float ThrowSpeed;
 
 
-	virtual void UseItem_Implementation(int CurrentItemCount)override;
+	virtual void UseItem_Implementation(int currentitemcount)override;
 
-	virtual void GetItem_Implementation(int CurrentItemCount, int MaxItemCount)override;
+	virtual void GetItem_Implementation(int currentitemcount, int maxitemcount)override;
 
 	virtual void PlayItemEffect_Implementation()override;
 
