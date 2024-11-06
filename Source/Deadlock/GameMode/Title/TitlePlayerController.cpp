@@ -8,7 +8,7 @@ void ATitlePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FSoftClassPath LoginWidgetClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Deadlock/Widget/WBP_Login.WBP_Login_C'"));
+	FSoftClassPath LoginWidgetClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Deadlock/Widget/WBP_Title.WBP_Title_C'"));
 
 	if (IsLocalController())
 	{
