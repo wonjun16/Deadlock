@@ -19,6 +19,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString UserName;
 
-	bool InGame = true;
+	bool InGame ;
 	
 };

@@ -18,6 +18,8 @@ ADeadlockPlayerState::ADeadlockPlayerState()
     CurAmmo = 100;
 
     bReadyState = false;
+
+  
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
