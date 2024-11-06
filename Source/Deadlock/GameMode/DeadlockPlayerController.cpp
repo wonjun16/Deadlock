@@ -59,6 +59,7 @@ void ADeadlockPlayerController::BeginPlay()
 			}
 		}
 	}
+
 }
 
 bool ADeadlockPlayerController::C2S_SendMessage_Validate(const FText& Messsage)

@@ -139,6 +139,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void S2C_Run(bool bPressed);
 	void S2C_Run_Implementation(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void S2CSetCharacterLocation(FVector NewLocation);
+	void S2CSetCharacterLocation_Implementation(FVector NewLocation);
 protected:
 
 	/** Called for movement input */
