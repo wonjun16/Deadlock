@@ -13,16 +13,16 @@ AItemBase::AItemBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
+	SetRootComponent(CapsuleCollision);
+
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("ItemMesh");
-	SetRootComponent(ItemMesh);
-	ItemMesh->SetSimulatePhysics(true);
+	ItemMesh->SetupAttachment(RootComponent);
+
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	/* Do not Simulate Physics Before Grab
 	*  Deactive During Test / Develop
 	ItemMesh->SetSimulatePhysics(false); */
-	
-	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
-	CapsuleCollision->SetupAttachment(RootComponent);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
@@ -71,6 +71,9 @@ void AItemBase::PlayItemEffect_Implementation()
 
 void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 {
+	//Simulate Physics When Throw
+	ItemMesh->SetSimulatePhysics(true);
+
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
 	//CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//Test Vector

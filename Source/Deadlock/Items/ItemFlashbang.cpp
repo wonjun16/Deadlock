@@ -2,7 +2,7 @@
 
 
 #include "ItemFlashbang.h"
-#include "Components/CapsuleComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
 void AItemFlashbang::EventItemAffect_Implementation()
@@ -17,7 +17,7 @@ void AItemFlashbang::EventItemAffect_Implementation()
 	FCollisionShape BlowRangeSphere = FCollisionShape::MakeSphere(300.0f);
 
 	bool bIsHitInRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
-		FQuat::Identity, ECC_WorldStatic, BlowRangeSphere);
+		FQuat::Identity, ECC_Pawn, BlowRangeSphere);
 	
 	if (bIsHitInRange)
 	{
@@ -25,12 +25,19 @@ void AItemFlashbang::EventItemAffect_Implementation()
 		for (auto& Hit : HitActors)
 		{
 			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
+			AActor* HitActor = Hit.GetActor();
+			FString ActorName = HitActor->GetName();
+			UE_LOG(LogTemp, Log, TEXT("HitActor is %s"),*ActorName);
 
 			if (HitCharacter)
 			{
 				FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
 
-				FVector CharacterView = (HitCharacter->GetPawnViewLocation()).GetSafeNormal();
+				UCameraComponent* CharacterCamera = HitCharacter->FollowCamera;
+
+				FVector FrontVector = CharacterCamera->GetForwardVector();
+
+				FVector CharacterView = FrontVector.GetSafeNormal();
 
 				double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
 
@@ -45,11 +52,6 @@ void AItemFlashbang::EventItemAffect_Implementation()
 					UE_LOG(LogTemp, Log, TEXT("Character Not Looking Flash Point"));
 				}
 			}
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("HitCharacter Is Not Valid"));
-			}
-
 		}
 	}
 }

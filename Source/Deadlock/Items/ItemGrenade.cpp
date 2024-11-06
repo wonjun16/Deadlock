@@ -21,32 +21,33 @@ void AItemGrenade::EventItemAffect_Implementation()
 	FVector Start = GrenadeLocation;
 	FVector End = GrenadeLocation;
 
-	FCollisionShape ShortRangeSphere = FCollisionShape::MakeSphere(200.0f);
-	FCollisionShape LongRangeSphere = FCollisionShape::MakeSphere(500.0f);
+	FCollisionShape HitRangeSphere = FCollisionShape::MakeSphere(300.0f);
 
 	//Draw Two Diffrent Range Sphere
 	bool bIsHitNearRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
-		FQuat::Identity, ECC_WorldStatic, ShortRangeSphere);
-	bool bIsHitFarRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
-		FQuat::Identity, ECC_WorldStatic, LongRangeSphere);
+		FQuat::Identity, ECC_Pawn, HitRangeSphere);
 
 	if (bIsHitNearRange)
 	{
 		for (auto& Hit : HitActors)
 		{
-			//Cast To Character
-			//ADeadlockCharacter* test = Cast<ADeadlockCharacter>(Hit.GetActor());
+			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
+			if (HitCharacter)
+			{
+				FVector HitCharacterLocation = HitCharacter->GetActorLocation();
+				FVector RangeofBurstPoint = GetActorLocation() - HitCharacterLocation;
 
-			//Near Range Damage Event
-			UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
-		}
-	}
-	else if (bIsHitFarRange && !bIsHitNearRange)
-	{
-		for (auto& Hit : HitActors)
-		{
-			//Far Range Damage Event
-			UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
+				if (RangeofBurstPoint.Length() < 100.0f)
+				{
+					//Near Range Damage Event
+					UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
+				}
+				else
+				{
+					//Far Range Damage Event
+					UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
+				}
+			}
 		}
 	}
 }
