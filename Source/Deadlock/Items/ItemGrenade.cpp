@@ -2,6 +2,7 @@
 
 
 #include "ItemGrenade.h"
+#include "Kismet/GameplayStatics.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
 void AItemGrenade::UseItem_Implementation(int currentitemcount)
@@ -40,11 +41,17 @@ void AItemGrenade::EventItemAffect_Implementation()
 				if (RangeofBurstPoint.Length() < 100.0f)
 				{
 					//Near Range Damage Event
+					DamageAmount = 100.0f;
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount, HitCharacter->GetController(), this, 0);
+					//Must Modify EventInvestigator
 					UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
 				}
 				else
 				{
 					//Far Range Damage Event
+					DamageAmount = 60.0f;
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount, HitCharacter->GetController(), this, 0);
+
 					UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
 				}
 			}
