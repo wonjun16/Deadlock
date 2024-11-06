@@ -60,4 +60,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void UseAmmo();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SpawnBullet();
 };
