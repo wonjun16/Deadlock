@@ -26,7 +26,6 @@ AItemBase::AItemBase()
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
-	EffectAsset = ItemBaseEffect->GetAsset();
 }
 
 // Called when the game starts or when spawned
@@ -65,8 +64,10 @@ void AItemBase::GetItem_Implementation(int currentitemcount, int maxitemcount)
 void AItemBase::PlayItemEffect_Implementation()
 {
 	UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
-	(EffectAsset, ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
+	(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
 		EAttachLocation::Type::KeepRelativeOffset, true);
+
+	ItemEffect->Activate();
 }
 
 void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)

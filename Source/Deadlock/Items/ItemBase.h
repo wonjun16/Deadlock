@@ -33,9 +33,6 @@ public:
 	UNiagaraComponent* ItemBaseEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraSystem* EffectAsset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* ImpulsePosition;
 
 protected:

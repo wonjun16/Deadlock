@@ -15,5 +15,5 @@ class DEADLOCK_API AItemFlashbang : public AItemBase
 	GENERATED_BODY()
 
 	virtual void EventItemAffect_Implementation()override;
-	
+
 };
