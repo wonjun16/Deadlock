@@ -4,7 +4,10 @@
 #include "Spawner.h"
 #include "Kismet/GameplayStatics.h"
 #include "../Player/DeadlockCharacter.h"
+#include "../GameMode/DeadlockPlayerController.h"
+#include "GameFramework/PlayerController.h"
 #include <Net/UnrealNetwork.h>
+#include "Engine/World.h"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -20,38 +23,11 @@ void ASpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//int32 PlayerIndex = 0;
-	TArray<AActor*> PlayerCharacter;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadlockCharacter::StaticClass(), PlayerCharacter);
+	int32 PlayerIndex = 0;
+	TArray<AActor*> FoundActors;
 
-	for (AActor* Actor : PlayerCharacter)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Actor Type: ") + Actor->GetClass()->GetName());
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("MyCharacter spawned with ID: %s"), *GetName()));
-		FVector RandomLocation = FVector(FMath::RandRange(-500.0f, 500.0f), FMath::RandRange(-500.0f, 500.0f), 300.0f);
-
-
-		ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(Actor);
-		if (DeadlockCharacter)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("SpawnIndex is  : %d"), SpawnIndex));
-			if (SpawnIndex == 0)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("aaaaaaaaa")));
-				DeadlockCharacter->S2CSetCharacterLocation(FVector(100.0f, -200.0f, 0.0f));
-			}
-			else if (SpawnIndex == 1)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("bbbbbbbbbbbbbb")));
-				DeadlockCharacter->S2CSetCharacterLocation(FVector(300.0f, -400.0f, 0.0f));
-			}
-			//DeadlockCharacter->S2CSetCharacterLocation(SpawnLocations[PlayerIndex]);
-			SpawnIndex++;
-		}
-	
-	}
-	
+	ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), ADeadlockCharacter::StaticClass()));
+	DeadlockCharacter->S2CSetCharacterLocation(SpawnLocations);
 }
 
 // Called every frame
@@ -59,6 +35,24 @@ void ASpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASpawner::S2CSetCharacterLocation_Implementation()
+{
+	TArray<AActor*> PlayerCharacter;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadlockCharacter::StaticClass(), PlayerCharacter);
+
+	//if (HasAuthority())  // 서버에서만
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("server is  : %d"), PlayerCharacter.Num()));
+	//}
+	//else  // 클라이언트에서만
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("client is  : %d"), PlayerCharacter.Num()));
+	//}
+
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("PlayerCharacterqqqqqqqqqqqqqqqqqqq is  : %d"), PlayerCharacter.Num()));
 }
 
 void ASpawner::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -567,7 +567,20 @@ void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 }
 
 
-void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(FVector NewLocation)
+void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations)
 {
-	SetActorLocation(NewLocation);
+	TArray<AActor*> PlayerCharacter;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadlockCharacter::StaticClass(), PlayerCharacter);
+
+	int32 playerIndex = 0;
+	for (AActor* Actor : PlayerCharacter)
+	{
+		ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(Actor);
+		if (DeadlockCharacter)
+		{
+			DeadlockCharacter->SetActorLocation(SpawnLocations[playerIndex]);
+			playerIndex++;
+		
+		}
+	}
 }
