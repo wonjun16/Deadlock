@@ -13,5 +13,9 @@ UCLASS()
 class DEADLOCK_API ATitleGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void StartPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 };

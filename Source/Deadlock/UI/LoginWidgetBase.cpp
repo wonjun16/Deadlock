@@ -38,6 +38,7 @@ void ULoginWidgetBase::LoginButtonClicked()
 		IdEditBox->SetText(FText());
 		PasswordEditBox->SetText(FText());
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Login");
+		//등록된 id, pw인지 확인 -> 소켓
 	}
 }
 
