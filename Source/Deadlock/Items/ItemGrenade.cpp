@@ -5,14 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
-void AItemGrenade::UseItem_Implementation(int currentitemcount)
-{
-	if (currentitemcount >= 0)
-	{
-		
-	}
-}
-
 void AItemGrenade::EventItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)

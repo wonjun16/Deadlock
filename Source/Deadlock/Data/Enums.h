@@ -20,10 +20,10 @@ enum class EItemType : uint8
 	E_Weapon = 0 		UMETA(DisplayName = "Weapon"),
 	E_Ammo 				UMETA(DisplayName = "Ammo"),
 	E_Grenade			UMETA(DisplayName = "Grenade"),
-	E_SmokeShell		UMETA(DisplayName = "SmokeShell"),
-	E_FlashGrenade 		UMETA(DisplayName = "FlashGrenade"),
-	E_HealthKit 		UMETA(DisplayName = "HealthKit"),
-	E_PainKiller 		UMETA(DisplayName = "PainKiller")
+	E_Smokeshell		UMETA(DisplayName = "Smokeshell"),
+	E_Flashbang 		UMETA(DisplayName = "Flashbang"),
+	E_MedKit 			UMETA(DisplayName = "Medkit"),
+	E_Painkiller 		UMETA(DisplayName = "Painkiller")
 };
 
 // 2. Weapon Type Enums
