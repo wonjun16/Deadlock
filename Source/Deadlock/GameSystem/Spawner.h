@@ -28,6 +28,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations", Replicated)
 	TArray<FVector> SpawnLocations;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void S2CSetCharacterLocation();
+	void S2CSetCharacterLocation_Implementation();
+
 	// SpawnIndex를 Replicated로 설정
 	UPROPERTY(Replicated)
 	int32 SpawnIndex;

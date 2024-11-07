@@ -13,6 +13,8 @@ class ADeadlockGameMode : public AGameModeBase
 
 public:
 	ADeadlockGameMode();
+
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 };
 
 
