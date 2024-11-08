@@ -2,6 +2,8 @@
 
 
 #include "MagneticField.h"
+#include <Net/UnrealNetwork.h>
+
 
 
 // Sets default values
@@ -28,43 +30,74 @@ void AMagneticField::BeginPlay()
 	Super::BeginPlay();
 	//timer by funtion Name  지정
 	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 0.5f, true);
-	float RandomX = FMath::FRandRange(-10.0f, 10.0f);
-	float RandomZ = FMath::FRandRange(-10.0f, 10.0f);
-	FVector randomVec(RandomX, 0, RandomZ);
-	SetActorLocation(randomVec);
+
+//	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("Client - RandomX and RandomZ updated"));
+
+	if (HasAuthority())
+	{
+		RandomX = FMath::FRandRange(-10.0f, 10.0f);
+		RandomZ = FMath::FRandRange(-10.0f, 10.0f);
+		FVector randomVec(RandomX, 0, RandomZ);
+		SetActorLocation(randomVec);
+	}
 
 	if (ScaleCurve)
 	{
 		// 타임라인에 곡선 데이터 추가
 		FOnTimelineFloat ProgressFunction;
 		ProgressFunction.BindUFunction(this, FName("UpdateScale"));
-		ScaleTimeline->AddInterpFloat(ScaleCurve, ProgressFunction);
+		UCurveFloat* NewCurve;
+		// 커브 생성 및 설정
+		NewCurve = NewObject<UCurveFloat>(this);  // UCurveFloat 객체 생성
 
+		// 커브에 키 추가 (시작과 끝 점)OnTimelineFinished
+		NewCurve->FloatCurve.AddKey(0.f, 100.f);  // 시간 0에서 값 0
+		NewCurve->FloatCurve.AddKey(5.f, 0);  // 시간 1에서 값 1
+
+		ScaleTimeline->AddInterpFloat(NewCurve, ProgressFunction);
+
+		 
+		FOnTimelineEvent OnTimelineFinishedEvent;
+		OnTimelineFinishedEvent.BindUFunction(this, FName("OnTimelineFinished"));
+		ScaleTimeline->SetTimelineFinishedFunc(OnTimelineFinishedEvent);
 		// 타임라인 설정 및 시작
 		ScaleTimeline->SetLooping(false);
-		
+		ScaleTimeline->SetPlayRate(1.0f);
+		ScaleTimeline->SetTimelineLength(5.0f);
+		ScaleTimeline->PlayFromStart();
 	}
-	
 }
+
+void AMagneticField::OnRep_Random()
+{
+	FVector randomVec(RandomX, 0, RandomZ);
+	SetActorLocation(randomVec);
+}
+
+
 
 // Called every frame
 void AMagneticField::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 서버에서만 값을 갱신하도록 처리
+	if (HasAuthority()) // 서버에서만 처리
+	{
+		RemainTime -= DeltaTime; // 시간 감소
+	}
+
 	CheckRemainTime(DeltaTime);
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::SanitizeFloat(RemainTime));
 	// 타임라인 업데이트
 	if (RemainTime <= 0)
 	{
-		if (!ScaleTimeline->IsPlaying())
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnUpdateScale"));
-			ScaleTimeline->Play();
-		}
-		ScaleTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
+		//if (!ScaleTimeline->IsPlaying())
+		//{
+		//	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnUpdateScale"));
+		//	ScaleTimeline->Play();
+		//}
+		//ScaleTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
 	}
-
 }
 
 void AMagneticField::SetHp()
@@ -82,7 +115,7 @@ void AMagneticField::SetHp()
 
 void AMagneticField::CheckRemainTime(float DeltaTime)
 {
-	RemainTime -= DeltaTime;
+	
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
 	if (MyHUD)
@@ -103,7 +136,6 @@ void AMagneticField::CheckRemainTime(float DeltaTime)
 			);
 
 			MyHUD->MagneticUIInstance-> Time = FormattedTime.ToString();
-			//MyHUD->MagneticUIInstance->Time = "wdwd";
 		}
 		else
 		{
@@ -116,24 +148,47 @@ void AMagneticField::CheckRemainTime(float DeltaTime)
 void AMagneticField::UpdateScale(float Value)
 {
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("UpdateScale"));
 	// 스케일 값을 업데이트
-	FVector NewScale = FMath::Lerp(FVector(1.0f, 1.0f, 1.0f), FVector(Value, Value, Value), Value);
+	//FVector NewScale = FMath::Lerp(FVector(1.0f, 1.0f, 1.0f), FVector(Value, Value, Value), Value);
+	FVector NewScale(Value, Value, Value);
 	magneticMesh->SetWorldScale3D(NewScale);
+
+	// 커브에서 시간 로그 출력 (ProgressFunction이 호출될 때마다 업데이트)
+	if (ScaleTimeline)
+	{
+		// 타임라인의 현재 시간 확인
+		float CurrentTime = ScaleTimeline->GetPlaybackPosition();  // 타임라인의 현재 시간
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+			FString::Printf(TEXT("Current Time: %f, Scale Value: %f"), CurrentTime, Value));
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("New Scale: %s"), *NewScale.ToString());
 
 }
 
+void AMagneticField::OnTimelineFinished()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("wwwwwwwwwwwwwwwwwwwwww"));
+}
+
+
 void AMagneticField::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
 	TakeDamage = false;
 }
 
 void AMagneticField::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
 	TakeDamage = true;
 }
 
+void AMagneticField::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMagneticField, RandomX);
+	DOREPLIFETIME(AMagneticField, RandomZ);
+	DOREPLIFETIME(AMagneticField, RemainTime);
+}

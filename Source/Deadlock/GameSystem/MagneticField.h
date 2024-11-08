@@ -25,8 +25,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool TakeDamage;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated)
 	float RemainTime;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Random)
+	float RandomX;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Random)
+	float RandomZ;
 
 	// 타임라인 컴포넌트
 	UPROPERTY()
@@ -62,6 +68,14 @@ public:
 	// 겹침 종료 시 호출되는 함수
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor ,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	// Replication 관련 함수
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_Random();
+
+	void OnTimelineFinished();
 
 
 };
