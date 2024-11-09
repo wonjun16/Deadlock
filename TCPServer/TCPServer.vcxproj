@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8754c942-700f-44d0-9ca7-e57509dc1b04}</ProjectGuid>
+    <ProjectGuid>{8390a605-5a24-45a8-9c49-11fe287675a7}</ProjectGuid>
     <RootNamespace>TCPServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

@@ -1,7 +1,7 @@
 #include "InitSocket.hpp"
 #include <iostream>
 
-void InitSockAddr(SOCKADDR_IN& SockAddr,const ADDRESS_FAMILY family,const short sddr,const short port)
+void InitSockAddr(SOCKADDR_IN& SockAddr, const ADDRESS_FAMILY family, const short sddr, const short port)
 {
 	memset(&SockAddr, 0, sizeof(SockAddr));
 	SockAddr.sin_family = family;

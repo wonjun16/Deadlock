@@ -7,7 +7,7 @@
 
 #pragma comment(lib, "ws2_32")
 
-void InitSockAddr(SOCKADDR_IN& SockAddr,const ADDRESS_FAMILY family = PF_INET,const short sddr = INADDR_ANY,const short port = 12345);
+void InitSockAddr(SOCKADDR_IN& SockAddr, const ADDRESS_FAMILY family = PF_INET, const short sddr = INADDR_ANY, const short port = 12345);
 
 void BindSocket(SOCKET& socket, SOCKADDR_IN sockAddr);
 

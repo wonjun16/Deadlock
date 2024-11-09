@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Works\Unreal Project\Deadlock\TCPServer\x64\Debug\TCPServer.exe</FullPath>
+      <FullPath>C:\UnrealProject\Deadlock\TCPServer\x64\Debug\TCPServer.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
