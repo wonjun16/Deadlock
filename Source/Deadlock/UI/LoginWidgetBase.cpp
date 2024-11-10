@@ -5,6 +5,7 @@
 #include "Components/EditableTextBox.h"
 #include "Components/Button.h"
 #include "regex"
+#include "Http.h"
 
 void ULoginWidgetBase::NativeConstruct()
 {
@@ -38,7 +39,25 @@ void ULoginWidgetBase::LoginButtonClicked()
 		IdEditBox->SetText(FText());
 		PasswordEditBox->SetText(FText());
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Login");
-		//등록된 id, pw인지 확인 -> 소켓
+
+		//임시 http req
+		TSharedPtr<FJsonObject> LoginMessage = MakeShareable(new FJsonObject);
+		LoginMessage->SetStringField("id", ID);
+		LoginMessage->SetStringField("password", Password);
+
+		FString JsonString;
+		TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
+		FJsonSerializer::Serialize(LoginMessage.ToSharedRef(), JsonWriter);
+
+		TSharedRef<IHttpRequest> LoginRequest = FHttpModule::Get().CreateRequest();
+		LoginRequest->SetVerb(TEXT("POST"));
+		LoginRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+		LoginRequest->SetURL(TEXT("https://127.0.0.1:8080/login"));
+		LoginRequest->SetContentAsString(JsonString);
+
+		//Request->OnProcessRequestComplete().BindUObject(this, &ATestProjectGameModeBase::OnResponseReceived);
+
+		LoginRequest->ProcessRequest();
 	}
 }
 
