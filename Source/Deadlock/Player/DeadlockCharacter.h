@@ -61,6 +61,9 @@ public:
 	UInputAction* GrabAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* UseAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ReloadAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -68,6 +71,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ScrollAction;
 
 public:
 	ADeadlockCharacter();
@@ -154,6 +160,8 @@ protected:
 
 	void Grab(const FInputActionValue& Value);
 
+	void Use(const FInputActionValue& Value);
+
 	void Reload(const FInputActionValue& Value);
 
 	void Attack(const FInputActionValue& Value);
@@ -163,6 +171,8 @@ protected:
 	void StopZoom(const FInputActionValue& Value);
 
 	void Crouch(const FInputActionValue& Value);
+
+	void Scroll(const FInputActionValue& Value);
 
 protected:
 	// APawn interface

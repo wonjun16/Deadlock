@@ -427,8 +427,12 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 
+		EnhancedInputComponent->BindAction(UseAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Use);
+
 		//Crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Crouch);
+
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Scroll);
 		
 		//Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Attack);
@@ -521,6 +525,18 @@ void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Crouch"));
 }
 
+void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, Value.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Scroll Log"));
+
+	
+
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	PS->SelectItem(true);
+
+}
+
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 {
 	C2S_Drop();
@@ -529,6 +545,11 @@ void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 {
 	C2S_Grab();
+}
+
+void ADeadlockCharacter::Use(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Use Log"));
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
