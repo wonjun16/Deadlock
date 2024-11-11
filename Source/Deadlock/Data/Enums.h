@@ -22,7 +22,7 @@ enum class EItemType : uint8
 	E_Grenade			UMETA(DisplayName = "Grenade"),
 	E_Smokeshell		UMETA(DisplayName = "Smokeshell"),
 	E_Flashbang 		UMETA(DisplayName = "Flashbang"),
-	E_MedKit 			UMETA(DisplayName = "Medkit"),
+	E_Medkit 			UMETA(DisplayName = "Medkit"),
 	E_Painkiller 		UMETA(DisplayName = "Painkiller")
 };
 

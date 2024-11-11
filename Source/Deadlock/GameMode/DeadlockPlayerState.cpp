@@ -16,6 +16,10 @@ ADeadlockPlayerState::ADeadlockPlayerState()
     EquipWeaponType.Init(0, 2);
 
     CurAmmo = 100;
+
+    ItemCountsArray.Init(0, 5);
+
+    CurSelectItem = 0;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,6 +31,8 @@ void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(ADeadlockPlayerState, CurEqiupWeapon);
     DOREPLIFETIME(ADeadlockPlayerState, EquipWeaponType);
     DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
+    DOREPLIFETIME(ADeadlockPlayerState, ItemCountsArray);
+    DOREPLIFETIME(ADeadlockPlayerState, CurSelectItem);
 }
 
 bool ADeadlockPlayerState::IsCanReload()
@@ -48,4 +54,44 @@ bool ADeadlockPlayerState::IsCanReload()
     }
 
     return Reloadable;
+}
+
+void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
+{
+    if (IsDirectionRight)
+    {
+        if (CurSelectItem >= 4)
+        {
+            CurSelectItem = 0;
+        }
+        else
+        {
+            CurSelectItem++;
+        }
+    }
+    else if (!IsDirectionRight)
+    {
+        if (CurSelectItem <= 0)
+        {
+            CurSelectItem = 4;
+        }
+        else
+        {
+            CurSelectItem--;
+        }
+    }
+}
+
+int ADeadlockPlayerState::CalculateItemCount(bool IsAdd)
+{
+    if (IsAdd)
+    {
+        ItemCountsArray[CurSelectItem]++;
+    }
+    else if (!IsAdd)
+    {
+        ItemCountsArray[CurSelectItem]--;
+    }
+    
+    return ItemCountsArray[CurSelectItem];
 }

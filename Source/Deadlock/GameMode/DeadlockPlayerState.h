@@ -34,6 +34,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
 	uint8 CurAmmo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	TArray<uint8> ItemCountsArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	uint8 CurSelectItem;
+
 	UFUNCTION()
 	bool IsCanReload();
+
+	UFUNCTION()
+	void SelectItem(bool IsDirectionRight);
+
+	UFUNCTION()
+	int CalculateItemCount(bool IsAdd);
 };
