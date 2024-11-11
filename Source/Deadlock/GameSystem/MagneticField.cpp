@@ -41,7 +41,7 @@ void AMagneticField::BeginPlay()
 		SetActorLocation(randomVec);
 	}
 
-	if (ScaleCurve)
+	//if (ScaleCurve)
 	{
 		// 타임라인에 곡선 데이터 추가
 		FOnTimelineFloat ProgressFunction;
@@ -50,9 +50,10 @@ void AMagneticField::BeginPlay()
 		// 커브 생성 및 설정
 		NewCurve = NewObject<UCurveFloat>(this);  // UCurveFloat 객체 생성
 
-		// 커브에 키 추가 (시작과 끝 점)OnTimelineFinished
-		NewCurve->FloatCurve.AddKey(0.f, 100.f);  // 시간 0에서 값 0
-		NewCurve->FloatCurve.AddKey(5.f, 0);  // 시간 1에서 값 1
+		NewCurve->FloatCurve.AddKey(0.f, 600.0f);
+		NewCurve->FloatCurve.AddKey(5.f, ChangeScales[0]);  
+		NewCurve->FloatCurve.AddKey(10.f, ChangeScales[1]);  
+		NewCurve->FloatCurve.AddKey(15.f, 0);  
 
 		ScaleTimeline->AddInterpFloat(NewCurve, ProgressFunction);
 
@@ -63,8 +64,8 @@ void AMagneticField::BeginPlay()
 		// 타임라인 설정 및 시작
 		ScaleTimeline->SetLooping(false);
 		ScaleTimeline->SetPlayRate(1.0f);
-		ScaleTimeline->SetTimelineLength(5.0f);
-		ScaleTimeline->PlayFromStart();
+		ScaleTimeline->SetTimelineLength(15.0f);
+		//ScaleTimeline->PlayFromStart();
 	}
 }
 
@@ -91,12 +92,14 @@ void AMagneticField::Tick(float DeltaTime)
 	// 타임라인 업데이트
 	if (RemainTime <= 0)
 	{
-		//if (!ScaleTimeline->IsPlaying())
-		//{
-		//	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnUpdateScale"));
-		//	ScaleTimeline->Play();
-		//}
+		if (!ScaleTimeline->IsPlaying())
+			ScaleTimeline->Play();
 		//ScaleTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
+	}
+	else
+	{
+		if (ScaleTimeline->IsPlaying())
+			ScaleTimeline->Stop();
 	}
 }
 
@@ -158,29 +161,45 @@ void AMagneticField::UpdateScale(float Value)
 	{
 		// 타임라인의 현재 시간 확인
 		float CurrentTime = ScaleTimeline->GetPlaybackPosition();  // 타임라인의 현재 시간
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
-			FString::Printf(TEXT("Current Time: %f, Scale Value: %f"), CurrentTime, Value));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Current Time: %f, Scale Value: %f"), CurrentTime, Value));
+
+		//첫번째 축소
+		if (CurrentTime > 5.0f && CurrentTime < 5.01f && RemainTime <= 0)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
+			if (HasAuthority())
+			{
+				RemainTime = 5.f;
+			}
+		}
+		//두번째 축소
+		else if (CurrentTime > 10.0f && CurrentTime < 10.01f && RemainTime <= 0)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
+			if (HasAuthority())
+			{
+				RemainTime = 5.f;
+			}
+
+		}
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("New Scale: %s"), *NewScale.ToString());
-
 }
 
 void AMagneticField::OnTimelineFinished()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("wwwwwwwwwwwwwwwwwwwwww"));
+	
+	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("OnTimelineFinished"));
 }
-
 
 void AMagneticField::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
 	TakeDamage = false;
 }
 
 void AMagneticField::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
 	TakeDamage = true;
 }
 

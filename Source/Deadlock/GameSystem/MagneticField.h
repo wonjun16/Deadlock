@@ -28,11 +28,21 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated)
 	float RemainTime;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float RoundCount;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<float> ChangeScales;
+
 	UPROPERTY(ReplicatedUsing = OnRep_Random)
 	float RandomX;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Random)
 	float RandomZ;
+
+	// 타이머 핸들 선언
+	FTimerHandle PauseTimerHandle;
+	float CurrentCount;
 
 	// 타임라인 컴포넌트
 	UPROPERTY()
@@ -75,7 +85,9 @@ public:
 	UFUNCTION()
 	void OnRep_Random();
 
+	UFUNCTION()
 	void OnTimelineFinished();
+
 
 
 };
