@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", ReplicatedUsing = "OnRep_LeftTime")
 	uint8 LeftTime = 60;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", Replicated)
+	float RemainTime= 5;
+
 	UFUNCTION()
 	void OnRep_LeftTime();
 

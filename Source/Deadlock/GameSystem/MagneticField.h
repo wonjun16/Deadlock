@@ -8,6 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "../GameMode/DeadlockGameState.h"
 #include "MagneticField.generated.h"
 
 UCLASS()
@@ -22,6 +23,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* magneticMesh;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	ADeadlockGameState* DeadlockGS;
+
+	UPROPERTY(VisibleAnywhere);
+	bool frist;
+	UPROPERTY(VisibleAnywhere);
+	bool second;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool TakeDamage;
 

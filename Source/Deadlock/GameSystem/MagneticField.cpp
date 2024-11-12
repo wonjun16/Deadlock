@@ -3,6 +3,7 @@
 
 #include "MagneticField.h"
 #include <Net/UnrealNetwork.h>
+#include "../GameMode/DeadlockGameState.h"
 
 
 
@@ -20,7 +21,8 @@ AMagneticField::AMagneticField()
 
 	ScaleTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ScaleTimeline"));
 
-	bReplicates = true; // Actor가 복제되도록 설정
+	
+
 
 }
 
@@ -31,16 +33,7 @@ void AMagneticField::BeginPlay()
 	//timer by funtion Name  지정
 	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 0.5f, true);
 
-//	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("Client - RandomX and RandomZ updated"));
-
-	if (HasAuthority())
-	{
-		RandomX = FMath::FRandRange(-10.0f, 10.0f);
-		RandomZ = FMath::FRandRange(-10.0f, 10.0f);
-		FVector randomVec(RandomX, 0, RandomZ);
-		SetActorLocation(randomVec);
-	}
-
+	DeadlockGS = Cast<ADeadlockGameState>(UGameplayStatics::GetGameState(GetWorld()));
 	//if (ScaleCurve)
 	{
 		// 타임라인에 곡선 데이터 추가
@@ -66,6 +59,7 @@ void AMagneticField::BeginPlay()
 		ScaleTimeline->SetPlayRate(1.0f);
 		ScaleTimeline->SetTimelineLength(15.0f);
 		//ScaleTimeline->PlayFromStart();
+		TakeDamage = false;
 	}
 }
 
@@ -85,12 +79,12 @@ void AMagneticField::Tick(float DeltaTime)
 	// 서버에서만 값을 갱신하도록 처리
 	if (HasAuthority()) // 서버에서만 처리
 	{
-		RemainTime -= DeltaTime; // 시간 감소
+		DeadlockGS->RemainTime -= DeltaTime; // 시간 감소
 	}
 
 	CheckRemainTime(DeltaTime);
 	// 타임라인 업데이트
-	if (RemainTime <= 0)
+	if (DeadlockGS->RemainTime <= 0)
 	{
 		if (!ScaleTimeline->IsPlaying())
 			ScaleTimeline->Play();
@@ -123,13 +117,13 @@ void AMagneticField::CheckRemainTime(float DeltaTime)
 	ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
 	if (MyHUD)
 	{
-		if (RemainTime > 0)
+		if (DeadlockGS->RemainTime > 0)
 		{
 			// 분 계산: RemainTime을 60으로 나누고, 소수점 이하를 버림.
-			int32 Minutes = FMath::FloorToInt(RemainTime / 60.0f);
+			int32 Minutes = FMath::FloorToInt(DeadlockGS->RemainTime / 60.0f);
 
 			// 초 계산: RemainTime을 60으로 나눈 나머지 값을 소수점 이하를 버림.
-			int32 Seconds = FMath::FloorToInt(FMath::Fmod(RemainTime, 60.0f));
+			int32 Seconds = FMath::FloorToInt(FMath::Fmod(DeadlockGS->RemainTime, 60.0f));
 
 			// "MM:SS" 형식의 텍스트를 생성
 			FText FormattedTime = FText::Format(
@@ -164,21 +158,23 @@ void AMagneticField::UpdateScale(float Value)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Current Time: %f, Scale Value: %f"), CurrentTime, Value));
 
 		//첫번째 축소
-		if (CurrentTime > 5.0f && CurrentTime < 5.01f && RemainTime <= 0)
+		if (CurrentTime > 5.0f && !frist)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
+			//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
 			if (HasAuthority())
 			{
-				RemainTime = 5.f;
+				frist = true;
+				DeadlockGS->RemainTime = 5.f;
 			}
 		}
 		//두번째 축소
-		else if (CurrentTime > 10.0f && CurrentTime < 10.01f && RemainTime <= 0)
+		else if (CurrentTime > 10.0f && !second)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
+			//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
 			if (HasAuthority())
 			{
-				RemainTime = 5.f;
+				second = true;
+				DeadlockGS->RemainTime = 5.f;
 			}
 
 		}
@@ -188,18 +184,18 @@ void AMagneticField::UpdateScale(float Value)
 void AMagneticField::OnTimelineFinished()
 {
 	
-	GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("OnTimelineFinished"));
+	//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("OnTimelineFinished"));
 }
 
 void AMagneticField::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
 	TakeDamage = false;
 }
 
 void AMagneticField::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
 	TakeDamage = true;
 }
 
