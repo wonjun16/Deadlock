@@ -13,5 +13,8 @@ UCLASS()
 class DEADLOCK_API AItemMedkit : public AItemBase
 {
 	GENERATED_BODY()
+
+public:
+	AItemMedkit();
 	
 };

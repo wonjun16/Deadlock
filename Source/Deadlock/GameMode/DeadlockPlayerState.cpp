@@ -17,9 +17,9 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     CurAmmo = 100;
 
-    ItemCountsArray.Init(0, 5);
+    ItemCountsArray.Init(0, 6);
 
-    CurSelectItem = 0;
+    CurSelectItem = 2;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -60,25 +60,27 @@ void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
 {
     if (IsDirectionRight)
     {
-        if (CurSelectItem >= 4)
+        if (CurSelectItem >= 6)
         {
-            CurSelectItem = 0;
+            CurSelectItem = 2;
         }
         else
         {
             CurSelectItem++;
         }
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItem);
     }
     else if (!IsDirectionRight)
     {
-        if (CurSelectItem <= 0)
+        if (CurSelectItem <= 2)
         {
-            CurSelectItem = 4;
+            CurSelectItem = 6;
         }
         else
         {
             CurSelectItem--;
         }
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItem);
     }
 }
 
@@ -86,9 +88,10 @@ int ADeadlockPlayerState::CalculateItemCount(bool IsAdd)
 {
     if (IsAdd)
     {
+        //ItemEnumIndex Value = 2 ~ 6
         ItemCountsArray[CurSelectItem]++;
     }
-    else if (!IsAdd)
+    else if (!IsAdd && ItemCountsArray[CurSelectItem] > 0)
     {
         ItemCountsArray[CurSelectItem]--;
     }

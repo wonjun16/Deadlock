@@ -49,20 +49,18 @@ void AItemBase::UseItem_Implementation(int CurrentCount)
 	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 	if (CurrentCount > 0)
 	{
-		CurrentItemCount = CurrentCount--;
+		
 		ItemMesh->SetSimulatePhysics(true);
 	}
 }
 
-void AItemBase::GetItem_Implementation(int CurrentCount, int MaxCount)
+EItemType AItemBase::GetItem_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
-	if (MaxCount > CurrentCount)
-	{
-		CurrentItemCount = CurrentCount++;
 
-		AActor::Destroy();
-	}
+	//AActor::Destroy();
+
+	return EItemType(EItemTypeIndex);
 }
 
 void AItemBase::PlayItemEffect_Implementation()

@@ -14,4 +14,7 @@ class DEADLOCK_API AItemSmokeshell : public AItemBase
 {
 	GENERATED_BODY()
 
+public:
+	AItemSmokeshell();
+
 };

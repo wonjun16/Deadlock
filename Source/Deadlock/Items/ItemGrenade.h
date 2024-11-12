@@ -14,6 +14,9 @@ class DEADLOCK_API AItemGrenade : public AItemBase
 {
 	GENERATED_BODY()
 
+public:
+	AItemGrenade();
+
 	virtual void EventItemAffect_Implementation()override;
 	
 };

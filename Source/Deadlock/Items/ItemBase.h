@@ -41,7 +41,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	uint8 MaxItemCount;
+	uint8 EItemTypeIndex;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	uint8 CurrentItemCount;
@@ -58,7 +58,7 @@ public:
 
 	virtual void UseItem_Implementation(int CurrentCount)override;
 
-	virtual void GetItem_Implementation(int CurrentCount, int MaxCount)override;
+	virtual EItemType GetItem_Implementation()override;
 
 	virtual void PlayItemEffect_Implementation()override;
 

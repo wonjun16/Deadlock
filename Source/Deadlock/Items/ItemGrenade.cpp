@@ -5,6 +5,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
+AItemGrenade::AItemGrenade()
+{
+	EItemTypeIndex = 2;
+}
+
 void AItemGrenade::EventItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)

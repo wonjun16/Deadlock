@@ -14,4 +14,7 @@ class DEADLOCK_API AItemPainkiller : public AItemBase
 {
 	GENERATED_BODY()
 	
+public:
+	AItemPainkiller();
+
 };

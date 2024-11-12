@@ -3,3 +3,7 @@
 
 #include "ItemSmokeshell.h"
 
+AItemSmokeshell::AItemSmokeshell()
+{
+	EItemTypeIndex = 3;
+}

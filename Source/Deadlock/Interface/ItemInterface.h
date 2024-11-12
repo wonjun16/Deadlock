@@ -26,7 +26,7 @@ public:
 	void UseItem(int CurrentCount);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GetItem(int CurrentCount, int MaxCount);
+	EItemType GetItem();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void PlayItemEffect();

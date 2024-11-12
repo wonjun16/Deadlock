@@ -3,3 +3,7 @@
 
 #include "ItemMedkit.h"
 
+AItemMedkit::AItemMedkit()
+{
+	EItemTypeIndex = 5;
+}

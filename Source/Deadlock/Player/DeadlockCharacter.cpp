@@ -294,9 +294,22 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : PS->EquipWeapon[PS->CurEqiupWeapon] is null");
 		}
 	}
+	else if (PS && Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		IItemInterface* CastItemInterface = Cast<IItemInterface>(Item);
+
+		if (CastItemInterface)
+		{
+			
+		}
+
+		//PS->CalculateItemCount(true, );
+
+		//It is item
+	}
 	else
 	{
-		//It is not a weapon
+		//Can be Interaction of Door
 	}
 
 }
@@ -527,14 +540,23 @@ void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, Value.ToString());
-	UE_LOG(LogTemp, Log, TEXT("Scroll Log"));
+	FVector ScrollVector = Value.Get<FVector>();
+	float ScrollValue = ScrollVector.X;
+	bool InventoryScrollWay;
 
-	
+	if (ScrollValue > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Positive");
+		InventoryScrollWay = true;
+	}
+	else if (ScrollValue < 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Negative");
+		InventoryScrollWay = false;
+	}
 
 	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	PS->SelectItem(true);
-
+	PS->SelectItem(InventoryScrollWay);
 }
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
@@ -550,6 +572,8 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Use Log"));
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	PS->CalculateItemCount(false);
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)

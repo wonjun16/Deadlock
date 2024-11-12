@@ -3,3 +3,7 @@
 
 #include "ItemPainkiller.h"
 
+AItemPainkiller::AItemPainkiller()
+{
+	EItemTypeIndex = 6;
+}

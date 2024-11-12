@@ -5,6 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
+AItemFlashbang::AItemFlashbang()
+{
+	EItemTypeIndex = 4;
+}
+
 void AItemFlashbang::EventItemAffect_Implementation()
 {
 	//Player Camera Flash
