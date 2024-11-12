@@ -52,7 +52,7 @@ void ASpawner::S2CSetCharacterLocation_Implementation()
 	//}
 
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("PlayerCharacterqqqqqqqqqqqqqqqqqqq is  : %d"), PlayerCharacter.Num()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("PlayerCharacter is  : %d"), PlayerCharacter.Num()));
 }
 
 void ASpawner::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

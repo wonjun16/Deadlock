@@ -37,4 +37,5 @@ void ADeadlockGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(ADeadlockGameState, PlayerCount);
 	DOREPLIFETIME(ADeadlockGameState, LeftTime);
+	DOREPLIFETIME(ADeadlockGameState, RemainTime);
 }
