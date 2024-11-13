@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemSmokeshell.h"
+#include "ItemPainkiller.h"
 
-AItemSmokeshell::AItemSmokeshell()
+AItemPainkiller::AItemPainkiller()
 {
-	EItemTypeIndex = 3;
+	EItemTypeIndex = 6;
 }

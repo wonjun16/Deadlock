@@ -32,12 +32,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraComponent* ItemBaseEffect;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraSystem* EffectAsset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USceneComponent* ImpulsePosition;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -47,7 +41,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	uint8 MaxItemCount;
+	uint8 EItemTypeIndex;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	uint8 CurrentItemCount;
@@ -62,9 +56,9 @@ public:
 	float ThrowSpeed;
 
 
-	virtual void UseItem_Implementation(int currentitemcount)override;
+	virtual void UseItem_Implementation(int CurrentCount)override;
 
-	virtual void GetItem_Implementation(int currentitemcount, int maxitemcount)override;
+	virtual EItemType GetItem_Implementation()override;
 
 	virtual void PlayItemEffect_Implementation()override;
 

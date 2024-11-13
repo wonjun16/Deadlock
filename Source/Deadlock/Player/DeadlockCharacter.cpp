@@ -14,6 +14,7 @@
 #include "../GameMode/DeadlockPlayerController.h"
 #include "../Data/Enums.h"
 #include "../Interface/ItemInterface.h"
+#include "Deadlock/Items/ItemBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
@@ -255,7 +256,7 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 		}
 		else
 		{
-			//It is not a weapon.
+			//NearestItem->Destroy();
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
 		}
 
@@ -296,9 +297,22 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : PS->EquipWeapon[PS->CurEqiupWeapon] is null");
 		}
 	}
+	else if (PS && Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		AItemBase* CastItem = Cast<AItemBase>(Item);
+
+		if (CastItem)
+		{
+			uint8 GrabbedItemIndex = CastItem->EItemTypeIndex;
+			uint8 InventoryItemCount = PS->CalculateItemCount(true, GrabbedItemIndex);
+			//Destroy when Test ends
+			//Item->Destroy();
+			UE_LOG(LogTemp, Log, TEXT("Index : %d , Value : %d"), (int)GrabbedItemIndex, (int)InventoryItemCount);
+		}
+	}
 	else
 	{
-		//It is not a weapon
+		//Can be Interaction of Door
 	}
 
 }
@@ -429,8 +443,12 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 
+		EnhancedInputComponent->BindAction(UseAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Use);
+
 		//Crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Crouch);
+
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Scroll);
 		
 		//Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Attack);
@@ -523,6 +541,27 @@ void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Crouch"));
 }
 
+void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
+{
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	FVector ScrollVector = Value.Get<FVector>();
+	float ScrollValue = ScrollVector.X;
+	bool InventoryScrollWay;
+
+	if (ScrollValue > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Positive");
+		InventoryScrollWay = true;
+		PS->SelectItem(InventoryScrollWay);
+	}
+	else if (ScrollValue < 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Negative");
+		InventoryScrollWay = false;
+		PS->SelectItem(InventoryScrollWay);
+	}
+}
+
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 {
 	C2S_Drop();
@@ -531,6 +570,13 @@ void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 {
 	C2S_Grab();
+}
+
+void ADeadlockCharacter::Use(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Use Log"));
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	PS->CalculateItemCount(false, NULL);
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)

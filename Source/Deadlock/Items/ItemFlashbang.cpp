@@ -5,6 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
+AItemFlashbang::AItemFlashbang()
+{
+	EItemTypeIndex = 4;
+}
+
 void AItemFlashbang::EventItemAffect_Implementation()
 {
 	//Player Camera Flash
@@ -25,18 +30,12 @@ void AItemFlashbang::EventItemAffect_Implementation()
 		for (auto& Hit : HitActors)
 		{
 			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
-			AActor* HitActor = Hit.GetActor();
-			FString ActorName = HitActor->GetName();
-			UE_LOG(LogTemp, Log, TEXT("HitActor is %s"),*ActorName);
 
 			if (HitCharacter)
 			{
 				FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
-
 				UCameraComponent* CharacterCamera = HitCharacter->FollowCamera;
-
 				FVector FrontVector = CharacterCamera->GetForwardVector();
-
 				FVector CharacterView = FrontVector.GetSafeNormal();
 
 				double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
@@ -44,7 +43,7 @@ void AItemFlashbang::EventItemAffect_Implementation()
 				//Check Character Looking Flash Point
 				if (FlashbangDotProduct > 0.5)
 				{
-					//Flash Effct
+					//Flash Effect
 					UE_LOG(LogTemp, Log, TEXT("Character Looking Flash Point"));
 				}
 				else

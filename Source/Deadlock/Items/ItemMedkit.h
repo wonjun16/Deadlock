@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "ItemBase.h"
-#include "ItemSmokeshell.generated.h"
+#include "ItemMedkit.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADLOCK_API AItemSmokeshell : public AItemBase
+class DEADLOCK_API AItemMedkit : public AItemBase
 {
 	GENERATED_BODY()
 
 public:
-	AItemSmokeshell();
-
+	AItemMedkit();
+	
 };

@@ -34,10 +34,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
 	uint8 CurAmmo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	TArray<uint8> ItemCountsArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
+	uint8 CurSelectItem;
+
 	UFUNCTION()
 	bool IsCanReload();
 
-	//·Îºñ¿¡ ¾²ÀÏ º¯¼öµé
+	UFUNCTION()
+	void SelectItem(bool IsDirectionRight);
+
+	UFUNCTION()
+	uint8 CalculateItemCount(bool IsAdd, uint8 ItemIndex);
+	
+	//ï¿½Îºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", ReplicatedUsing = "OnRep_ReadyState")
 	uint8 bReadyState : 1;
 

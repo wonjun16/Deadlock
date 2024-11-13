@@ -4,6 +4,8 @@
 #include "ItemBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Deadlock/Player/DeadlockCharacter.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
@@ -21,12 +23,11 @@ AItemBase::AItemBase()
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	/* Do not Simulate Physics Before Grab
-	*  Deactive During Test / Develop
-	ItemMesh->SetSimulatePhysics(false); */
+	*  Deactive During Test / Develop */
+	//ItemMesh->SetSimulatePhysics(false);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
-	EffectAsset = ItemBaseEffect->GetAsset();
 }
 
 // Called when the game starts or when spawned
@@ -43,37 +44,38 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::UseItem_Implementation(int currentitemcount)
+void AItemBase::UseItem_Implementation(int CurrentCount)
 {
-	if (currentitemcount > 0)
+	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
+	if (CurrentCount > 0)
 	{
-		currentitemcount--;
+		
 		ItemMesh->SetSimulatePhysics(true);
 	}
-	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
 }
 
-void AItemBase::GetItem_Implementation(int currentitemcount, int maxitemcount)
+EItemType AItemBase::GetItem_Implementation()
 {
-	if (maxitemcount > currentitemcount)
-	{
-		currentitemcount++;
-	}
 	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
+
+	//AActor::Destroy();
+
+	return EItemType(EItemTypeIndex);
 }
 
 void AItemBase::PlayItemEffect_Implementation()
 {
 	UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
-	(EffectAsset, ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
+	(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
 		EAttachLocation::Type::KeepRelativeOffset, true);
+
+	ItemEffect->Activate();
 }
 
 void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 {
 	//Simulate Physics When Throw
 	ItemMesh->SetSimulatePhysics(true);
-
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
 	//CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//Test Vector
