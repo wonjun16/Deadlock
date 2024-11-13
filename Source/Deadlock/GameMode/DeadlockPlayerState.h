@@ -47,5 +47,5 @@ public:
 	void SelectItem(bool IsDirectionRight);
 
 	UFUNCTION()
-	int CalculateItemCount(bool IsAdd);
+	uint8 CalculateItemCount(bool IsAdd, uint8 ItemIndex);
 };

@@ -14,6 +14,7 @@
 #include "../GameMode/DeadlockPlayerController.h"
 #include "../Data/Enums.h"
 #include "../Interface/ItemInterface.h"
+#include "Deadlock/Items/ItemBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
@@ -253,7 +254,7 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 		}
 		else
 		{
-			//It is not a weapon.
+			//NearestItem->Destroy();
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
 		}
 
@@ -296,16 +297,16 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 	}
 	else if (PS && Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
 	{
-		IItemInterface* CastItemInterface = Cast<IItemInterface>(Item);
+		AItemBase* CastItem = Cast<AItemBase>(Item);
 
-		if (CastItemInterface)
+		if (CastItem)
 		{
-			
+			uint8 GrabbedItemIndex = CastItem->EItemTypeIndex;
+			uint8 InventoryItemCount = PS->CalculateItemCount(true, GrabbedItemIndex);
+			//Destroy when Test ends
+			//Item->Destroy();
+			UE_LOG(LogTemp, Log, TEXT("Index : %d , Value : %d"), (int)GrabbedItemIndex, (int)InventoryItemCount);
 		}
-
-		//PS->CalculateItemCount(true, );
-
-		//It is item
 	}
 	else
 	{
@@ -540,6 +541,7 @@ void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
 {
+	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	FVector ScrollVector = Value.Get<FVector>();
 	float ScrollValue = ScrollVector.X;
 	bool InventoryScrollWay;
@@ -548,15 +550,14 @@ void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Positive");
 		InventoryScrollWay = true;
+		PS->SelectItem(InventoryScrollWay);
 	}
 	else if (ScrollValue < 0)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Negative");
 		InventoryScrollWay = false;
+		PS->SelectItem(InventoryScrollWay);
 	}
-
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	PS->SelectItem(InventoryScrollWay);
 }
 
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
@@ -573,7 +574,7 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Use Log"));
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	PS->CalculateItemCount(false);
+	PS->CalculateItemCount(false, NULL);
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)

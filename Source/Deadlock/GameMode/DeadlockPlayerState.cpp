@@ -17,7 +17,7 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     CurAmmo = 100;
 
-    ItemCountsArray.Init(0, 6);
+    ItemCountsArray.Init(0, 7); // = { 0, 0, 0, 0, 0, 0, 0 }
 
     CurSelectItem = 2;
 }
@@ -84,17 +84,18 @@ void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
     }
 }
 
-int ADeadlockPlayerState::CalculateItemCount(bool IsAdd)
+uint8 ADeadlockPlayerState::CalculateItemCount(bool IsAdd, uint8 ItemIndex)
 {
     if (IsAdd)
     {
         //ItemEnumIndex Value = 2 ~ 6
-        ItemCountsArray[CurSelectItem]++;
+        ItemCountsArray[ItemIndex]++;
+        return ItemCountsArray[ItemIndex];
     }
     else if (!IsAdd && ItemCountsArray[CurSelectItem] > 0)
     {
         ItemCountsArray[CurSelectItem]--;
+        return ItemCountsArray[CurSelectItem];
     }
-    
-    return ItemCountsArray[CurSelectItem];
+    return 0;
 }
