@@ -13,8 +13,9 @@ UCLASS()
 class DEADLOCK_API AItemGrenade : public AItemBase
 {
 	GENERATED_BODY()
-	
-	virtual void UseItem_Implementation(int currentitemcount)override;
+
+public:
+	AItemGrenade();
 
 	virtual void EventItemAffect_Implementation()override;
 	

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemSmokeshell.h"
+#include "ItemMedkit.h"
 
-AItemSmokeshell::AItemSmokeshell()
+AItemMedkit::AItemMedkit()
 {
-	EItemTypeIndex = 3;
+	EItemTypeIndex = 5;
 }

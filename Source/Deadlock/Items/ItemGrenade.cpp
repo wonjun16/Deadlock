@@ -5,12 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
-void AItemGrenade::UseItem_Implementation(int currentitemcount)
+AItemGrenade::AItemGrenade()
 {
-	if (currentitemcount >= 0)
-	{
-		
-	}
+	EItemTypeIndex = 2;
 }
 
 void AItemGrenade::EventItemAffect_Implementation()

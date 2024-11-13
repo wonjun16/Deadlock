@@ -23,10 +23,10 @@ class DEADLOCK_API IItemInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void UseItem(int currentitemcount);
+	void UseItem(int CurrentCount);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GetItem(int currentitemcount, int maxitemcount);
+	EItemType GetItem();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void PlayItemEffect();
