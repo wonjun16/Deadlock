@@ -20,6 +20,8 @@ ADeadlockPlayerState::ADeadlockPlayerState()
     ItemCountsArray.Init(0, 7); // = { 0, 0, 0, 0, 0, 0, 0 }
 
     CurSelectItem = 2;
+    
+    bReadyState = false;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -33,6 +35,7 @@ void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
     DOREPLIFETIME(ADeadlockPlayerState, ItemCountsArray);
     DOREPLIFETIME(ADeadlockPlayerState, CurSelectItem);
+    DOREPLIFETIME(ADeadlockPlayerState, bReadyState);
 }
 
 bool ADeadlockPlayerState::IsCanReload()
@@ -98,4 +101,9 @@ uint8 ADeadlockPlayerState::CalculateItemCount(bool IsAdd, uint8 ItemIndex)
         return ItemCountsArray[CurSelectItem];
     }
     return 0;
+}
+
+void ADeadlockPlayerState::OnRep_ReadyState()
+{
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *GetName());
 }

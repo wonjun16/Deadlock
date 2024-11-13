@@ -68,6 +68,8 @@ ADeadlockCharacter::ADeadlockCharacter()
 
 	bIsZoom = false;
 
+
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -607,5 +609,24 @@ void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Run Value is false");
+	}
+}
+
+
+void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations)
+{
+	TArray<AActor*> PlayerCharacter;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadlockCharacter::StaticClass(), PlayerCharacter);
+
+	int32 playerIndex = 0;
+	for (AActor* Actor : PlayerCharacter)
+	{
+		ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(Actor);
+		if (DeadlockCharacter)
+		{
+			DeadlockCharacter->SetActorLocation(SpawnLocations[playerIndex]);
+			playerIndex++;
+		
+		}
 	}
 }
