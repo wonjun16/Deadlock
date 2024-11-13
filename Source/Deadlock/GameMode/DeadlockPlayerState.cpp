@@ -90,9 +90,11 @@ void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
 uint8 ADeadlockPlayerState::CalculateItemCount(bool IsAdd, uint8 ItemIndex)
 {
     if (IsAdd)
-    {
-        //ItemEnumIndex Value = 2 ~ 6
-        ItemCountsArray[ItemIndex]++;
+    { 
+        if (ItemCountsArray[ItemIndex] < 10)
+        {
+            ItemCountsArray[ItemIndex]++;
+        }
         return ItemCountsArray[ItemIndex];
     }
     else if (!IsAdd && ItemCountsArray[CurSelectItem] > 0)

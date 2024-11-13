@@ -44,22 +44,13 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::UseItem_Implementation(int CurrentCount)
+void AItemBase::UseItem_Implementation(int ItemIndex)
 {
-	UE_LOG(LogTemp, Log, TEXT("UseItem Test Log"));
-	if (CurrentCount > 0)
-	{
-		
-		ItemMesh->SetSimulatePhysics(true);
-	}
 }
 
 EItemType AItemBase::GetItem_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
-
-	//AActor::Destroy();
-
 	return EItemType(EItemTypeIndex);
 }
 
@@ -77,7 +68,7 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 	//Simulate Physics When Throw
 	ItemMesh->SetSimulatePhysics(true);
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
-	//CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//Test Vector
 	ItemMesh->AddImpulse(FVector(1700.0f, 0.0f, 1000.0f));
 	//ItemMesh->AddImpulse(ThrowDirection);

@@ -56,7 +56,7 @@ public:
 	float ThrowSpeed;
 
 
-	virtual void UseItem_Implementation(int CurrentCount)override;
+	virtual void UseItem_Implementation(int ItemIndex)override;
 
 	virtual EItemType GetItem_Implementation()override;
 
