@@ -97,6 +97,8 @@ public:
 
 	FOnTimelineEvent FinishZoomEvent;
 
+	FTimerHandle ItemTriggerTimerHandle;
+
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
 

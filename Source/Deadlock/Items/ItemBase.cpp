@@ -69,9 +69,6 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 	FVector ThrowWay(ThrowDirection.X, ThrowDirection.Y, 1.0f);
 
 	ItemMesh->AddImpulse(ThrowWay.GetSafeNormal() * 500, NAME_None, true);
-	
-	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this, 
-		&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
 }
 
 void AItemBase::EventItemAffect_Implementation()

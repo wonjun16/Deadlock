@@ -574,7 +574,7 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	if (PS->ItemCountsArray[PS->CurSelectItem] > 0)
+	if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
 	{
 		PS->CalculateItemCount(false, NULL);
 
@@ -584,16 +584,47 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 		for (AActor* Items : FoundItems)
 		{
 			AItemBase* TargetItem = Cast<AItemBase>(Items);
-			if (TargetItem->EItemTypeIndex == PS->CurSelectItem)
+			if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Use Log"));
-				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>(TargetItem->GetClass(),
-					GetMesh()->GetSocketTransform(TEXT("LeftHand")));
-
-
-
-				SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
+					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));
+				if (PS->CurSelectItemIndex <= 4 && PS->CurSelectItemIndex >= 2)
+				{
+					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
+						&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
+				}
+				else if (PS->CurSelectItemIndex == 5)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Use Healkit Log"));
+					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
+						&AItemBase::EventItemAffect_Implementation, 0.2f, false, 5.0f);
+				}
+				else if (PS->CurSelectItemIndex == 6)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Use Painkiller Log"));
+					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
+						&AItemBase::EventItemAffect_Implementation, 0.33f, false, 3.0f);
+				}
 				break;
+				/*switch (PS->CurSelectItemIndex)
+				{
+				default:
+					break;
+
+				case 2: case 3 : case 4 :
+					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
+
+					break;
+
+				case 5:
+
+					break;
+
+				case 6:
+
+					break;
+				}*/
 			}
 		}
 	}
