@@ -5,7 +5,8 @@
 #include "Components/EditableTextBox.h"
 #include "Components/Button.h"
 #include "regex"
-#include "Http.h"
+#include "RegisterWidgetBase.h"
+#include "AlertWidgetBase.h"
 
 void ULoginWidgetBase::NativeConstruct()
 {
@@ -15,6 +16,8 @@ void ULoginWidgetBase::NativeConstruct()
 	PasswordEditBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("BP_PasswordEditBox")));
 	LoginButton = Cast<UButton>(GetWidgetFromName(TEXT("BP_LoginButton")));
 	MembershipButton = Cast<UButton>(GetWidgetFromName(TEXT("BP_MembershipButton")));
+	RegisterWidget = Cast<URegisterWidgetBase>(GetWidgetFromName(TEXT("BP_RegisterWidget")));
+	FailLoginWidget = Cast<UAlertWidgetBase>(GetWidgetFromName(TEXT("BP_FailLoginWidget")));
 
 	if (LoginButton)
 	{
@@ -33,7 +36,6 @@ void ULoginWidgetBase::LoginButtonClicked()
 	FString ID = IdEditBox->GetText().ToString();
 	FString Password = PasswordEditBox->GetText().ToString();
 
-	//ID, PW는 6자 ~ 20자 / ID에는 특수문자 포함 X / PW에는 무조건 특수문자 포함 / ID, PW에는 공백 포함 X
 	if (IsValidID(ID) && IsValidPassword(Password))
 	{
 		IdEditBox->SetText(FText());
@@ -52,12 +54,16 @@ void ULoginWidgetBase::LoginButtonClicked()
 		TSharedRef<IHttpRequest> LoginRequest = FHttpModule::Get().CreateRequest();
 		LoginRequest->SetVerb(TEXT("POST"));
 		LoginRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-		LoginRequest->SetURL(TEXT("https://127.0.0.1:8080/login"));
+		LoginRequest->SetURL(TEXT("http://127.0.0.1:8080/login"));
 		LoginRequest->SetContentAsString(JsonString);
 
-		//Request->OnProcessRequestComplete().BindUObject(this, &ATestProjectGameModeBase::OnResponseReceived);
+		LoginRequest->OnProcessRequestComplete().BindUObject(this, &ULoginWidgetBase::OnResponseReceived);
 
 		LoginRequest->ProcessRequest();
+	}
+	else
+	{
+		FailLoginWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -65,7 +71,10 @@ void ULoginWidgetBase::MembershipButtonClicked()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Membership Button Clicked");
 
+	FailLoginWidget->SetVisibility(ESlateVisibility::Collapsed);
+
 	//create accout widget 띄우기
+	RegisterWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 bool ULoginWidgetBase::IsValidID(const FString& ID)
@@ -110,4 +119,28 @@ bool ULoginWidgetBase::IsValidPassword(const FString& Password)
 	}
 
 	return true;
+}
+
+void ULoginWidgetBase::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!bWasSuccessful || !Response.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("HTTP request failed. URL: %s"), *Request->GetURL());
+		return;
+	}
+
+	int32 StatusCode = Response->GetResponseCode();
+	FString ResponseContent = Response->GetContentAsString();
+
+	if (StatusCode == 200)
+	{
+		//로그인 성공 로직
+	}
+	else
+	{
+		FailLoginWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("HTTP request completed. Status Code: %d, URL: %s"), StatusCode, *Request->GetURL());
+	//UE_LOG(LogTemp, Warning, TEXT("Response Content: %s"), *ResponseContent);
 }

@@ -4,19 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Http.h"
-#include "LoginWidgetBase.generated.h"
+#include "http.h"
+#include "RegisterWidgetBase.generated.h"
 
 class UEditableTextBox;
 class UButton;
-class URegisterWidgetBase;
 class UAlertWidgetBase;
 
 /**
  * 
  */
 UCLASS()
-class DEADLOCK_API ULoginWidgetBase : public UUserWidget
+class DEADLOCK_API URegisterWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -30,26 +29,34 @@ protected:
 	TObjectPtr<UEditableTextBox> PasswordEditBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UButton> LoginButton;
+	TObjectPtr<UEditableTextBox> NickNameEditBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UButton> MembershipButton;
+	TObjectPtr<UButton> RegisterButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<URegisterWidgetBase> RegisterWidget;
+	TObjectPtr<UButton> GoBackButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UAlertWidgetBase> FailLoginWidget;
+	TObjectPtr<UAlertWidgetBase> SuccessRegisterWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UAlertWidgetBase> FailRegisterWidget;
 
 	UFUNCTION()
-	void LoginButtonClicked();
+	void RegisterButtonClicked();
 
 	UFUNCTION()
-	void MembershipButtonClicked();
+	void GoBackButtonClicked();
 
+	//ID : 6~20자 / 특수문자 포함 X  / 공백 포함 X
 	bool IsValidID(const FString& ID);
 
+	//Password : 6~20자 / 무조건 특수문자 1개 이상 포함 / 공백 포함 X
 	bool IsValidPassword(const FString& Password);
+
+	//NickName : 3~20자 / 특수문자 포함 X  / 공백 포함 X
+	bool IsValidNickName(const FString& NickName);
 
 	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
