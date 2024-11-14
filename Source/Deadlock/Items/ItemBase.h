@@ -56,8 +56,6 @@ public:
 	float ThrowSpeed;
 
 
-	virtual void UseItem_Implementation(int ItemIndex)override;
-
 	virtual EItemType GetItem_Implementation()override;
 
 	virtual void PlayItemEffect_Implementation()override;

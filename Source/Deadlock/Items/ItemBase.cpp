@@ -44,10 +44,6 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::UseItem_Implementation(int ItemIndex)
-{
-}
-
 EItemType AItemBase::GetItem_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
@@ -69,9 +65,11 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 	ItemMesh->SetSimulatePhysics(true);
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
 	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//Test Vector
-	ItemMesh->AddImpulse(FVector(1700.0f, 0.0f, 1000.0f));
-	//ItemMesh->AddImpulse(ThrowDirection);
+
+	FVector ThrowWay(ThrowDirection.X, ThrowDirection.Y, 1.0f);
+
+	ItemMesh->AddImpulse(ThrowWay.GetSafeNormal() * 500, NAME_None, true);
+	UE_LOG(LogTemp, Log, TEXT("X : %f, Y : %f, Z : %f"), ThrowDirection.X, ThrowDirection.Y, ThrowDirection.Z);
 }
 
 void AItemBase::EventItemAffect_Implementation()

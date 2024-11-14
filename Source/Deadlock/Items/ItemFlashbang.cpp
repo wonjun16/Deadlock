@@ -10,15 +10,6 @@ AItemFlashbang::AItemFlashbang()
 	EItemTypeIndex = 4;
 }
 
-void AItemFlashbang::UseItem_Implementation(int ItemIndex)
-{
-	if (ItemIndex == EItemTypeIndex)
-	{
-		ItemMesh->SetSimulatePhysics(true);
-		UE_LOG(LogTemp, Log, TEXT("Flashbang Use"));
-	}
-}
-
 void AItemFlashbang::EventItemAffect_Implementation()
 {
 	//Player Camera Flash

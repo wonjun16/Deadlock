@@ -573,13 +573,29 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Use Log"));
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	uint8 LeftItemCount = PS->CalculateItemCount(false, NULL);
-	if (LeftItemCount > 0)
+	if (PS->ItemCountsArray[PS->CurSelectItem] > 0)
 	{
+		PS->CalculateItemCount(false, NULL);
+
+		TArray<AActor*> FoundItems;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
+
+		for (AActor* Items : FoundItems)
+		{
+			AItemBase* TargetItem = Cast<AItemBase>(Items);
+			if (TargetItem->EItemTypeIndex == PS->CurSelectItem)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Use Log"));
+				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>(TargetItem->GetClass(),
+					GetMesh()->GetSocketTransform(TEXT("LeftHand")));
 
 
+
+				SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+				break;
+			}
+		}
 	}
 }
 

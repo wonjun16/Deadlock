@@ -10,15 +10,6 @@ AItemGrenade::AItemGrenade()
 	EItemTypeIndex = 2;
 }
 
-void AItemGrenade::UseItem_Implementation(int ItemIndex)
-{
-	if (ItemIndex == EItemTypeIndex)
-	{
-		ItemMesh->SetSimulatePhysics(true);
-		UE_LOG(LogTemp, Log, TEXT("Grenade Use"));
-	}
-}
-
 void AItemGrenade::EventItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)
