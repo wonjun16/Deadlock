@@ -6,19 +6,22 @@
 #include "Interfaces/IPv4/IPv4Address.h"
 #include "Sockets.h"
 
-FSocket* ClientSocket::Socket = nullptr;
-
 ClientSocket::ClientSocket()
 {
+	
 }
 
 ClientSocket::~ClientSocket()
 {
 }
 
-void ClientSocket::ConnectSocket()
+void ClientSocket::CreateClientSocket()
 {
 	ClientSocket::Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("Client Socket"));
+}
+
+void ClientSocket::ConnectSocket()
+{
 	TSharedRef<FInternetAddr> ClientAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
 
 	FString Address = TEXT("127.0.0.1");

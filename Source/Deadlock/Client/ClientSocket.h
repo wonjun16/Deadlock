@@ -15,9 +15,11 @@ public:
 	ClientSocket();
 	~ClientSocket();
 
-	static void ConnectSocket();
+	void CreateClientSocket();
 
-	static void DisconnectSocket();
+	void ConnectSocket();
+
+	void DisconnectSocket();
 private:
-	static FSocket* Socket;
+	FSocket* Socket;
 };

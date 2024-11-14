@@ -9,15 +9,11 @@ void ATitleGameMode::StartPlay()
 	Super::StartPlay();
 
 	UE_LOG(LogTemp, Log, TEXT("Start Play"));
-
-	ClientSocket::ConnectSocket();
 }
 
 void ATitleGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UE_LOG(LogTemp, Log, TEXT("End Play"));
-
-	//ClientSocket::DisconnectSocket();
 
 	Super::EndPlay(EndPlayReason);
 }

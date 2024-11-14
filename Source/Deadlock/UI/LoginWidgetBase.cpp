@@ -7,6 +7,7 @@
 #include "regex"
 #include "RegisterWidgetBase.h"
 #include "AlertWidgetBase.h"
+#include "../Client/ClientThread.h"
 
 void ULoginWidgetBase::NativeConstruct()
 {
@@ -135,6 +136,7 @@ void ULoginWidgetBase::OnResponseReceived(FHttpRequestPtr Request, FHttpResponse
 	if (StatusCode == 200)
 	{
 		//로그인 성공 로직
+		ClientThread* Thread = new ClientThread();
 	}
 	else
 	{
