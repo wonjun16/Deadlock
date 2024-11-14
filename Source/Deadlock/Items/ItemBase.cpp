@@ -69,9 +69,17 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 	FVector ThrowWay(ThrowDirection.X, ThrowDirection.Y, 1.0f);
 
 	ItemMesh->AddImpulse(ThrowWay.GetSafeNormal() * 500, NAME_None, true);
-	UE_LOG(LogTemp, Log, TEXT("X : %f, Y : %f, Z : %f"), ThrowDirection.X, ThrowDirection.Y, ThrowDirection.Z);
+	
+	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this, 
+		&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
 }
 
 void AItemBase::EventItemAffect_Implementation()
 {
+	PlayItemEffect_Implementation();
+}
+
+void AItemBase::EndItemEvent_Implementation()
+{
+	this->Destroy();
 }

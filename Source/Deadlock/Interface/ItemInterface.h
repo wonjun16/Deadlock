@@ -35,5 +35,8 @@ public:
 	void EventItemAffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void EndItemEvent();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EItemType EventGrab(ACharacter* Character);
 };

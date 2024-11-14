@@ -47,15 +47,10 @@ public:
 	uint8 CurrentItemCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	float HealAmount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	float DamageAmount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	float ThrowSpeed;
-
-
+	FTimerHandle ItemTriggerTimerHandle;
+	
 	virtual EItemType GetItem_Implementation()override;
 
 	virtual void PlayItemEffect_Implementation()override;
@@ -63,4 +58,6 @@ public:
 	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
 
 	virtual void EventItemAffect_Implementation()override;
+
+	virtual void EndItemEvent_Implementation()override;
 };
