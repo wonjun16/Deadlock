@@ -17,7 +17,7 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     CurAmmo = 100;
 
-    ItemCountsArray.Init(0, 7); // = { 0, 0, 0, 0, 0, 0, 0 }
+    ItemCountsArray.Init(5, 7); //Set 5 just for test
 
     CurSelectItemIndex = 2;
     

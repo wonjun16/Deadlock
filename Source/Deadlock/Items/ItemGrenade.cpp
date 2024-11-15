@@ -39,15 +39,16 @@ void AItemGrenade::EventItemAffect_Implementation()
 				{
 					//Near Range Damage Event
 					DamageAmount = 100.0f;
-					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount, HitCharacter->GetController(), this, 0);
-					//Must Modify EventInvestigator
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
+						Owner->GetInstigatorController(), this, 0);
 					UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
 				}
 				else
 				{
 					//Far Range Damage Event
 					DamageAmount = 60.0f;
-					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount, HitCharacter->GetController(), this, 0);
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
+						Owner->GetInstigatorController(), this, 0);
 
 					UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
 				}

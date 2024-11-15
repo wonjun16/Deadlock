@@ -597,16 +597,18 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 
 				case 2: case 3 : case 4 :
 					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
+					SpawnedItem->SetOwner(this);
 					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
 					
 					break;
 
-				case 5:
-					UE_LOG(LogTemp, Log, TEXT("Use Healkit Log"));
-					break;
+				case 5: case 6:
+					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
+					SpawnedItem->SetOwner(this);
+					SpawnedItem->Execute_EventItemAffect(SpawnedItem);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+					//SpawnedItem->Execute_StartItemTimer(SpawnedItem);
 
-				case 6:
-					UE_LOG(LogTemp, Log, TEXT("Use Painkiller Log"));
 					break;
 				}
 				break;
