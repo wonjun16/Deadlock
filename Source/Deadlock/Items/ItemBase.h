@@ -48,6 +48,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	float DamageAmount;
+
+	FTimerHandle ItemTriggerTimerHandle;
 	
 	virtual EItemType GetItem_Implementation()override;
 
@@ -56,6 +58,8 @@ public:
 	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
 
 	virtual void EventItemAffect_Implementation()override;
+
+	virtual void StartItemTimer_Implementation()override;
 
 	virtual void EndItemEvent_Implementation()override;
 };

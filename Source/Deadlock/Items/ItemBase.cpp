@@ -66,14 +66,20 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
 	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	FVector ThrowWay(ThrowDirection.X, ThrowDirection.Y, 1.0f);
+	FVector ThrowVector(ThrowDirection.X, ThrowDirection.Y, 1.0f);
 
-	ItemMesh->AddImpulse(ThrowWay.GetSafeNormal() * 500, NAME_None, true);
+	ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 800, NAME_None, true);
+
+	StartItemTimer_Implementation();
 }
 
 void AItemBase::EventItemAffect_Implementation()
 {
 	PlayItemEffect_Implementation();
+}
+
+void AItemBase::StartItemTimer_Implementation()
+{
 }
 
 void AItemBase::EndItemEvent_Implementation()

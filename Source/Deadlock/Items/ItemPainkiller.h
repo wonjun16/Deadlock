@@ -17,4 +17,6 @@ class DEADLOCK_API AItemPainkiller : public AItemBase
 public:
 	AItemPainkiller();
 
+	virtual void StartItemTimer_Implementation()override;
+
 };

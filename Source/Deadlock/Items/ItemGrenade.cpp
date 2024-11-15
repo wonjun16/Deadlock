@@ -55,3 +55,9 @@ void AItemGrenade::EventItemAffect_Implementation()
 		}
 	}
 }
+
+void AItemGrenade::StartItemTimer_Implementation()
+{
+	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
+		&AItemBase::EventItemAffect_Implementation, 0.2f, false, 5.0f);
+}

@@ -35,6 +35,9 @@ public:
 	void EventItemAffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void StartItemTimer();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void EndItemEvent();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)

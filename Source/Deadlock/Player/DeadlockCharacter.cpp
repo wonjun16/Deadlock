@@ -588,43 +588,28 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 			{
 				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
 					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));
-				if (PS->CurSelectItemIndex <= 4 && PS->CurSelectItemIndex >= 2)
-				{
-					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
-					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
-						&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
-				}
-				else if (PS->CurSelectItemIndex == 5)
-				{
-					UE_LOG(LogTemp, Log, TEXT("Use Healkit Log"));
-					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
-						&AItemBase::EventItemAffect_Implementation, 0.2f, false, 5.0f);
-				}
-				else if (PS->CurSelectItemIndex == 6)
-				{
-					UE_LOG(LogTemp, Log, TEXT("Use Painkiller Log"));
-					GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, SpawnedItem,
-						&AItemBase::EventItemAffect_Implementation, 0.33f, false, 3.0f);
-				}
-				break;
-				/*switch (PS->CurSelectItemIndex)
+
+				switch ((int)PS->CurSelectItemIndex)
 				{
 				default:
+					UE_LOG(LogTemp, Log, TEXT("Default Log"));
 					break;
 
 				case 2: case 3 : case 4 :
 					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-
+					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+					
 					break;
 
 				case 5:
-
+					UE_LOG(LogTemp, Log, TEXT("Use Healkit Log"));
 					break;
 
 				case 6:
-
+					UE_LOG(LogTemp, Log, TEXT("Use Painkiller Log"));
 					break;
-				}*/
+				}
+				break;
 			}
 		}
 	}
