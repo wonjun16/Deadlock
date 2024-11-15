@@ -17,9 +17,9 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     CurAmmo = 100;
 
-    ItemCountsArray.Init(0, 7); // = { 0, 0, 0, 0, 0, 0, 0 }
+    ItemCountsArray.Init(5, 7); //Set 5 just for test
 
-    CurSelectItem = 2;
+    CurSelectItemIndex = 2;
     
     bReadyState = false;
 }
@@ -34,7 +34,7 @@ void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(ADeadlockPlayerState, EquipWeaponType);
     DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
     DOREPLIFETIME(ADeadlockPlayerState, ItemCountsArray);
-    DOREPLIFETIME(ADeadlockPlayerState, CurSelectItem);
+    DOREPLIFETIME(ADeadlockPlayerState, CurSelectItemIndex);
     DOREPLIFETIME(ADeadlockPlayerState, bReadyState);
 }
 
@@ -63,42 +63,44 @@ void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
 {
     if (IsDirectionRight)
     {
-        if (CurSelectItem >= 6)
+        if (CurSelectItemIndex >= 6)
         {
-            CurSelectItem = 2;
+            CurSelectItemIndex = 2;
         }
         else
         {
-            CurSelectItem++;
+            CurSelectItemIndex++;
         }
-        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItem);
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItemIndex);
     }
     else if (!IsDirectionRight)
     {
-        if (CurSelectItem <= 2)
+        if (CurSelectItemIndex <= 2)
         {
-            CurSelectItem = 6;
+            CurSelectItemIndex = 6;
         }
         else
         {
-            CurSelectItem--;
+            CurSelectItemIndex--;
         }
-        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItem);
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItemIndex);
     }
 }
 
 uint8 ADeadlockPlayerState::CalculateItemCount(bool IsAdd, uint8 ItemIndex)
 {
     if (IsAdd)
-    {
-        //ItemEnumIndex Value = 2 ~ 6
-        ItemCountsArray[ItemIndex]++;
+    { 
+        if (ItemCountsArray[ItemIndex] < 10)
+        {
+            ItemCountsArray[ItemIndex]++;
+        }
         return ItemCountsArray[ItemIndex];
     }
-    else if (!IsAdd && ItemCountsArray[CurSelectItem] > 0)
+    else if (!IsAdd && ItemCountsArray[CurSelectItemIndex] > 0)
     {
-        ItemCountsArray[CurSelectItem]--;
-        return ItemCountsArray[CurSelectItem];
+        ItemCountsArray[CurSelectItemIndex]--;
+        return ItemCountsArray[CurSelectItemIndex];
     }
     return 0;
 }

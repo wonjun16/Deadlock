@@ -38,7 +38,7 @@ public:
 	TArray<uint8> ItemCountsArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
-	uint8 CurSelectItem;
+	uint8 CurSelectItemIndex;
 
 	UFUNCTION()
 	bool IsCanReload();

@@ -54,3 +54,9 @@ void AItemFlashbang::EventItemAffect_Implementation()
 		}
 	}
 }
+
+void AItemFlashbang::StartItemTimer_Implementation()
+{
+	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
+		&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
+}
