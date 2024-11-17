@@ -48,6 +48,10 @@ void ClientSocket::ConnectSocket()
 	}
 }
 
+void ClientSocket::RecvSocket(char* RecvMessage)
+{
+}
+
 void ClientSocket::DisconnectSocket()
 {
 	if (Socket)

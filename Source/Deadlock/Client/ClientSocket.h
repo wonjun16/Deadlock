@@ -19,6 +19,8 @@ public:
 
 	void ConnectSocket();
 
+	void RecvSocket(char* RecvMessage);
+
 	void DisconnectSocket();
 private:
 	FSocket* Socket;

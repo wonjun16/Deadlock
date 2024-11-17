@@ -3,6 +3,7 @@
 
 #include "ClientThread.h"
 #include "ClientSocket.h"
+#include "../GameMode/Title/TitleGameMode.h"
 
 ClientThread::ClientThread()
 {
@@ -34,6 +35,15 @@ uint32 ClientThread::Run()
 
 	CSocket->ConnectSocket();
 
+	//recv ¼­¹ö ip, port
+	
+
+	//open level
+	//create
+	//UGameplayStatics::OpenLevel(GEngine->GetWorld(), FName("Lobby"), true, ((FString)(L"Listen")));
+	//join
+	//UGameplayStatics::OpenLevel(GEngine->GetWorld(), FName("127.0.0.1"));
+	ATitleGameMode::OpenLobby();
 
 	return uint32();
 }

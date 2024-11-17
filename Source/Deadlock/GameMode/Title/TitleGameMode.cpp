@@ -3,6 +3,7 @@
 
 #include "TitleGameMode.h"
 #include "../Client/ClientSocket.h"
+#include "Kismet/GameplayStatics.h"
 
 void ATitleGameMode::StartPlay()
 {
@@ -16,4 +17,9 @@ void ATitleGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	UE_LOG(LogTemp, Log, TEXT("End Play"));
 
 	Super::EndPlay(EndPlayReason);
+}
+
+void ATitleGameMode::OpenLobby()
+{
+	UGameplayStatics::OpenLevel(GEngine->GetWorld(), FName("Lobby"), true, ((FString)(L"Listen")));
 }
