@@ -15,7 +15,7 @@ void AItemFlashbang::EventItemAffect_Implementation()
 	//Player Camera Flash
 
 	TArray<FHitResult> HitActors;
-	FVector FlashbangLocation = GetActorLocation();
+	FVector FlashbangLocation = ItemMesh->GetComponentLocation();
 	FVector Start = FlashbangLocation;
 	FVector End = FlashbangLocation;
 
@@ -52,6 +52,7 @@ void AItemFlashbang::EventItemAffect_Implementation()
 				}
 			}
 		}
+		AItemBase::EndItemEvent_Implementation();
 	}
 }
 
