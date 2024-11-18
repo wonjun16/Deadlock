@@ -639,10 +639,9 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 				case 5: case 6:
 					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
 					SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_EventItemAffect(SpawnedItem);
+					SpawnedItem->Execute_StartItemTimer(SpawnedItem);
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-					//SpawnedItem->Execute_StartItemTimer(SpawnedItem);
-
+					
 					break;
 				}
 				break;

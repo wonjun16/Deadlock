@@ -3,6 +3,7 @@
 
 #include "ItemGrenade.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
 AItemGrenade::AItemGrenade()
@@ -13,9 +14,9 @@ AItemGrenade::AItemGrenade()
 void AItemGrenade::EventItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)
-
+	
 	TArray<FHitResult> HitActors;
-	FVector GrenadeLocation = GetActorLocation();
+	FVector GrenadeLocation = ItemMesh->GetComponentLocation();
 	FVector Start = GrenadeLocation;
 	FVector End = GrenadeLocation;
 
@@ -33,27 +34,25 @@ void AItemGrenade::EventItemAffect_Implementation()
 			if (HitCharacter)
 			{
 				FVector HitCharacterLocation = HitCharacter->GetActorLocation();
-				FVector RangeofBurstPoint = GetActorLocation() - HitCharacterLocation;
-
-				if (RangeofBurstPoint.Length() < 100.0f)
+				FVector RangeofBurstPoint = GrenadeLocation - HitCharacterLocation;
+				
+				if (RangeofBurstPoint.Length() < 50.0f)
 				{
 					//Near Range Damage Event
-					DamageAmount = 100.0f;
+					DamageAmount = 70.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
-					UE_LOG(LogTemp, Log, TEXT("Grenade Near Range Damage Success"));
 				}
 				else
 				{
 					//Far Range Damage Event
-					DamageAmount = 60.0f;
+					DamageAmount = 40.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
-
-					UE_LOG(LogTemp, Log, TEXT("Grenade Far Range Damage Success"));
 				}
 			}
 		}
+		AItemBase::EndItemEvent_Implementation();
 	}
 }
 
