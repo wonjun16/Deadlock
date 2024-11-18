@@ -18,6 +18,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
+#include "../GameMode/DeadlockHUD.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
@@ -86,6 +87,7 @@ void ADeadlockCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 0.5f, true);
 	UpdateZoomFloat.BindDynamic(this, &ADeadlockCharacter::ZoomUpdate);
 	FinishZoomEvent.BindDynamic(this, &ADeadlockCharacter::ZoomFinish);
 
@@ -102,7 +104,22 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 
 	if (HasAuthority())
 	{
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("The value of bMyBool is: %s"), TakeMagneticDamage ? TEXT("true") : TEXT("false")));
 		PlayerRotator = GetActorRotation();
+	}
+
+	if (TakeMagneticDamage)
+	{
+		/*APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+		if (PlayerController != NULL)
+		{
+			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+			if (MyHUD)
+			{
+				MyHUD->HeathUIInstance->CurHP -= 0.1f;
+			}
+		}*/
 	}
 }
 
@@ -206,6 +223,23 @@ void ADeadlockCharacter::PlayDrop()
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
+}
+
+void ADeadlockCharacter::SetHp()
+{
+	if (TakeMagneticDamage)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+		if (PlayerController != NULL)
+		{
+			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+			if (MyHUD)
+			{
+				MyHUD->HeathUIInstance->CurHP -= 0.1f;
+			}
+		}
 	}
 }
 

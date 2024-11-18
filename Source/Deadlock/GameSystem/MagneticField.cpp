@@ -4,6 +4,7 @@
 #include "MagneticField.h"
 #include <Net/UnrealNetwork.h>
 #include "../GameMode/DeadlockGameState.h"
+#include <Deadlock/Player/DeadlockCharacter.h>
 
 
 
@@ -21,8 +22,7 @@ AMagneticField::AMagneticField()
 
 	ScaleTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ScaleTimeline"));
 
-	
-
+	bReplicates = true;
 
 }
 
@@ -34,33 +34,28 @@ void AMagneticField::BeginPlay()
 	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 0.5f, true);
 
 	DeadlockGS = Cast<ADeadlockGameState>(UGameplayStatics::GetGameState(GetWorld()));
-	//if (ScaleCurve)
-	{
-		// 타임라인에 곡선 데이터 추가
-		FOnTimelineFloat ProgressFunction;
-		ProgressFunction.BindUFunction(this, FName("UpdateScale"));
-		UCurveFloat* NewCurve;
-		// 커브 생성 및 설정
-		NewCurve = NewObject<UCurveFloat>(this);  // UCurveFloat 객체 생성
+	// 타임라인에 곡선 데이터 추가
+	FOnTimelineFloat ProgressFunction;
+	ProgressFunction.BindUFunction(this, FName("UpdateScale"));
+	UCurveFloat* NewCurve;
+	// 커브 생성 및 설정
+	NewCurve = NewObject<UCurveFloat>(this);  // UCurveFloat 객체 생성
 
-		NewCurve->FloatCurve.AddKey(0.f, 600.0f);
-		NewCurve->FloatCurve.AddKey(5.f, ChangeScales[0]);  
-		NewCurve->FloatCurve.AddKey(10.f, ChangeScales[1]);  
-		NewCurve->FloatCurve.AddKey(15.f, 0);  
+	NewCurve->FloatCurve.AddKey(0.f, 600.0f);
+	NewCurve->FloatCurve.AddKey(5.f, ChangeScales[0]);  
+	NewCurve->FloatCurve.AddKey(10.f, ChangeScales[1]);  
+	NewCurve->FloatCurve.AddKey(15.f, 0);  
 
-		ScaleTimeline->AddInterpFloat(NewCurve, ProgressFunction);
-
-		 
-		FOnTimelineEvent OnTimelineFinishedEvent;
-		OnTimelineFinishedEvent.BindUFunction(this, FName("OnTimelineFinished"));
-		ScaleTimeline->SetTimelineFinishedFunc(OnTimelineFinishedEvent);
-		// 타임라인 설정 및 시작
-		ScaleTimeline->SetLooping(false);
-		ScaleTimeline->SetPlayRate(1.0f);
-		ScaleTimeline->SetTimelineLength(15.0f);
-		//ScaleTimeline->PlayFromStart();
-		TakeDamage = false;
-	}
+	ScaleTimeline->AddInterpFloat(NewCurve, ProgressFunction);
+	 
+	FOnTimelineEvent OnTimelineFinishedEvent;
+	OnTimelineFinishedEvent.BindUFunction(this, FName("OnTimelineFinished"));
+	ScaleTimeline->SetTimelineFinishedFunc(OnTimelineFinishedEvent);
+	// 타임라인 설정 및 시작
+	ScaleTimeline->SetLooping(false);
+	ScaleTimeline->SetPlayRate(1.0f);
+	ScaleTimeline->SetTimelineLength(15.0f);
+	TakeDamage = false;
 }
 
 void AMagneticField::OnRep_Random()
@@ -88,7 +83,6 @@ void AMagneticField::Tick(float DeltaTime)
 	{
 		if (!ScaleTimeline->IsPlaying())
 			ScaleTimeline->Play();
-		//ScaleTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
 	}
 	else
 	{
@@ -99,15 +93,7 @@ void AMagneticField::Tick(float DeltaTime)
 
 void AMagneticField::SetHp()
 {
-	if (TakeDamage)
-	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
-		if (MyHUD)
-		{
-			MyHUD->HeathUIInstance->CurHP -= 0.1f;
-		}
-	}
+
 }
 
 void AMagneticField::CheckRemainTime(float DeltaTime)
@@ -146,7 +132,6 @@ void AMagneticField::UpdateScale(float Value)
 {
 
 	// 스케일 값을 업데이트
-	//FVector NewScale = FMath::Lerp(FVector(1.0f, 1.0f, 1.0f), FVector(Value, Value, Value), Value);
 	FVector NewScale(Value, Value, Value);
 	magneticMesh->SetWorldScale3D(NewScale);
 
@@ -160,7 +145,6 @@ void AMagneticField::UpdateScale(float Value)
 		//첫번째 축소
 		if (CurrentTime > 5.0f && !frist)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
 			if (HasAuthority())
 			{
 				frist = true;
@@ -170,7 +154,6 @@ void AMagneticField::UpdateScale(float Value)
 		//두번째 축소
 		else if (CurrentTime > 10.0f && !second)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("555555555555"));
 			if (HasAuthority())
 			{
 				second = true;
@@ -183,20 +166,22 @@ void AMagneticField::UpdateScale(float Value)
 
 void AMagneticField::OnTimelineFinished()
 {
-	
-	//GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, TEXT("OnTimelineFinished"));
 }
 
 void AMagneticField::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapBegin"));
-	TakeDamage = false;
+	ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(OtherActor);
+	if(DeadlockCharacter !=  NULL)
+	DeadlockCharacter->TakeMagneticDamage = false;
+
 }
 
 void AMagneticField::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("OnOverlapEnd"));
-	TakeDamage = true;
+	ADeadlockCharacter* DeadlockCharacter = Cast<ADeadlockCharacter>(OtherActor);
+	if (DeadlockCharacter != NULL)
+	DeadlockCharacter->TakeMagneticDamage = true;
+
 }
 
 void AMagneticField::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
