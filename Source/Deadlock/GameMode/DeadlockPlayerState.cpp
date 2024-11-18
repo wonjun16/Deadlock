@@ -17,9 +17,11 @@ ADeadlockPlayerState::ADeadlockPlayerState()
 
     CurAmmo = 100;
 
-    bReadyState = false;
+    ItemCountsArray.Init(5, 7); //Set 5 just for test
 
-  
+    CurSelectItemIndex = 2;
+    
+    bReadyState = false;
 }
 
 void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -31,6 +33,8 @@ void ADeadlockPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(ADeadlockPlayerState, CurEqiupWeapon);
     DOREPLIFETIME(ADeadlockPlayerState, EquipWeaponType);
     DOREPLIFETIME(ADeadlockPlayerState, CurAmmo);
+    DOREPLIFETIME(ADeadlockPlayerState, ItemCountsArray);
+    DOREPLIFETIME(ADeadlockPlayerState, CurSelectItemIndex);
     DOREPLIFETIME(ADeadlockPlayerState, bReadyState);
 }
 
@@ -55,6 +59,51 @@ bool ADeadlockPlayerState::IsCanReload()
     return Reloadable;
 }
 
+void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
+{
+    if (IsDirectionRight)
+    {
+        if (CurSelectItemIndex >= 6)
+        {
+            CurSelectItemIndex = 2;
+        }
+        else
+        {
+            CurSelectItemIndex++;
+        }
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItemIndex);
+    }
+    else if (!IsDirectionRight)
+    {
+        if (CurSelectItemIndex <= 2)
+        {
+            CurSelectItemIndex = 6;
+        }
+        else
+        {
+            CurSelectItemIndex--;
+        }
+        UE_LOG(LogTemp, Log, TEXT("Value : %d"), CurSelectItemIndex);
+    }
+}
+
+uint8 ADeadlockPlayerState::CalculateItemCount(bool IsAdd, uint8 ItemIndex)
+{
+    if (IsAdd)
+    { 
+        if (ItemCountsArray[ItemIndex] < 10)
+        {
+            ItemCountsArray[ItemIndex]++;
+        }
+        return ItemCountsArray[ItemIndex];
+    }
+    else if (!IsAdd && ItemCountsArray[CurSelectItemIndex] > 0)
+    {
+        ItemCountsArray[CurSelectItemIndex]--;
+        return ItemCountsArray[CurSelectItemIndex];
+    }
+    return 0;
+}
 
 void ADeadlockPlayerState::OnRep_ReadyState()
 {

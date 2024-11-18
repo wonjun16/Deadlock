@@ -4,21 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "ItemBase.h"
-#include "ItemFlashbang.generated.h"
+#include "ItemMedkit.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADLOCK_API AItemFlashbang : public AItemBase
+class DEADLOCK_API AItemMedkit : public AItemBase
 {
 	GENERATED_BODY()
 
 public:
-	AItemFlashbang();
+	AItemMedkit();
 
 	virtual void EventItemAffect_Implementation()override;
 
 	virtual void StartItemTimer_Implementation()override;
-
+	
 };

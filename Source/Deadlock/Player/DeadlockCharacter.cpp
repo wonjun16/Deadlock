@@ -14,6 +14,7 @@
 #include "../GameMode/DeadlockPlayerController.h"
 #include "../Data/Enums.h"
 #include "../Interface/ItemInterface.h"
+#include "Deadlock/Items/ItemBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
@@ -125,7 +126,7 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 float ADeadlockCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
 	if (PS)
 	{
 		PS->HP -= DamageAmount;
@@ -165,7 +166,7 @@ AActor* ADeadlockCharacter::GetNearestItem()
 bool ADeadlockCharacter::IsCanShoot()
 {
 	bool bShootable = false;
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
 		/** Equip weapon is a gun */
@@ -190,7 +191,7 @@ void ADeadlockCharacter::StopPlayRun()
 
 void ADeadlockCharacter::PlayZoom()
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
 		IWeaponInterface* IWeapon = Cast<IWeaponInterface>(PS->EquipWeapon[PS->CurEqiupWeapon]);
@@ -208,7 +209,7 @@ void ADeadlockCharacter::StopPlayZoom()
 
 void ADeadlockCharacter::PlayDrop()
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
@@ -264,7 +265,7 @@ void ADeadlockCharacter::ZoomFinish()
 
 void ADeadlockCharacter::C2S_Drop_Implementation()
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
 		PS->EquipWeapon[PS->CurEqiupWeapon]->SetOwner(nullptr);
@@ -289,7 +290,6 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 		}
 		else
 		{
-			//It is not a weapon.
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Item Grab");
 		}
 
@@ -300,7 +300,7 @@ void ADeadlockCharacter::C2S_Grab_Implementation()
 void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Grab");
-	TObjectPtr< ADeadlockPlayerState> PS;
+	TObjectPtr<ADeadlockPlayerState> PS;
 	if (GetPlayerState())
 	{
 		PS = Cast<ADeadlockPlayerState>(GetPlayerState());
@@ -330,9 +330,22 @@ void ADeadlockCharacter::S2C_Grab_Implementation(AActor* Item)
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Error : PS->EquipWeapon[PS->CurEqiupWeapon] is null");
 		}
 	}
+	else if (PS && Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		AItemBase* CastItem = Cast<AItemBase>(Item);
+
+		if (CastItem)
+		{
+			uint8 GrabbedItemIndex = CastItem->EItemTypeIndex;
+			uint8 InventoryItemCount = PS->CalculateItemCount(true, GrabbedItemIndex);
+			//Destroy when Test ends
+			//Item->Destroy();
+			UE_LOG(LogTemp, Log, TEXT("Index : %d , Value : %d"), (int)GrabbedItemIndex, (int)InventoryItemCount);
+		}
+	}
 	else
 	{
-		//It is not a weapon
+		//Can be Interaction of Door
 	}
 
 }
@@ -341,7 +354,7 @@ void ADeadlockCharacter::C2S_Reload_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Server Reload");
 
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS->IsCanReload())
 	{
 		S2C_Reload();
@@ -353,7 +366,7 @@ void ADeadlockCharacter::S2C_Reload_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Client Reload");
 
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
 	if (CurWeapon)
 	{
@@ -369,7 +382,7 @@ void ADeadlockCharacter::C2S_Attack_Implementation(bool bPressed)
 	{
 		if (bPressed)
 		{
-			TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+			TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 			if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 			{
 				TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
@@ -388,7 +401,7 @@ void ADeadlockCharacter::C2S_Attack_Implementation(bool bPressed)
 
 void ADeadlockCharacter::S2C_Attack_Implementation(bool bPressed)
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
 		TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
@@ -463,8 +476,12 @@ void ADeadlockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Drop
 		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Drop);
 
+		EnhancedInputComponent->BindAction(UseAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Use);
+
 		//Crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Crouch);
+
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &ADeadlockCharacter::Scroll);
 		
 		//Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADeadlockCharacter::Attack);
@@ -557,6 +574,27 @@ void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Crouch"));
 }
 
+void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
+{
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	FVector ScrollVector = Value.Get<FVector>();
+	float ScrollValue = ScrollVector.X;
+	bool InventoryScrollWay;
+
+	if (ScrollValue > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Positive");
+		InventoryScrollWay = true;
+		PS->SelectItem(InventoryScrollWay);
+	}
+	else if (ScrollValue < 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Negative");
+		InventoryScrollWay = false;
+		PS->SelectItem(InventoryScrollWay);
+	}
+}
+
 void ADeadlockCharacter::Drop(const FInputActionValue& Value)
 {
 	C2S_Drop();
@@ -567,9 +605,55 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 	C2S_Grab();
 }
 
+void ADeadlockCharacter::Use(const FInputActionValue& Value)
+{
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
+	{
+		PS->CalculateItemCount(false, NULL);
+
+		TArray<AActor*> FoundItems;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
+
+		for (AActor* Items : FoundItems)
+		{
+			AItemBase* TargetItem = Cast<AItemBase>(Items);
+			if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
+			{
+				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
+					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));
+
+				switch ((int)PS->CurSelectItemIndex)
+				{
+				default:
+					UE_LOG(LogTemp, Log, TEXT("Default Log"));
+					break;
+
+				case 2: case 3 : case 4 :
+					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
+					SpawnedItem->SetOwner(this);
+					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+					
+					break;
+
+				case 5: case 6:
+					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
+					SpawnedItem->SetOwner(this);
+					SpawnedItem->Execute_EventItemAffect(SpawnedItem);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+					//SpawnedItem->Execute_StartItemTimer(SpawnedItem);
+
+					break;
+				}
+				break;
+			}
+		}
+	}
+}
+
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->IsCanReload())
 	{
 		C2S_Reload();
@@ -578,7 +662,7 @@ void ADeadlockCharacter::Reload(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Zoom(const FInputActionValue& Value)
 {
-	TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
 	{
 		StopPlayRun();
@@ -599,7 +683,6 @@ void ADeadlockCharacter::StopZoom(const FInputActionValue& Value)
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Run Value is false");
 	}
 }
-
 
 void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations)
 {
