@@ -19,4 +19,6 @@ public:
 
 	virtual void EventItemAffect_Implementation()override;
 
+	virtual void StartItemTimer_Implementation()override;
+
 };
