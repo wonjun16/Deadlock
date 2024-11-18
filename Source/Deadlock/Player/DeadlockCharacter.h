@@ -78,6 +78,8 @@ public:
 
 	float ArmLength = 250.0f;
 
+	bool TakeMagneticDamage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
 
@@ -193,6 +195,8 @@ protected:
 	void StopPlayZoom();
 
 	void PlayDrop();
+	UFUNCTION(BlueprintCallable)
+	void SetHp();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
