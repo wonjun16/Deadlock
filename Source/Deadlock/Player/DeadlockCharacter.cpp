@@ -68,7 +68,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	ZoomTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ZoomTimeline"));
 
 	bIsZoom = false;
-
+	bIsCrouched = false;
 
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -186,7 +186,14 @@ void ADeadlockCharacter::PlayRun()
 
 void ADeadlockCharacter::StopPlayRun()
 {
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	if (bIsCrouch == true)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 100.f;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	}
 }
 
 void ADeadlockCharacter::PlayZoom()
@@ -421,6 +428,7 @@ void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
 	{
 		StopPlayZoom();
 		PlayRun();
+		bIsCrouch = false;
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Start Run");
 	}
 	else
@@ -524,7 +532,7 @@ void ADeadlockCharacter::Move(const FInputActionValue& Value)
 void ADeadlockCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -572,6 +580,17 @@ void ADeadlockCharacter::StopAttack(const FInputActionValue& Value)
 void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Crouch"));
+	if (bIsCrouch == false)
+	{
+		bIsCrouch = true;
+		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+	}
+	else if (bIsCrouch == true)
+	{
+		bIsCrouch = false;
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+
 }
 
 void ADeadlockCharacter::Scroll(const FInputActionValue& Value)

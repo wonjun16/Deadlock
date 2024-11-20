@@ -31,5 +31,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float Direction;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	uint8 bIsAnimZoom : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	uint8 bIsAnimCrouch : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	float PlayerAimPitch;
+
 };

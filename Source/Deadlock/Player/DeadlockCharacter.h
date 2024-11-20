@@ -89,6 +89,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	FVector2D LookAxisVector;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UTimelineComponent* ZoomTimeline;
 
@@ -107,6 +110,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	uint8 bIsZoom : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	uint8 bIsCrouch : 1;
 
 	UFUNCTION(Server, Reliable)
 	void C2S_Drop();
