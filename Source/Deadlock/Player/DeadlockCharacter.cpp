@@ -22,6 +22,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -110,18 +111,39 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 
 	if (TakeMagneticDamage)
 	{
-		/*APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
-		if (PlayerController != NULL)
+		if (PlayerController != NULL && !Death)
 		{
 			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
 			if (MyHUD)
 			{
-				MyHUD->HeathUIInstance->CurHP -= 0.1f;
+				if (MyHUD->HeathUIInstance->CurHP <= 0)
+				{
+					Multicast_PlayDeathAnimation();
+
+					/*Super::GetMesh()->PlayAnimation(DeathAnimationAsset, false);
+					Death = true;
+					Controller->SetIgnoreMoveInput(true);
+					Controller->SetIgnoreLookInput(true);*/
+				}
 			}
-		}*/
+		}
 	}
 }
+
+void ADeadlockCharacter::Multicast_PlayDeathAnimation_Implementation()
+{
+	Super::GetMesh()->PlayAnimation(DeathAnimationAsset, false);
+	Death = true;
+	// 이동 및 회전 입력 차단
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+		Controller->SetIgnoreLookInput(true);
+	}
+}
+
 
 float ADeadlockCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
