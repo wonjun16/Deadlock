@@ -22,6 +22,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -640,8 +641,8 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 			AItemBase* TargetItem = Cast<AItemBase>(Items);
 			if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
 			{
-				AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
-					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));
+				/*AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
+					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));*/
 
 				switch ((int)PS->CurSelectItemIndex)
 				{
@@ -651,15 +652,16 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 
 				case 2: case 3: case 4:
 					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-					SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
+					/*SpawnedItem->SetOwner(this);
+					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());*/
+					ServerThrowAnimation();
 
 					break;
 
 				case 5: case 6:
 					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
-					SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_StartItemTimer(SpawnedItem);
+					/*SpawnedItem->SetOwner(this);
+					SpawnedItem->Execute_StartItemTimer(SpawnedItem);*/
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
 
 					break;
@@ -719,4 +721,14 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 		
 		}
 	}
+}
+
+void ADeadlockCharacter::ThrowAnimation_Implementation()
+{
+	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
+}
+
+void ADeadlockCharacter::ServerThrowAnimation_Implementation()
+{
+	ThrowAnimation();
 }

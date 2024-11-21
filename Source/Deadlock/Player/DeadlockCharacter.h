@@ -102,6 +102,9 @@ public:
 
 	FOnTimelineEvent FinishZoomEvent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimationAsset* ThrowAnimationAsset;
+
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
 
@@ -157,6 +160,15 @@ public:
 	UFUNCTION(Server, Reliable)
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ThrowAnimation();
+	void ThrowAnimation_Implementation();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerThrowAnimation();
+	void ServerThrowAnimation_Implementation();
+
 protected:
 
 	/** Called for movement input */
