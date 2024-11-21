@@ -49,7 +49,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	float DamageAmount;
 
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(Server, Reliable)
 	void EventItemAffect();
 	void EventItemAffect_Implementation();
 

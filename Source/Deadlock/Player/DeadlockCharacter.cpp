@@ -726,9 +726,11 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 void ADeadlockCharacter::ThrowAnimation_Implementation()
 {
 	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Client Throw");
 }
 
 void ADeadlockCharacter::ServerThrowAnimation_Implementation()
 {
 	ThrowAnimation();
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Throw");
 }

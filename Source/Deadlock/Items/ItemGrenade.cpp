@@ -30,6 +30,7 @@ void AItemGrenade::EventItemAffect_Implementation()
 
 	if (bIsHitNearRange)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Scan");
 		for (auto& Hit : HitActors)
 		{
 			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
@@ -44,6 +45,7 @@ void AItemGrenade::EventItemAffect_Implementation()
 					DamageAmount = 70.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Damage");
 				}
 				else
 				{
@@ -51,6 +53,7 @@ void AItemGrenade::EventItemAffect_Implementation()
 					DamageAmount = 40.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Damage");
 				}
 			}
 		}

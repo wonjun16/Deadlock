@@ -58,16 +58,18 @@ void AItemBase::Tick(float DeltaTime)
 
 EItemType AItemBase::GetItem_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("GetItem Test Log"));
 	return EItemType(EItemTypeIndex);
 }
 
 void AItemBase::PlayItemEffect_Implementation()
 {
-	UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
-	(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
-		EAttachLocation::Type::KeepRelativeOffset, true);
-
+	if (HasAuthority())
+	{
+		UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
+		(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
+			EAttachLocation::Type::KeepRelativeOffset, true);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Effect");
+	}
 }
 
 void AItemBase::ServerPlayEffect_Implementation()
@@ -79,14 +81,14 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 {
 	//Simulate Physics When Throw
 	ItemMesh->SetSimulatePhysics(true);
-	UE_LOG(LogTemp, Log, TEXT("ThrowMovement Test Log"));
+
 	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	FVector ThrowVector(ThrowDirection.X, ThrowDirection.Y, 1.0f);
 
-	ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 800, NAME_None, true);
+	ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 700, NAME_None, true);
 
-	StartItemTimer_Implementation();
+	Execute_StartItemTimer(this);
 }
 
 void AItemBase::EventItemAffect_Implementation()
