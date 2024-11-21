@@ -162,6 +162,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayDeathAnimation();
 
+	UFUNCTION(Server, Reliable)
+	void Server_PlayAnimation();
+
+
 protected:
 
 	/** Called for movement input */

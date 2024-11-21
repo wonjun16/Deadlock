@@ -23,6 +23,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimInstance.h"
+#include "Components/InputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -98,10 +99,11 @@ void ADeadlockCharacter::BeginPlay()
 		ZoomTimeline->SetTimelineFinishedFunc(FinishZoomEvent);
 	}
 }
-
+bool bWasEKeyDown = false;
 void ADeadlockCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 
 	if (HasAuthority())
 	{
@@ -120,16 +122,31 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 			{
 				if (MyHUD->HeathUIInstance->CurHP <= 0)
 				{
-					Multicast_PlayDeathAnimation();
+					if (HasAuthority())
+					{
+						// 서버에서 직접 실행
+						Multicast_PlayDeathAnimation();
+					}
+					else
+					{
+						// 클라이언트에서 서버에 호출을 요청
+						Server_PlayAnimation();
+					}
 
-					/*Super::GetMesh()->PlayAnimation(DeathAnimationAsset, false);
+
 					Death = true;
 					Controller->SetIgnoreMoveInput(true);
-					Controller->SetIgnoreLookInput(true);*/
+					Controller->SetIgnoreLookInput(true);
 				}
 			}
 		}
 	}
+}
+
+void ADeadlockCharacter::Server_PlayAnimation_Implementation()
+{
+	// 서버에서 애니메이션 실행 후 Multicast 호출
+	Multicast_PlayDeathAnimation();
 }
 
 void ADeadlockCharacter::Multicast_PlayDeathAnimation_Implementation()
@@ -722,3 +739,5 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 		}
 	}
 }
+
+
