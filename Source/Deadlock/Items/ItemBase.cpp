@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
+#include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
@@ -22,12 +23,23 @@ AItemBase::AItemBase()
 	ItemMesh->SetupAttachment(RootComponent);
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	/* Do not Simulate Physics Before Grab
-	*  Deactive During Test / Develop */
-	//ItemMesh->SetSimulatePhysics(false);
+
+	ItemMesh->SetSimulatePhysics(false);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
+
+	bReplicates = true;
+	SetReplicateMovement(true);
+}
+
+void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItemBase, EItemTypeIndex);
+	DOREPLIFETIME(AItemBase, CurrentItemCount);
+	DOREPLIFETIME(AItemBase, DamageAmount);
 }
 
 // Called when the game starts or when spawned
@@ -56,7 +68,11 @@ void AItemBase::PlayItemEffect_Implementation()
 	(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
 		EAttachLocation::Type::KeepRelativeOffset, true);
 
-	ItemEffect->Activate();
+}
+
+void AItemBase::ServerPlayEffect_Implementation()
+{
+	PlayItemEffect();
 }
 
 void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
@@ -75,7 +91,7 @@ void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
 
 void AItemBase::EventItemAffect_Implementation()
 {
-	PlayItemEffect_Implementation();
+	PlayItemEffect();
 }
 
 void AItemBase::StartItemTimer_Implementation()

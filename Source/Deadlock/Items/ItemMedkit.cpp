@@ -6,6 +6,8 @@
 
 AItemMedkit::AItemMedkit()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
 	EItemTypeIndex = 5;
 }
 
@@ -13,11 +15,11 @@ void AItemMedkit::EventItemAffect_Implementation()
 {
 	DamageAmount = -100;
 	UGameplayStatics::ApplyDamage(Owner, DamageAmount, Owner->GetInstigatorController(), this, 0);
-	AItemBase::EndItemEvent_Implementation();
+	EndItemEvent();
 }
 
 void AItemMedkit::StartItemTimer_Implementation()
 {
 	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect_Implementation, 0.1f, false, 10.0f);
+		&AItemBase::EventItemAffect, 0.1f, false, 10.0f);
 }

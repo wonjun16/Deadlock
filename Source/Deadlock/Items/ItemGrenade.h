@@ -17,7 +17,7 @@ class DEADLOCK_API AItemGrenade : public AItemBase
 public:
 	AItemGrenade();
 
-	virtual void EventItemAffect_Implementation()override;
+	void EventItemAffect_Implementation();
 
 	virtual void StartItemTimer_Implementation()override;
 	

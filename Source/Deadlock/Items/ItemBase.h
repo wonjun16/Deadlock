@@ -40,24 +40,32 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	uint8 EItemTypeIndex;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	uint8 CurrentItemCount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	float DamageAmount;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void EventItemAffect();
+	void EventItemAffect_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayItemEffect();
+	void PlayItemEffect_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerPlayEffect();
+	void ServerPlayEffect_Implementation();
 
 	FTimerHandle ItemTriggerTimerHandle;
 	
 	virtual EItemType GetItem_Implementation()override;
 
-	virtual void PlayItemEffect_Implementation()override;
-
 	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
-
-	virtual void EventItemAffect_Implementation()override;
 
 	virtual void StartItemTimer_Implementation()override;
 

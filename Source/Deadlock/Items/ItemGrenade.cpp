@@ -8,6 +8,8 @@
 
 AItemGrenade::AItemGrenade()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
 	EItemTypeIndex = 2;
 }
 
@@ -52,12 +54,12 @@ void AItemGrenade::EventItemAffect_Implementation()
 				}
 			}
 		}
-		AItemBase::EndItemEvent_Implementation();
+		EndItemEvent();
 	}
 }
 
 void AItemGrenade::StartItemTimer_Implementation()
 {
 	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect_Implementation, 0.2f, false, 5.0f);
+		&AItemBase::EventItemAffect, 0.2f, false, 5.0f);
 }

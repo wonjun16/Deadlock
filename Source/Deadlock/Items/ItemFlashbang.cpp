@@ -7,6 +7,8 @@
 
 AItemFlashbang::AItemFlashbang()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
 	EItemTypeIndex = 4;
 }
 
@@ -52,12 +54,12 @@ void AItemFlashbang::EventItemAffect_Implementation()
 				}
 			}
 		}
-		AItemBase::EndItemEvent_Implementation();
+		EndItemEvent();
 	}
 }
 
 void AItemFlashbang::StartItemTimer_Implementation()
 {
 	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect_Implementation, 0.4f, false, 4.0f);
+		&AItemBase::EventItemAffect, 0.4f, false, 4.0f);
 }

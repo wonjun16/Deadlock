@@ -26,13 +26,7 @@ public:
 	EItemType GetItem();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void PlayItemEffect();
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ThrowMovement(FVector ThrowDirection);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void EventItemAffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void StartItemTimer();

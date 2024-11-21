@@ -626,6 +626,7 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
+
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
 	{
@@ -648,11 +649,11 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 					UE_LOG(LogTemp, Log, TEXT("Default Log"));
 					break;
 
-				case 2: case 3 : case 4 :
+				case 2: case 3: case 4:
 					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
 					SpawnedItem->SetOwner(this);
 					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());
-					
+
 					break;
 
 				case 5: case 6:
@@ -660,7 +661,7 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 					SpawnedItem->SetOwner(this);
 					SpawnedItem->Execute_StartItemTimer(SpawnedItem);
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-					
+
 					break;
 				}
 				break;
