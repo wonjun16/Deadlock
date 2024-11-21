@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
+#include "Deadlock/GameMode/DeadlockPlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "KismetAnimationLibrary.h"
 
@@ -24,14 +25,12 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, PlayerPawn->GetActorRotation());
 
-
-
+		PlayerAimPitch = PlayerPawn->GetBaseAimRotation().Pitch;
 	}
 
 	if (IsValid(Deadlockcharacter))
 	{
 		bIsAnimZoom = Deadlockcharacter->bIsZoom;
 		bIsAnimCrouch = Deadlockcharacter->bIsCrouch;
-		PlayerAimPitch = Deadlockcharacter->LookAxisVector.Y;
 	}
 }
