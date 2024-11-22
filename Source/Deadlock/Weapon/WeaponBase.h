@@ -85,6 +85,7 @@ public:
 
 	virtual bool IsCanReload_Implementation() override;
 
+
 	virtual bool IsCanSwitchWeapon_Implementation() override;
 
 	virtual void EventDrop_Implementation(ACharacter* Character) override;
@@ -96,4 +97,6 @@ public:
 	virtual void UseAmmo_Implementation() override;
 
 	virtual void SpawnBullet_Implementation() override;
+
+	virtual int GetCurAmmo_Implementation() override;
 };
