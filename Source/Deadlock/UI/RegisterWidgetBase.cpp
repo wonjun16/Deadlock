@@ -58,7 +58,7 @@ void URegisterWidgetBase::RegisterButtonClicked()
 		TSharedRef<IHttpRequest> RegisterRequest = FHttpModule::Get().CreateRequest();
 		RegisterRequest->SetVerb(TEXT("POST"));
 		RegisterRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-		RegisterRequest->SetURL(TEXT("http://127.0.0.1:8080/register"));
+		RegisterRequest->SetURL(TEXT("http://192.168.3.55:8080/register"));
 		RegisterRequest->SetContentAsString(JsonString);
 
 		RegisterRequest->OnProcessRequestComplete().BindUObject(this, &URegisterWidgetBase::OnResponseReceived);

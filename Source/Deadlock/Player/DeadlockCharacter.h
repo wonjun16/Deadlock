@@ -76,6 +76,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ScrollAction;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimationAsset* DeathAnimationAsset;
+
 public:
 	ADeadlockCharacter();
 	
@@ -87,6 +91,8 @@ public:
 
 	bool TakeMagneticDamage;
 
+	bool Death;
+	
 	bool CanUseItem = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
@@ -166,7 +172,14 @@ public:
 	UFUNCTION(Server, Reliable)
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
-	
+
+	// Ŭ���̾�Ʈ ����ȭ�� �Լ�
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayDeathAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_PlayAnimation();
+
 	UFUNCTION(Server, Reliable)
 	void ServerThrowAnimation();
 	void ServerThrowAnimation_Implementation();

@@ -18,4 +18,6 @@ public:
 	virtual void StartPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
+	void OpenLobby(const bool OpenServer, const FString ip);
 };

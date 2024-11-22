@@ -23,6 +23,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimInstance.h"
+#include "Components/InputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -99,10 +100,11 @@ void ADeadlockCharacter::BeginPlay()
 		ZoomTimeline->SetTimelineFinishedFunc(FinishZoomEvent);
 	}
 }
-
+bool bWasEKeyDown = false;
 void ADeadlockCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 
 	if (HasAuthority())
 	{
@@ -112,18 +114,54 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 
 	if (TakeMagneticDamage)
 	{
-		/*APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
-		if (PlayerController != NULL)
+		if (PlayerController != NULL && !Death)
 		{
 			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
 			if (MyHUD)
 			{
-				MyHUD->HeathUIInstance->CurHP -= 0.1f;
+				if (MyHUD->HeathUIInstance->CurHP <= 0)
+				{
+					if (HasAuthority())
+					{
+						// �������� ���� ����
+						Multicast_PlayDeathAnimation();
+					}
+					else
+					{
+						// Ŭ���̾�Ʈ���� ������ ȣ���� ��û
+						Server_PlayAnimation();
+					}
+
+
+					Death = true;
+					Controller->SetIgnoreMoveInput(true);
+					Controller->SetIgnoreLookInput(true);
+				}
 			}
-		}*/
+		}
 	}
 }
+
+void ADeadlockCharacter::Server_PlayAnimation_Implementation()
+{
+	// �������� �ִϸ��̼� ���� �� Multicast ȣ��
+	Multicast_PlayDeathAnimation();
+}
+
+void ADeadlockCharacter::Multicast_PlayDeathAnimation_Implementation()
+{
+	Super::GetMesh()->PlayAnimation(DeathAnimationAsset, false);
+	Death = true;
+	// �̵� �� ȸ�� �Է� ����
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+		Controller->SetIgnoreLookInput(true);
+	}
+}
+
 
 float ADeadlockCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
