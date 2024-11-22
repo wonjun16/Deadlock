@@ -75,6 +75,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ScrollAction;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimationAsset* DeathAnimationAsset;
+
 public:
 	ADeadlockCharacter();
 	
@@ -83,6 +87,10 @@ public:
 	FVector ArmRelativeLoc = FVector(15, 20, 90);
 
 	float ArmLength = 250.0f;
+
+	bool TakeMagneticDamage;
+
+	bool Death;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
@@ -149,6 +157,15 @@ public:
 	UFUNCTION(Server, Reliable)
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
+
+	// 클라이언트 동기화용 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayDeathAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_PlayAnimation();
+
+
 protected:
 
 	/** Called for movement input */
@@ -203,6 +220,8 @@ protected:
 	void StopPlayZoom();
 
 	void PlayDrop();
+	UFUNCTION(BlueprintCallable)
+	void SetHp();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

@@ -18,9 +18,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "../Interface/WeaponInterface.h"
 #include "../GameMode/DeadlockPlayerState.h"
+#include "../GameMode/DeadlockHUD.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
+#include "Components/InputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -86,6 +89,7 @@ void ADeadlockCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+	UKismetSystemLibrary::K2_SetTimer(this, "SetHp", 0.5f, true);
 	UpdateZoomFloat.BindDynamic(this, &ADeadlockCharacter::ZoomUpdate);
 	FinishZoomEvent.BindDynamic(this, &ADeadlockCharacter::ZoomFinish);
 
@@ -95,16 +99,68 @@ void ADeadlockCharacter::BeginPlay()
 		ZoomTimeline->SetTimelineFinishedFunc(FinishZoomEvent);
 	}
 }
-
+bool bWasEKeyDown = false;
 void ADeadlockCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 
 	if (HasAuthority())
 	{
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("The value of bMyBool is: %s"), TakeMagneticDamage ? TEXT("true") : TEXT("false")));
 		PlayerRotator = GetActorRotation();
 	}
+
+	if (TakeMagneticDamage)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+		if (PlayerController != NULL && !Death)
+		{
+			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+			if (MyHUD)
+			{
+				if (MyHUD->HeathUIInstance->CurHP <= 0)
+				{
+					if (HasAuthority())
+					{
+						// 서버에서 직접 실행
+						Multicast_PlayDeathAnimation();
+					}
+					else
+					{
+						// 클라이언트에서 서버에 호출을 요청
+						Server_PlayAnimation();
+					}
+
+
+					Death = true;
+					Controller->SetIgnoreMoveInput(true);
+					Controller->SetIgnoreLookInput(true);
+				}
+			}
+		}
+	}
 }
+
+void ADeadlockCharacter::Server_PlayAnimation_Implementation()
+{
+	// 서버에서 애니메이션 실행 후 Multicast 호출
+	Multicast_PlayDeathAnimation();
+}
+
+void ADeadlockCharacter::Multicast_PlayDeathAnimation_Implementation()
+{
+	Super::GetMesh()->PlayAnimation(DeathAnimationAsset, false);
+	Death = true;
+	// 이동 및 회전 입력 차단
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+		Controller->SetIgnoreLookInput(true);
+	}
+}
+
 
 float ADeadlockCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -206,6 +262,23 @@ void ADeadlockCharacter::PlayDrop()
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Fail Drop");
+	}
+}
+
+void ADeadlockCharacter::SetHp()
+{
+	if (TakeMagneticDamage)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+		if (PlayerController != NULL)
+		{
+			ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+			if (MyHUD)
+			{
+				MyHUD->HeathUIInstance->CurHP -= 0.1f;
+			}
+		}
 	}
 }
 
@@ -605,10 +678,9 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 				case 5: case 6:
 					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
 					SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_EventItemAffect(SpawnedItem);
+					SpawnedItem->Execute_StartItemTimer(SpawnedItem);
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-					//SpawnedItem->Execute_StartItemTimer(SpawnedItem);
-
+					
 					break;
 				}
 				break;
@@ -667,3 +739,5 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 		}
 	}
 }
+
+

@@ -13,6 +13,7 @@ void AItemMedkit::EventItemAffect_Implementation()
 {
 	DamageAmount = -100;
 	UGameplayStatics::ApplyDamage(Owner, DamageAmount, Owner->GetInstigatorController(), this, 0);
+	AItemBase::EndItemEvent_Implementation();
 }
 
 void AItemMedkit::StartItemTimer_Implementation()
