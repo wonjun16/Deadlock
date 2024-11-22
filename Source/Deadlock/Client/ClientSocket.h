@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 class FSocket;
+class ATitleGameMode;
 
 /**
  * 
@@ -15,9 +16,13 @@ public:
 	ClientSocket();
 	~ClientSocket();
 
-	static void ConnectSocket();
+	void CreateClientSocket();
 
-	static void DisconnectSocket();
+	void ConnectSocket();
+
+	void RecvSocket(ATitleGameMode* GM);
+
+	void DisconnectSocket();
 private:
-	static FSocket* Socket;
+	FSocket* Socket;
 };
