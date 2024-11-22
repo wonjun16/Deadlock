@@ -53,6 +53,10 @@ public:
 	void EventItemAffect();
 	void EventItemAffect_Implementation();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientItemAffect();
+	void ClientItemAffect_Implementation();
+
 	UFUNCTION(Server, Reliable)
 	void ServerPlayEffect();
 	void ServerPlayEffect_Implementation();
@@ -60,14 +64,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayItemEffect();
 	void PlayItemEffect_Implementation();
-
-	UFUNCTION(Server, Reliable)
-	void ThrowMovement(FVector SpawnLocation, AItemBase* SpawnedItem);
-	void ThrowMovement_Implementation(FVector SpawnLocation, AItemBase* SpawnedItem);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ClientThrowMovement(FVector ThrowDirection);
-	void ClientThrowMovement_Implementation(FVector ThrowDirection);
 
 	UFUNCTION(Server, Reliable)
 	void StartItemTimer();

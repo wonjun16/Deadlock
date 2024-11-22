@@ -59,7 +59,7 @@ bool ADeadlockPlayerState::IsCanReload()
     return Reloadable;
 }
 
-void ADeadlockPlayerState::SelectItem(bool IsDirectionRight)
+void ADeadlockPlayerState::SelectItem_Implementation(bool IsDirectionRight)
 {
     if (IsDirectionRight)
     {

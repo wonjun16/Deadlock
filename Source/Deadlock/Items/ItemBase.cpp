@@ -23,12 +23,11 @@ AItemBase::AItemBase()
 	ItemMesh->SetupAttachment(RootComponent);
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	ItemMesh->SetSimulatePhysics(true);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
 
-	bReplicates = true;
-	SetReplicateMovement(true);
 }
 
 void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,11 +53,6 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-//EItemType AItemBase::GetItem_Implementation()
-//{
-//	return EItemType(EItemTypeIndex);
-//}
-
 void AItemBase::PlayItemEffect_Implementation()
 {
 	if (HasAuthority())
@@ -78,35 +72,13 @@ void AItemBase::ServerPlayEffect_Implementation()
 	PlayItemEffect();
 }
 
-void AItemBase::ThrowMovement_Implementation(FVector SpawnLocation, AItemBase* SpawnedItem)
-{
-	if (HasAuthority())
-	{
-		/*SpawnedItem = GetWorld()->SpawnActor<AItemBase>(this->StaticClass(),
-			SpawnLocation, FRotator::ZeroRotator);*/
-		
-		//Simulate Physics When Throw
-		SpawnedItem->ItemMesh->SetSimulatePhysics(true);
-		SpawnedItem->CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		FVector ForwardVector = SpawnedItem->GetActorForwardVector();
-
-		FVector ThrowVector(ForwardVector.X, ForwardVector.Y, 1.0f);
-		SpawnedItem->ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 700, NAME_None, true);
-
-		StartItemTimer();
-	}
-}
-
-void AItemBase::ClientThrowMovement_Implementation(FVector ThrowDirection)
-{
-	if (!HasAuthority())
-	{
-		ClientThrowMovement(ThrowDirection);
-	}
-}
 
 void AItemBase::EventItemAffect_Implementation()
+{
+	ClientItemAffect();
+}
+
+void AItemBase::ClientItemAffect_Implementation()
 {
 	ServerPlayEffect();
 }

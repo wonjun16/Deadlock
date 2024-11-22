@@ -115,7 +115,7 @@ public:
 	UAnimationAsset* ThrowAnimationAsset;
 
 	UPROPERTY(Replicated)
-	AActor* SpawnedItem;
+	AActor* SpawnActor;
 
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
@@ -189,8 +189,8 @@ public:
 	void ThrowAnimation_Implementation();
 
 	UFUNCTION(Server, Reliable)
-	void ServerItemUse(AItemBase* SpawnItem);
-	void ServerItemUse_Implementation(AItemBase* SpawnItem);
+	void ServerItemUse();
+	void ServerItemUse_Implementation();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientItemUse();
@@ -242,8 +242,6 @@ protected:
 	FTimerHandle ItemUseTimerHandle;
 
 	AActor* GetNearestItem();
-
-	void DetachItem(AActor* AttachedItem);
 
 	bool IsCanShoot();
 

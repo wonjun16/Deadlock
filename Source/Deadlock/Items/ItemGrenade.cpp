@@ -13,10 +13,10 @@ AItemGrenade::AItemGrenade()
 	EItemTypeIndex = 2;
 }
 
-void AItemGrenade::EventItemAffect_Implementation()
+void AItemGrenade::ClientItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)
-	
+
 	TArray<FHitResult> HitActors;
 	FVector GrenadeLocation = ItemMesh->GetComponentLocation();
 	FVector Start = GrenadeLocation;
@@ -38,7 +38,7 @@ void AItemGrenade::EventItemAffect_Implementation()
 			{
 				FVector HitCharacterLocation = HitCharacter->GetActorLocation();
 				FVector RangeofBurstPoint = GrenadeLocation - HitCharacterLocation;
-				
+
 				if (RangeofBurstPoint.Length() < 50.0f)
 				{
 					//Near Range Damage Event
@@ -63,6 +63,8 @@ void AItemGrenade::EventItemAffect_Implementation()
 
 void AItemGrenade::StartItemTimer_Implementation()
 {
+	UE_LOG(LogTemp, Log, TEXT("Grenade Timer"));
+
 	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
 		&AItemBase::EventItemAffect, 0.2f, false, 5.0f);
 }

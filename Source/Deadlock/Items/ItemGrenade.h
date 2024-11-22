@@ -17,8 +17,9 @@ class DEADLOCK_API AItemGrenade : public AItemBase
 public:
 	AItemGrenade();
 
-	void EventItemAffect_Implementation();
+	virtual void ClientItemAffect_Implementation();
 
+	void StartItemTimer();
 	void StartItemTimer_Implementation();
 	
 };

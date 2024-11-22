@@ -43,8 +43,9 @@ public:
 	UFUNCTION()
 	bool IsCanReload();
 
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 	void SelectItem(bool IsDirectionRight);
+	void SelectItem_Implementation(bool IsDirectionRight);
 
 	UFUNCTION()
 	uint8 CalculateItemCount(bool IsAdd, uint8 ItemIndex);

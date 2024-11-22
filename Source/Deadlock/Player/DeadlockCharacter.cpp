@@ -82,7 +82,7 @@ void ADeadlockCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ADeadlockCharacter, PlayerRotator);
-	DOREPLIFETIME(ADeadlockCharacter, SpawnedItem);
+	DOREPLIFETIME(ADeadlockCharacter, SpawnActor);
 }
 
 void ADeadlockCharacter::BeginPlay()
@@ -675,7 +675,7 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 	case 2: case 3: case 4:
 		ServerThrowAnimation();
 		GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this,
-			&ADeadlockCharacter::ClientItemUse, 0.5f, false, 1.84f);
+			&ADeadlockCharacter::ServerItemUse, 0.5f, false, 1.84f);
 
 		break;
 
@@ -740,60 +740,30 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 void ADeadlockCharacter::ServerThrowAnimation_Implementation()
 {
 	ThrowAnimation();
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Throw");
 }
 
 void ADeadlockCharacter::ThrowAnimation_Implementation()
 {
 	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Client Throw");
 }
 
-void ADeadlockCharacter::ServerItemUse_Implementation(AItemBase* SpawnItem)
+void ADeadlockCharacter::ServerItemUse_Implementation()
 {
 	if (HasAuthority())
 	{
-		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-		SpawnedItem = GetWorld()->SpawnActor<AItemBase>(SpawnItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("weapon")));
-		AItemBase* CastSpawnItem = Cast<AItemBase>(SpawnedItem);
-		switch ((int)PS->CurSelectItemIndex)
-		{
-		default:
-			UE_LOG(LogTemp, Log, TEXT("Default Log"));
-			break;
-
-		case 2: case 3: case 4:
-			UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-			
-			/*New123->ItemMesh->SetSimulatePhysics(true);
-			New123->ItemMesh->AddImpulse(GetActorForwardVector().GetSafeNormal() * 700,
-				GetMesh()->GetSocketBoneName(TEXT("weapon")), true);*/
-			CastSpawnItem->ThrowMovement(GetMesh()->GetSocketLocation(TEXT("weapon")), CastSpawnItem);
-
-			break;
-
-		case 5: case 6:
-			UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
-
-			SpawnItem->StartItemTimer();
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-
-			break;
-		}
-		GetWorldTimerManager().ClearTimer(ItemUseTimerHandle);
+		UE_LOG(LogTemp, Log, TEXT("Server Item Use"));
+		ClientItemUse();
 	}
 }
 
 void ADeadlockCharacter::ClientItemUse_Implementation()
 {
-
 	if (!HasAuthority())
 	{
 		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 		if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
 		{
 			PS->CalculateItemCount(false, NULL);
-
 			TArray<AActor*> FoundItems;
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
 
@@ -802,17 +772,44 @@ void ADeadlockCharacter::ClientItemUse_Implementation()
 				AItemBase* TargetItem = Cast<AItemBase>(Items);
 				if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
 				{
-					ServerItemUse(TargetItem);
+					UE_LOG(LogTemp, Log, TEXT("ItemIndex : %d"), PS->CurSelectItemIndex);
+					AItemBase* CharacterSpawnItem = GetWorld()->SpawnActor<AItemBase>(TargetItem->GetClass(),
+						GetMesh()->GetSocketLocation(TEXT("weapon")), FRotator::ZeroRotator);
+					switch ((int)PS->CurSelectItemIndex)
+					{
+					default:
+						break;
+
+					case 2: case 3: case 4:
+						UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
+
+						if (CharacterSpawnItem)
+						{
+							CharacterSpawnItem->SetReplicates(true);
+							CharacterSpawnItem->SetReplicateMovement(true);
+
+							UPrimitiveComponent* ImpulseItem = Cast<UPrimitiveComponent>(CharacterSpawnItem->ItemMesh);
+							ImpulseItem->SetSimulatePhysics(true);
+							ImpulseItem->AddImpulse(FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y,
+								1.0f).GetSafeNormal() * 700.0f, NAME_None, true);
+							CharacterSpawnItem->StartItemTimer();
+						}
+
+						break;
+
+					case 5: case 6:
+						UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
+
+						GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+
+						break;
+					}
+
+					GetWorldTimerManager().ClearTimer(ItemUseTimerHandle);
+
 					break;
 				}
 			}
 		}
-
-		UE_LOG(LogTemp, Log, TEXT("Client Item Use"));
 	}
-}
-
-void ADeadlockCharacter::DetachItem(AActor* AttachedItem)
-{
-
 }
