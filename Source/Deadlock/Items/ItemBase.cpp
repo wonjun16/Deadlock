@@ -24,8 +24,6 @@ AItemBase::AItemBase()
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
-	ItemMesh->SetSimulatePhysics(false);
-
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
 	ItemBaseEffect->SetupAttachment(RootComponent);
 
@@ -56,10 +54,10 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-EItemType AItemBase::GetItem_Implementation()
-{
-	return EItemType(EItemTypeIndex);
-}
+//EItemType AItemBase::GetItem_Implementation()
+//{
+//	return EItemType(EItemTypeIndex);
+//}
 
 void AItemBase::PlayItemEffect_Implementation()
 {
@@ -69,31 +67,48 @@ void AItemBase::PlayItemEffect_Implementation()
 		(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
 			EAttachLocation::Type::KeepRelativeOffset, true);
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Effect");
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), this->GetActorLocation());
 	}
 }
 
 void AItemBase::ServerPlayEffect_Implementation()
 {
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), this->GetActorLocation());
 	PlayItemEffect();
 }
 
-void AItemBase::ThrowMovement_Implementation(FVector ThrowDirection)
+void AItemBase::ThrowMovement_Implementation(FVector SpawnLocation, AItemBase* SpawnedItem)
 {
-	//Simulate Physics When Throw
-	ItemMesh->SetSimulatePhysics(true);
+	if (HasAuthority())
+	{
+		/*SpawnedItem = GetWorld()->SpawnActor<AItemBase>(this->StaticClass(),
+			SpawnLocation, FRotator::ZeroRotator);*/
+		
+		//Simulate Physics When Throw
+		SpawnedItem->ItemMesh->SetSimulatePhysics(true);
+		SpawnedItem->CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		FVector ForwardVector = SpawnedItem->GetActorForwardVector();
 
-	FVector ThrowVector(ThrowDirection.X, ThrowDirection.Y, 1.0f);
+		FVector ThrowVector(ForwardVector.X, ForwardVector.Y, 1.0f);
+		SpawnedItem->ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 700, NAME_None, true);
 
-	ItemMesh->AddImpulse(ThrowVector.GetSafeNormal() * 700, NAME_None, true);
+		StartItemTimer();
+	}
+}
 
-	Execute_StartItemTimer(this);
+void AItemBase::ClientThrowMovement_Implementation(FVector ThrowDirection)
+{
+	if (!HasAuthority())
+	{
+		ClientThrowMovement(ThrowDirection);
+	}
 }
 
 void AItemBase::EventItemAffect_Implementation()
 {
-	PlayItemEffect();
+	ServerPlayEffect();
 }
 
 void AItemBase::StartItemTimer_Implementation()

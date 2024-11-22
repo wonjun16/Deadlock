@@ -81,6 +81,7 @@ void ADeadlockCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ADeadlockCharacter, PlayerRotator);
+	DOREPLIFETIME(ADeadlockCharacter, SpawnedItem);
 }
 
 void ADeadlockCharacter::BeginPlay()
@@ -627,48 +628,23 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
-
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
+	switch ((int)PS->CurSelectItemIndex)
 	{
-		PS->CalculateItemCount(false, NULL);
+	default:
+		break;
 
-		TArray<AActor*> FoundItems;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
+	case 2: case 3: case 4:
+		ServerThrowAnimation();
+		GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this,
+			&ADeadlockCharacter::ClientItemUse, 0.5f, false, 1.84f);
 
-		for (AActor* Items : FoundItems)
-		{
-			AItemBase* TargetItem = Cast<AItemBase>(Items);
-			if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
-			{
-				/*AItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<AItemBase>
-					(TargetItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("LeftHand")));*/
+		break;
 
-				switch ((int)PS->CurSelectItemIndex)
-				{
-				default:
-					UE_LOG(LogTemp, Log, TEXT("Default Log"));
-					break;
+	case 5: case 6:
+		ClientItemUse();
 
-				case 2: case 3: case 4:
-					UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-					/*SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_ThrowMovement(SpawnedItem, GetActorForwardVector());*/
-					ServerThrowAnimation();
-
-					break;
-
-				case 5: case 6:
-					UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
-					/*SpawnedItem->SetOwner(this);
-					SpawnedItem->Execute_StartItemTimer(SpawnedItem);*/
-					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-
-					break;
-				}
-				break;
-			}
-		}
+		break;
 	}
 }
 
@@ -723,14 +699,82 @@ void ADeadlockCharacter::S2CSetCharacterLocation_Implementation(const TArray<FVe
 	}
 }
 
+void ADeadlockCharacter::ServerThrowAnimation_Implementation()
+{
+	ThrowAnimation();
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Throw");
+}
+
 void ADeadlockCharacter::ThrowAnimation_Implementation()
 {
 	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
 	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Client Throw");
 }
 
-void ADeadlockCharacter::ServerThrowAnimation_Implementation()
+void ADeadlockCharacter::ServerItemUse_Implementation(AItemBase* SpawnItem)
 {
-	ThrowAnimation();
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Throw");
+	if (HasAuthority())
+	{
+		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+		SpawnedItem = GetWorld()->SpawnActor<AItemBase>(SpawnItem->GetClass(), GetMesh()->GetSocketTransform(TEXT("weapon")));
+		AItemBase* CastSpawnItem = Cast<AItemBase>(SpawnedItem);
+		switch ((int)PS->CurSelectItemIndex)
+		{
+		default:
+			UE_LOG(LogTemp, Log, TEXT("Default Log"));
+			break;
+
+		case 2: case 3: case 4:
+			UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
+			
+			/*New123->ItemMesh->SetSimulatePhysics(true);
+			New123->ItemMesh->AddImpulse(GetActorForwardVector().GetSafeNormal() * 700,
+				GetMesh()->GetSocketBoneName(TEXT("weapon")), true);*/
+			CastSpawnItem->ThrowMovement(GetMesh()->GetSocketLocation(TEXT("weapon")), CastSpawnItem);
+
+			break;
+
+		case 5: case 6:
+			UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
+
+			SpawnItem->StartItemTimer();
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+
+			break;
+		}
+		GetWorldTimerManager().ClearTimer(ItemUseTimerHandle);
+	}
+}
+
+void ADeadlockCharacter::ClientItemUse_Implementation()
+{
+
+	if (!HasAuthority())
+	{
+		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+		if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
+		{
+			PS->CalculateItemCount(false, NULL);
+
+			TArray<AActor*> FoundItems;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
+
+			for (AActor* Items : FoundItems)
+			{
+				AItemBase* TargetItem = Cast<AItemBase>(Items);
+				if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
+				{
+					ServerItemUse(TargetItem);
+					break;
+				}
+			}
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("Client Item Use"));
+	}
+}
+
+void ADeadlockCharacter::DetachItem(AActor* AttachedItem)
+{
+
 }

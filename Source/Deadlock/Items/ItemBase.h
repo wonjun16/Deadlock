@@ -53,21 +53,30 @@ public:
 	void EventItemAffect();
 	void EventItemAffect_Implementation();
 
+	UFUNCTION(Server, Reliable)
+	void ServerPlayEffect();
+	void ServerPlayEffect_Implementation();
+
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayItemEffect();
 	void PlayItemEffect_Implementation();
 
 	UFUNCTION(Server, Reliable)
-	void ServerPlayEffect();
-	void ServerPlayEffect_Implementation();
+	void ThrowMovement(FVector SpawnLocation, AItemBase* SpawnedItem);
+	void ThrowMovement_Implementation(FVector SpawnLocation, AItemBase* SpawnedItem);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientThrowMovement(FVector ThrowDirection);
+	void ClientThrowMovement_Implementation(FVector ThrowDirection);
+
+	UFUNCTION(Server, Reliable)
+	void StartItemTimer();
+	void StartItemTimer_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void EndItemEvent();
+	void EndItemEvent_Implementation();
 
 	FTimerHandle ItemTriggerTimerHandle;
-	
-	virtual EItemType GetItem_Implementation()override;
 
-	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
-
-	virtual void StartItemTimer_Implementation()override;
-
-	virtual void EndItemEvent_Implementation()override;
 };

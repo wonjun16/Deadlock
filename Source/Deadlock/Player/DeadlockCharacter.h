@@ -14,6 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class ADeadlockPlayerState;
+class AItemBase;
 struct FEnhancedInputActionValueBinding;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -86,6 +87,8 @@ public:
 
 	bool TakeMagneticDamage;
 
+	bool CanUseItem = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
 
@@ -104,6 +107,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimationAsset* ThrowAnimationAsset;
+
+	UPROPERTY(Replicated)
+	AActor* SpawnedItem;
 
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
@@ -160,14 +166,22 @@ public:
 	UFUNCTION(Server, Reliable)
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ThrowAnimation();
-	void ThrowAnimation_Implementation();
 	
 	UFUNCTION(Server, Reliable)
 	void ServerThrowAnimation();
 	void ServerThrowAnimation_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ThrowAnimation();
+	void ThrowAnimation_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerItemUse(AItemBase* SpawnItem);
+	void ServerItemUse_Implementation(AItemBase* SpawnItem);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientItemUse();
+	void ClientItemUse_Implementation();
 
 protected:
 
@@ -212,7 +226,11 @@ protected:
 	FEnhancedInputActionValueBinding* RunValueBinding;
 	FEnhancedInputActionValueBinding* ZoomValueBinding;
 
+	FTimerHandle ItemUseTimerHandle;
+
 	AActor* GetNearestItem();
+
+	void DetachItem(AActor* AttachedItem);
 
 	bool IsCanShoot();
 

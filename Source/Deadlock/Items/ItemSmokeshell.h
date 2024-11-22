@@ -17,6 +17,6 @@ class DEADLOCK_API AItemSmokeshell : public AItemBase
 public:
 	AItemSmokeshell();
 
-	virtual void StartItemTimer_Implementation()override;
+	void StartItemTimer_Implementation();
 
 };
