@@ -151,7 +151,18 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 		{
 			TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 
-			MyHUD->HeathUIInstance->CurAmmo = PS->CurAmmo;
+	
+
+
+			if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+			{
+				TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+				IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+				MyHUD->HeathUIInstance->StockAmmo = PS->CurAmmo;
+				MyHUD->HeathUIInstance->WeaponAmmo = ICurWeapon->Execute_GetCurAmmo(PS->EquipWeapon[PS->CurEqiupWeapon]);
+
+		
+			}
 		}
 	}
 }

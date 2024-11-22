@@ -17,6 +17,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	float CurHP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	float CurAmmo;
+	float StockAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	int WeaponAmmo;
 	
 };
