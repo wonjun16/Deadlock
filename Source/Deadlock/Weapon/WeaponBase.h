@@ -29,7 +29,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	uint8 MaxAmmo;
 
-	UPROPERTY(VisibleAnywhere, Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Replicated, Category = "Bullet")
 	uint8 CurAmmo;
 
 	UPROPERTY(VisibleAnywhere)

@@ -141,6 +141,19 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 			}
 		}
 	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	if (PlayerController != NULL)
+	{
+		ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+		if (MyHUD)
+		{
+			TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+
+			MyHUD->HeathUIInstance->CurAmmo = PS->CurAmmo;
+		}
+	}
 }
 
 void ADeadlockCharacter::Server_PlayAnimation_Implementation()

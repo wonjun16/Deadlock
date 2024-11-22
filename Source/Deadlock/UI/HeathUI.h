@@ -16,5 +16,7 @@ class DEADLOCK_API UHeathUI : public UUserWidget
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	float CurHP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float CurAmmo;
 	
 };
