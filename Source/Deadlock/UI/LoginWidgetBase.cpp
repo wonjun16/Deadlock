@@ -8,6 +8,7 @@
 #include "RegisterWidgetBase.h"
 #include "AlertWidgetBase.h"
 #include "../Client/ClientThread.h"
+#include "Kismet/GameplayStatics.h"
 
 void ULoginWidgetBase::NativeConstruct()
 {
@@ -43,7 +44,6 @@ void ULoginWidgetBase::LoginButtonClicked()
 		PasswordEditBox->SetText(FText());
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, "Success Login");
 
-		//임시 http req
 		TSharedPtr<FJsonObject> LoginMessage = MakeShareable(new FJsonObject);
 		LoginMessage->SetStringField("id", ID);
 		LoginMessage->SetStringField("password", Password);
@@ -55,7 +55,7 @@ void ULoginWidgetBase::LoginButtonClicked()
 		TSharedRef<IHttpRequest> LoginRequest = FHttpModule::Get().CreateRequest();
 		LoginRequest->SetVerb(TEXT("POST"));
 		LoginRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-		LoginRequest->SetURL(TEXT("http://127.0.0.1:8080/login"));
+		LoginRequest->SetURL(TEXT("http://192.168.3.55:8080/login"));
 		LoginRequest->SetContentAsString(JsonString);
 
 		LoginRequest->OnProcessRequestComplete().BindUObject(this, &ULoginWidgetBase::OnResponseReceived);
@@ -136,7 +136,7 @@ void ULoginWidgetBase::OnResponseReceived(FHttpRequestPtr Request, FHttpResponse
 	if (StatusCode == 200)
 	{
 		//로그인 성공 로직
-		ClientThread* Thread = new ClientThread();
+		ClientThread* Thread = new ClientThread(UGameplayStatics::GetGameMode(GetWorld()));
 	}
 	else
 	{

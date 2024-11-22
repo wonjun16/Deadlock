@@ -19,5 +19,5 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-	static void OpenLobby();
+	void OpenLobby(const bool OpenServer, const FString ip);
 };

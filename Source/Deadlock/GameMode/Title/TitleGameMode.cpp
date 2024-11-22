@@ -19,7 +19,16 @@ void ATitleGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ATitleGameMode::OpenLobby()
+void ATitleGameMode::OpenLobby(const bool OpenServer, const FString ip)
 {
-	UGameplayStatics::OpenLevel(GEngine->GetWorld(), FName("Lobby"), true, ((FString)(L"Listen")));
+	if (OpenServer)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"), true, TEXT("listen"));
+		UE_LOG(LogTemp, Warning, TEXT("Open Server"));
+	}
+	else
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), FName(ip));
+		UE_LOG(LogTemp, Warning, TEXT("Open Client"));
+	}
 }

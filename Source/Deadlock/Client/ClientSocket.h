@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 class FSocket;
+class ATitleGameMode;
 
 /**
  * 
@@ -19,7 +20,7 @@ public:
 
 	void ConnectSocket();
 
-	void RecvSocket(char* RecvMessage);
+	void RecvSocket(ATitleGameMode* GM);
 
 	void DisconnectSocket();
 private:

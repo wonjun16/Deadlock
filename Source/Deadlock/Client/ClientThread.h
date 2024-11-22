@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 
+class ATitleGameMode;
+
 /**
  * 
  */
 class DEADLOCK_API ClientThread : public FRunnable
 {
 public:
-	ClientThread();
+	ClientThread(AGameModeBase* GameMode);
 	~ClientThread();
 
 	virtual bool Init() override;
@@ -20,4 +22,5 @@ public:
 
 private:
 	FRunnableThread* Thread;
+	ATitleGameMode* GM;
 };
