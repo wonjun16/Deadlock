@@ -9,6 +9,32 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "KismetAnimationLibrary.h"
 
+void UDeadLockAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UDeadLockAnimInstance, Velocity);
+	DOREPLIFETIME(UDeadLockAnimInstance, MoveSpeed);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsMove);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsFalling);
+	DOREPLIFETIME(UDeadLockAnimInstance, Direction);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimZoom);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimCrouch);
+	DOREPLIFETIME(UDeadLockAnimInstance, PlayerAimPitch);
+}
+
+void UDeadLockAnimInstance::MultiCastAnimation(bool bAnimIsRunning)
+{
+	if (bAnimIsRunning)
+	{
+
+	}
+}
+
+void UDeadLockAnimInstance::NativeInitializeAnimation()
+{
+}
+
 void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
@@ -33,4 +59,12 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsAnimZoom = Deadlockcharacter->bIsZoom;
 		bIsAnimCrouch = Deadlockcharacter->bIsCrouch;
 	}
+}
+
+void UDeadLockAnimInstance::OnRep_AnimIsRunning()
+{
+}
+
+void UDeadLockAnimInstance::UpdateAnimationState()
+{
 }
