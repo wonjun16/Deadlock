@@ -32,9 +32,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraComponent* ItemBaseEffect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* ItemParticle;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	FTimerHandle ItemTriggerTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemTime")
+	float ItemTimer;
 
 public:	
 	// Called every frame
@@ -48,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	float DamageAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool bIsCanBeDetroy;
 
 	UFUNCTION(Server, Reliable)
 	void EventItemAffect();
@@ -65,14 +76,8 @@ public:
 	void PlayItemEffect();
 	void PlayItemEffect_Implementation();
 
-	UFUNCTION(Server, Reliable)
-	void StartItemTimer();
-	void StartItemTimer_Implementation();
-
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void EndItemEvent();
 	void EndItemEvent_Implementation();
-
-	FTimerHandle ItemTriggerTimerHandle;
 
 };

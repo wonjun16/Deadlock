@@ -19,6 +19,4 @@ public:
 
 	void EventItemAffect_Implementation();
 
-	void StartItemTimer_Implementation();
-	
 };

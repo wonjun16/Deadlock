@@ -6,11 +6,7 @@
 AItemSmokeshell::AItemSmokeshell()
 {
 	bReplicates = true;
+	SetReplicateMovement(true);
+	ItemTimer = 3.0f;
 	EItemTypeIndex = 3;
-}
-
-void AItemSmokeshell::StartItemTimer_Implementation()
-{
-	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect, 0.3f, false, 3.3f);
 }

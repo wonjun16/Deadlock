@@ -83,6 +83,8 @@ void ADeadlockCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >&
 
 	DOREPLIFETIME(ADeadlockCharacter, PlayerRotator);
 	DOREPLIFETIME(ADeadlockCharacter, SpawnActor);
+	DOREPLIFETIME(ADeadlockCharacter, bIsCrouch);
+	DOREPLIFETIME(ADeadlockCharacter, bIsZoom);
 }
 
 void ADeadlockCharacter::BeginPlay()
@@ -792,7 +794,7 @@ void ADeadlockCharacter::ClientItemUse_Implementation()
 							ImpulseItem->SetSimulatePhysics(true);
 							ImpulseItem->AddImpulse(FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y,
 								1.0f).GetSafeNormal() * 700.0f, NAME_None, true);
-							CharacterSpawnItem->StartItemTimer();
+							
 						}
 
 						break;

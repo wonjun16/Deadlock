@@ -80,6 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimationAsset* DeathAnimationAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimationAsset* ThrowAnimationAsset;
+
 public:
 	ADeadlockCharacter();
 	
@@ -92,8 +95,6 @@ public:
 	bool TakeMagneticDamage;
 
 	bool Death;
-	
-	bool CanUseItem = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
@@ -111,9 +112,6 @@ public:
 
 	FOnTimelineEvent FinishZoomEvent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimationAsset* ThrowAnimationAsset;
-
 	UPROPERTY(Replicated)
 	AActor* SpawnActor;
 
@@ -123,10 +121,10 @@ public:
 	UFUNCTION()
 	void ZoomFinish();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	uint8 bIsZoom : 1;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	uint8 bIsCrouch : 1;
 
 	UFUNCTION(Server, Reliable)

@@ -9,6 +9,7 @@ AItemFlashbang::AItemFlashbang()
 {
 	bReplicates = true;
 	SetReplicateMovement(true);
+	ItemTimer = 2.0f;
 	EItemTypeIndex = 4;
 }
 
@@ -46,20 +47,16 @@ void AItemFlashbang::EventItemAffect_Implementation()
 				if (FlashbangDotProduct > 0.5)
 				{
 					//Flash Effect
-					UE_LOG(LogTemp, Log, TEXT("Character Looking Flash Point"));
+					UE_LOG(LogTemp, Log, TEXT("Character Is Looking Flash Point"));
+
+					PlayItemEffect();
 				}
 				else
 				{
-					UE_LOG(LogTemp, Log, TEXT("Character Not Looking Flash Point"));
+					UE_LOG(LogTemp, Log, TEXT("Character Is Not Looking Flash Point"));
 				}
 			}
 		}
 		EndItemEvent();
 	}
-}
-
-void AItemFlashbang::StartItemTimer_Implementation()
-{
-	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect, 0.4f, false, 4.0f);
 }

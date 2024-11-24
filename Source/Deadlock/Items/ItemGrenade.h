@@ -18,8 +18,5 @@ public:
 	AItemGrenade();
 
 	virtual void ClientItemAffect_Implementation();
-
-	void StartItemTimer();
-	void StartItemTimer_Implementation();
 	
 };

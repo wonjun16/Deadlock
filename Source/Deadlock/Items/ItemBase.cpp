@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
@@ -23,11 +24,16 @@ AItemBase::AItemBase()
 	ItemMesh->SetupAttachment(RootComponent);
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	ItemMesh->SetSimulatePhysics(true);
+	ItemMesh->SetSimulatePhysics(false);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
-	ItemBaseEffect->SetupAttachment(RootComponent);
+	ItemBaseEffect->SetupAttachment(ItemMesh);
 
+	ItemParticle = CreateDefaultSubobject<UParticleSystem>("Particle");
+
+	bReplicates = true;
+	SetReplicateMovement(true);
+	bIsCanBeDetroy = false;
 }
 
 void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -44,6 +50,11 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
+			this, &AItemBase::EventItemAffect, ItemTimer, false);
+	}
 }
 
 // Called every frame
@@ -57,37 +68,36 @@ void AItemBase::PlayItemEffect_Implementation()
 {
 	if (HasAuthority())
 	{
-		UNiagaraComponent* ItemEffect = UNiagaraFunctionLibrary::SpawnSystemAttached
-		(ItemBaseEffect->GetAsset(), ItemMesh, FName("ItemMesh"), FVector(0.0f), FRotator(0.0f),
-			EAttachLocation::Type::KeepRelativeOffset, true);
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Effect");
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
 
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), this->GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ItemParticle, ItemMesh->GetComponentLocation());
+		
 	}
 }
 
 void AItemBase::ServerPlayEffect_Implementation()
 {
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), this->GetActorLocation());
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
 	PlayItemEffect();
 }
 
 
 void AItemBase::EventItemAffect_Implementation()
 {
-	ClientItemAffect();
+	//ClientItemAffect();
+	ServerPlayEffect();
 }
 
 void AItemBase::ClientItemAffect_Implementation()
 {
-	ServerPlayEffect();
-}
-
-void AItemBase::StartItemTimer_Implementation()
-{
+	EventItemAffect();
+	//ServerPlayEffect();
 }
 
 void AItemBase::EndItemEvent_Implementation()
 {
-	this->Destroy();
+	if (bIsCanBeDetroy)
+	{
+		this->Destroy();
+	}
 }

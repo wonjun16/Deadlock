@@ -10,6 +10,7 @@ AItemGrenade::AItemGrenade()
 {
 	bReplicates = true;
 	SetReplicateMovement(true);
+	ItemTimer = 4.0f;
 	EItemTypeIndex = 2;
 }
 
@@ -59,12 +60,4 @@ void AItemGrenade::ClientItemAffect_Implementation()
 		}
 		EndItemEvent();
 	}
-}
-
-void AItemGrenade::StartItemTimer_Implementation()
-{
-	UE_LOG(LogTemp, Log, TEXT("Grenade Timer"));
-
-	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect, 0.2f, false, 5.0f);
 }
