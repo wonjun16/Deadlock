@@ -14,6 +14,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "../GameMode/DeadlockPlayerState.h"
+#include "../GameMode/DeadlockHUD.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -57,6 +58,8 @@ void AWeaponBase::BeginPlay()
 void AWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
 }
 
 void AWeaponBase::BindAmmo()
@@ -207,6 +210,7 @@ bool AWeaponBase::IsCanReload_Implementation()
 	return bCanReload;
 }
 
+
 bool AWeaponBase::IsCanSwitchWeapon_Implementation()
 {
 	return false;
@@ -264,3 +268,10 @@ void AWeaponBase::SpawnBullet_Implementation()
 		Bullet->FinishSpawning(SpawnTransform);
 	}
 }
+
+int AWeaponBase::GetCurAmmo_Implementation()
+{
+	return CurAmmo;
+}
+
+

@@ -144,6 +144,30 @@ void ADeadlockCharacter::Tick(float DeltaSeconds)
 			}
 		}
 	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	if (PlayerController != NULL)
+	{
+		ADeadlockHUD* MyHUD = Cast<ADeadlockHUD>(PlayerController->GetHUD());
+		if (MyHUD)
+		{
+			TObjectPtr< ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+
+	
+
+
+			if (PS && PS->EquipWeapon[PS->CurEqiupWeapon])
+			{
+				TObjectPtr<AActor> CurWeapon = PS->EquipWeapon[PS->CurEqiupWeapon];
+				IWeaponInterface* ICurWeapon = Cast<IWeaponInterface>(CurWeapon);
+				MyHUD->HeathUIInstance->StockAmmo = PS->CurAmmo;
+				MyHUD->HeathUIInstance->WeaponAmmo = ICurWeapon->Execute_GetCurAmmo(PS->EquipWeapon[PS->CurEqiupWeapon]);
+
+		
+			}
+		}
+	}
 }
 
 void ADeadlockCharacter::Server_PlayAnimation_Implementation()

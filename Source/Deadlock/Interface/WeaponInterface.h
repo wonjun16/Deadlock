@@ -62,5 +62,8 @@ public:
 	void UseAmmo();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	int GetCurAmmo();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SpawnBullet();
 };
