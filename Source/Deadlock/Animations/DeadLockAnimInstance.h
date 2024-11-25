@@ -18,9 +18,6 @@ class DEADLOCK_API UDeadLockAnimInstance : public UAnimInstance
 
 public:
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiCastAnimation(bool bAnimIsRunning);
-
 protected:
 
 	virtual void NativeInitializeAnimation() override;
@@ -49,6 +46,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	uint8 bIsAnimCrouch : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	uint8 bIsAnimThrow : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	float PlayerAimPitch;

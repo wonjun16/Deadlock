@@ -49,6 +49,12 @@ void AItemFlashbang::EventItemAffect_Implementation()
 					//Flash Effect
 					UE_LOG(LogTemp, Log, TEXT("Character Is Looking Flash Point"));
 
+					CharacterCamera->PostProcessBlendWeight = 200.0f;
+
+					if (FlashTimelineFloatCurve)
+					{
+						FlashTimeline->AddInterpFloat(FlashTimelineFloatCurve, UpdateFlashFloat);
+					}
 					PlayItemEffect();
 				}
 				else

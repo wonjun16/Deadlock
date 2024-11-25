@@ -20,15 +20,8 @@ void UDeadLockAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UDeadLockAnimInstance, Direction);
 	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimZoom);
 	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimCrouch);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimThrow);
 	DOREPLIFETIME(UDeadLockAnimInstance, PlayerAimPitch);
-}
-
-void UDeadLockAnimInstance::MultiCastAnimation(bool bAnimIsRunning)
-{
-	if (bAnimIsRunning)
-	{
-
-	}
 }
 
 void UDeadLockAnimInstance::NativeInitializeAnimation()
@@ -46,7 +39,8 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		Velocity = PlayerPawn->GetCharacterMovement()->Velocity;
 		MoveSpeed = PlayerPawn->GetCharacterMovement()->Velocity.Size2D();
-		bIsMove = (UKismetMathLibrary::NotEqual_VectorVector(PlayerPawn->GetCharacterMovement()->GetCurrentAcceleration(), FVector::Zero(), 0.0f) && MoveSpeed > 3.0f);
+		bIsMove = (UKismetMathLibrary::NotEqual_VectorVector(PlayerPawn->GetCharacterMovement()->GetCurrentAcceleration(),
+			FVector::Zero(), 0.0f) && MoveSpeed > 3.0f);
 		bIsFalling = PlayerPawn->GetCharacterMovement()->IsFalling();
 		
 		Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, PlayerPawn->GetActorRotation());
@@ -58,6 +52,7 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bIsAnimZoom = Deadlockcharacter->bIsZoom;
 		bIsAnimCrouch = Deadlockcharacter->bIsCrouch;
+		bIsAnimThrow = Deadlockcharacter->bCanUseItem;
 	}
 }
 

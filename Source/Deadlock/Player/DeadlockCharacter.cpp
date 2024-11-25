@@ -71,7 +71,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 
 	bIsZoom = false;
 	bIsCrouched = false;
-
+	bCanUseItem = false;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -753,7 +753,7 @@ void ADeadlockCharacter::ServerItemUse_Implementation()
 {
 	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Server Item Use"));
+		bCanUseItem = true;
 		ClientItemUse();
 	}
 }

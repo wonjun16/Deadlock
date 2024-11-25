@@ -96,6 +96,8 @@ public:
 
 	bool Death;
 
+	bool bCanUseItem;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
 
