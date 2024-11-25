@@ -32,34 +32,52 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraComponent* ItemBaseEffect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* ItemParticle;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	FTimerHandle ItemTriggerTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemTime")
+	float ItemTimer;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	uint8 EItemTypeIndex;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	uint8 CurrentItemCount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	float DamageAmount;
 
-	FTimerHandle ItemTriggerTimerHandle;
-	
-	virtual EItemType GetItem_Implementation()override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool bIsCanBeDetroy;
 
-	virtual void PlayItemEffect_Implementation()override;
+	UFUNCTION(Server, Reliable)
+	void EventItemAffect();
+	void EventItemAffect_Implementation();
 
-	virtual void ThrowMovement_Implementation(FVector ThrowDirection)override;
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientItemAffect();
+	void ClientItemAffect_Implementation();
 
-	virtual void EventItemAffect_Implementation()override;
+	UFUNCTION(Server, Reliable)
+	void ServerPlayEffect();
+	void ServerPlayEffect_Implementation();
 
-	virtual void StartItemTimer_Implementation()override;
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayItemEffect();
+	void PlayItemEffect_Implementation();
 
-	virtual void EndItemEvent_Implementation()override;
+	UFUNCTION(NetMulticast, Reliable)
+	void EndItemEvent();
+	void EndItemEvent_Implementation();
+
 };

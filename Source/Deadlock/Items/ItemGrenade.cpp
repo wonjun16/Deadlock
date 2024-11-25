@@ -8,13 +8,16 @@
 
 AItemGrenade::AItemGrenade()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
+	ItemTimer = 4.0f;
 	EItemTypeIndex = 2;
 }
 
-void AItemGrenade::EventItemAffect_Implementation()
+void AItemGrenade::ClientItemAffect_Implementation()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)
-	
+
 	TArray<FHitResult> HitActors;
 	FVector GrenadeLocation = ItemMesh->GetComponentLocation();
 	FVector Start = GrenadeLocation;
@@ -28,6 +31,7 @@ void AItemGrenade::EventItemAffect_Implementation()
 
 	if (bIsHitNearRange)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Scan");
 		for (auto& Hit : HitActors)
 		{
 			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
@@ -35,13 +39,14 @@ void AItemGrenade::EventItemAffect_Implementation()
 			{
 				FVector HitCharacterLocation = HitCharacter->GetActorLocation();
 				FVector RangeofBurstPoint = GrenadeLocation - HitCharacterLocation;
-				
+
 				if (RangeofBurstPoint.Length() < 50.0f)
 				{
 					//Near Range Damage Event
 					DamageAmount = 70.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Damage");
 				}
 				else
 				{
@@ -49,15 +54,10 @@ void AItemGrenade::EventItemAffect_Implementation()
 					DamageAmount = 40.0f;
 					UGameplayStatics::ApplyDamage(HitCharacter, DamageAmount,
 						Owner->GetInstigatorController(), this, 0);
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, "Grenade Damage");
 				}
 			}
 		}
-		AItemBase::EndItemEvent_Implementation();
+		EndItemEvent();
 	}
-}
-
-void AItemGrenade::StartItemTimer_Implementation()
-{
-	GetWorldTimerManager().SetTimer(ItemTriggerTimerHandle, this,
-		&AItemBase::EventItemAffect_Implementation, 0.2f, false, 5.0f);
 }

@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "Animation/AnimInstance.h"
 #include "DeadLockAnimInstance.generated.h"
 
@@ -15,21 +17,46 @@ class DEADLOCK_API UDeadLockAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+
+protected:
+
+	virtual void NativeInitializeAnimation() override;
+
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	FVector Velocity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	float MoveSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	uint8 bIsMove : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	uint8 bIsFalling : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	float Direction;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	uint8 bIsAnimZoom : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	uint8 bIsAnimCrouch : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	uint8 bIsAnimThrow : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	float PlayerAimPitch;
+
+private:
+
+	void OnRep_AnimIsRunning();
+
+	void UpdateAnimationState();
+
 };

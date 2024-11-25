@@ -14,6 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class ADeadlockPlayerState;
+class AItemBase;
 struct FEnhancedInputActionValueBinding;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -79,6 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimationAsset* DeathAnimationAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimationAsset* ThrowAnimationAsset;
+
 public:
 	ADeadlockCharacter();
 	
@@ -92,8 +96,13 @@ public:
 
 	bool Death;
 
+	bool bCanUseItem;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FRotator PlayerRotator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	FVector2D LookAxisVector;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UTimelineComponent* ZoomTimeline;
@@ -105,14 +114,20 @@ public:
 
 	FOnTimelineEvent FinishZoomEvent;
 
+	UPROPERTY(Replicated)
+	AActor* SpawnActor;
+
 	UFUNCTION()
 	void ZoomUpdate(float Alpha);
 
 	UFUNCTION()
 	void ZoomFinish();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	uint8 bIsZoom : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	uint8 bIsCrouch : 1;
 
 	UFUNCTION(Server, Reliable)
 	void C2S_Drop();
@@ -158,13 +173,28 @@ public:
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
 
-	// Å¬¶óÀÌ¾ðÆ® µ¿±âÈ­¿ë ÇÔ¼ö
+	// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ô¼ï¿½
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayDeathAnimation();
 
 	UFUNCTION(Server, Reliable)
 	void Server_PlayAnimation();
 
+	UFUNCTION(Server, Reliable)
+	void ServerThrowAnimation();
+	void ServerThrowAnimation_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ThrowAnimation();
+	void ThrowAnimation_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerItemUse();
+	void ServerItemUse_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientItemUse();
+	void ClientItemUse_Implementation();
 
 protected:
 
@@ -208,6 +238,8 @@ protected:
 
 	FEnhancedInputActionValueBinding* RunValueBinding;
 	FEnhancedInputActionValueBinding* ZoomValueBinding;
+
+	FTimerHandle ItemUseTimerHandle;
 
 	AActor* GetNearestItem();
 
