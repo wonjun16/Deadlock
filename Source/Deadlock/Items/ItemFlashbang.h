@@ -26,6 +26,6 @@ public:
 
 	FOnTimelineFloat UpdateFlashFloat;
 
-	void EventItemAffect_Implementation();
+	void FlashbangAffect();
 
 };

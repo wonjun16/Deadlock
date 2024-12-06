@@ -58,6 +58,5 @@ void AItemGrenade::ClientItemAffect_Implementation()
 				}
 			}
 		}
-		EndItemEvent();
 	}
 }

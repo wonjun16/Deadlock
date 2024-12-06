@@ -813,12 +813,12 @@ void ADeadlockCharacter::ClientItemUse_Implementation()
 						{
 							CharacterSpawnItem->SetReplicates(true);
 							CharacterSpawnItem->SetReplicateMovement(true);
+							CharacterSpawnItem->bIsCanBeDetroy = true;
 
 							UPrimitiveComponent* ImpulseItem = Cast<UPrimitiveComponent>(CharacterSpawnItem->ItemMesh);
 							ImpulseItem->SetSimulatePhysics(true);
 							ImpulseItem->AddImpulse(FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y,
 								1.0f).GetSafeNormal() * 700.0f, NAME_None, true);
-							
 						}
 
 						break;

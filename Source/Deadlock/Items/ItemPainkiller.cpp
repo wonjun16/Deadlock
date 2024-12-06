@@ -16,5 +16,4 @@ void AItemPainkiller::EventItemAffect_Implementation()
 {
 	DamageAmount = -30;
 	UGameplayStatics::ApplyDamage(Owner, DamageAmount, Owner->GetInstigatorController(), this, 0);
-	EndItemEvent();
 }

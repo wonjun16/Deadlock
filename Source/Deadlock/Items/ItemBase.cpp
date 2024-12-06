@@ -41,7 +41,6 @@ void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AItemBase, EItemTypeIndex);
-	DOREPLIFETIME(AItemBase, CurrentItemCount);
 	DOREPLIFETIME(AItemBase, DamageAmount);
 }
 
@@ -50,10 +49,16 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
 	if (HasAuthority())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Item BeginPlay");
+
 		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
-			this, &AItemBase::EventItemAffect, ItemTimer, false);
+			this, &AItemBase::ServerItemAffect, ItemTimer, false);
+
+		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
+			this, &AItemBase::ServerItemEffect, ItemTimer, false);
 	}
 }
 
@@ -64,37 +69,45 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::PlayItemEffect_Implementation()
+void AItemBase::ServerItemAffect_Implementation()
 {
-	if (HasAuthority())
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ItemParticle, ItemMesh->GetComponentLocation());
-		
-	}
-}
-
-void AItemBase::ServerPlayEffect_Implementation()
-{
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
-	PlayItemEffect();
-}
-
-
-void AItemBase::EventItemAffect_Implementation()
-{
-	//ClientItemAffect();
-	ServerPlayEffect();
+	ClientItemAffect();
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Item Affect");
 }
 
 void AItemBase::ClientItemAffect_Implementation()
 {
-	EventItemAffect();
-	//ServerPlayEffect();
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Client Item Affect");
 }
 
-void AItemBase::EndItemEvent_Implementation()
+void AItemBase::ServerItemEffect_Implementation()
+{
+	ClientItemEffect();
+}
+
+void AItemBase::ClientItemEffect_Implementation()
+{
+	if (HasAuthority())
+	{
+		if (ItemBaseEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),
+				ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
+		}
+		else if (ItemParticle)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
+				ItemParticle, ItemMesh->GetComponentLocation());
+		}
+	}
+}
+
+void AItemBase::ServerEndItem_Implementation()
+{
+	ClientEndItem();
+}
+
+void AItemBase::ClientEndItem_Implementation()
 {
 	if (bIsCanBeDetroy)
 	{

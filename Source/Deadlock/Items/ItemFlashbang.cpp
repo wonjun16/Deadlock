@@ -13,56 +13,63 @@ AItemFlashbang::AItemFlashbang()
 	EItemTypeIndex = 4;
 }
 
-void AItemFlashbang::EventItemAffect_Implementation()
+void AItemFlashbang::FlashbangAffect()
 {
-	//Player Camera Flash
-
-	TArray<FHitResult> HitActors;
-	FVector FlashbangLocation = ItemMesh->GetComponentLocation();
-	FVector Start = FlashbangLocation;
-	FVector End = FlashbangLocation;
-
-	FCollisionShape BlowRangeSphere = FCollisionShape::MakeSphere(300.0f);
-
-	bool bIsHitInRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
-		FQuat::Identity, ECC_Pawn, BlowRangeSphere);
-	
-	if (bIsHitInRange)
+	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Character Hit In Range"));
-		for (auto& Hit : HitActors)
+		TArray<FHitResult> HitActors;
+		FVector FlashbangLocation = ItemMesh->GetComponentLocation();
+		FVector Start = FlashbangLocation;
+		FVector End = FlashbangLocation;
+
+		FCollisionShape BlowRangeSphere = FCollisionShape::MakeSphere(300.0f);
+
+		bool bIsHitInRange = GetWorld()->SweepMultiByChannel(HitActors, Start, End,
+			FQuat::Identity, ECC_Pawn, BlowRangeSphere);
+
+
+		if (bIsHitInRange)
 		{
-			ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
-
-			if (HitCharacter)
+			UE_LOG(LogTemp, Log, TEXT("Character Hit In Range"));
+			for (auto& Hit : HitActors)
 			{
-				FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
-				UCameraComponent* CharacterCamera = HitCharacter->FollowCamera;
-				FVector FrontVector = CharacterCamera->GetForwardVector();
-				FVector CharacterView = FrontVector.GetSafeNormal();
+				ADeadlockCharacter* HitCharacter = Cast<ADeadlockCharacter>(Hit.GetActor());
 
-				double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
-
-				//Check Character Looking Flash Point
-				if (FlashbangDotProduct > 0.5)
+				if (HitCharacter)
 				{
-					//Flash Effect
-					UE_LOG(LogTemp, Log, TEXT("Character Is Looking Flash Point"));
+					FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
+					UCameraComponent* CharacterCamera = HitCharacter->FollowCamera;
+					FVector FrontVector = CharacterCamera->GetForwardVector();
+					FVector CharacterView = FrontVector.GetSafeNormal();
 
-					CharacterCamera->PostProcessBlendWeight = 200.0f;
+					double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
 
-					if (FlashTimelineFloatCurve)
+					//Check Character Looking Flash Point
+					if (FlashbangDotProduct > 0.5)
 					{
-						FlashTimeline->AddInterpFloat(FlashTimelineFloatCurve, UpdateFlashFloat);
+						//Flash Effect
+						UE_LOG(LogTemp, Log, TEXT("Character Is Looking Flash Point"));
+
+					/*	CharacterCamera->PostProcessBlendWeight = 200.0f;
+
+						if (FlashTimelineFloatCurve)
+						{
+							FlashTimeline->AddInterpFloat(FlashTimelineFloatCurve, UpdateFlashFloat);
+						}*/
 					}
-					PlayItemEffect();
-				}
-				else
-				{
-					UE_LOG(LogTemp, Log, TEXT("Character Is Not Looking Flash Point"));
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("Character Is Not Looking Flash Point"));
+					}
 				}
 			}
 		}
-		EndItemEvent();
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Flashbang Server Item Affect");
+		ServerItemAffect();
+	}
+	else
+	{
+		ServerItemAffect();
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Flashbang Client Item Affect");
 	}
 }

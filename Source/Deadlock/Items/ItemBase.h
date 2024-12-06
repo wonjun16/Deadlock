@@ -52,32 +52,33 @@ public:
 	uint8 EItemTypeIndex;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
-	uint8 CurrentItemCount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	float DamageAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool bIsCanBeDetroy;
 
 	UFUNCTION(Server, Reliable)
-	void EventItemAffect();
-	void EventItemAffect_Implementation();
+	void ServerItemAffect();
+	void ServerItemAffect_Implementation();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientItemAffect();
 	void ClientItemAffect_Implementation();
 
 	UFUNCTION(Server, Reliable)
-	void ServerPlayEffect();
-	void ServerPlayEffect_Implementation();
+	void ServerItemEffect();
+	void ServerItemEffect_Implementation();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayItemEffect();
-	void PlayItemEffect_Implementation();
+	void ClientItemEffect();
+	void ClientItemEffect_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEndItem();
+	void ServerEndItem_Implementation();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void EndItemEvent();
-	void EndItemEvent_Implementation();
+	void ClientEndItem();
+	void ClientEndItem_Implementation();
 
 };
