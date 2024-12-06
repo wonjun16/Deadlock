@@ -26,6 +26,6 @@ public:
 
 	FOnTimelineFloat UpdateFlashFloat;
 
-	void FlashbangAffect();
+	virtual void ActivateAffect() override;
 
 };

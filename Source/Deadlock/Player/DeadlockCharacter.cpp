@@ -813,7 +813,7 @@ void ADeadlockCharacter::ClientItemUse_Implementation()
 						{
 							CharacterSpawnItem->SetReplicates(true);
 							CharacterSpawnItem->SetReplicateMovement(true);
-							CharacterSpawnItem->bIsCanBeDetroy = true;
+							CharacterSpawnItem->bIsUsedItem = true;
 
 							UPrimitiveComponent* ImpulseItem = Cast<UPrimitiveComponent>(CharacterSpawnItem->ItemMesh);
 							ImpulseItem->SetSimulatePhysics(true);

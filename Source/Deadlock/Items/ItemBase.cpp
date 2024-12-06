@@ -33,7 +33,7 @@ AItemBase::AItemBase()
 
 	bReplicates = true;
 	SetReplicateMovement(true);
-	bIsCanBeDetroy = false;
+	ItemTimer = 3.0f;
 }
 
 void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -42,6 +42,7 @@ void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME(AItemBase, EItemTypeIndex);
 	DOREPLIFETIME(AItemBase, DamageAmount);
+	DOREPLIFETIME(AItemBase, bIsUsedItem);
 }
 
 // Called when the game starts or when spawned
@@ -49,8 +50,7 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-	if (HasAuthority())
+	if (!HasAuthority())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Item BeginPlay");
 
@@ -109,8 +109,12 @@ void AItemBase::ServerEndItem_Implementation()
 
 void AItemBase::ClientEndItem_Implementation()
 {
-	if (bIsCanBeDetroy)
+	if (bIsUsedItem)
 	{
 		this->Destroy();
 	}
+}
+
+void AItemBase::ActivateAffect()
+{
 }

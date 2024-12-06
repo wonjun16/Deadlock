@@ -55,7 +55,7 @@ public:
 	float DamageAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
-	bool bIsCanBeDetroy;
+	bool bIsUsedItem = false;
 
 	UFUNCTION(Server, Reliable)
 	void ServerItemAffect();
@@ -80,5 +80,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientEndItem();
 	void ClientEndItem_Implementation();
+
+	virtual void ActivateAffect();
 
 };
