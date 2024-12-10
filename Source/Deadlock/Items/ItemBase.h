@@ -58,28 +58,12 @@ public:
 	bool bIsUsedItem = false;
 
 	UFUNCTION(Server, Reliable)
-	void ServerItemAffect();
-	void ServerItemAffect_Implementation();
+	void Server_ItemBegin();
+	void Server_ItemBegin_Implementation();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void ClientItemAffect();
-	void ClientItemAffect_Implementation();
-
-	UFUNCTION(Server, Reliable)
-	void ServerItemEffect();
-	void ServerItemEffect_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ClientItemEffect();
-	void ClientItemEffect_Implementation();
-
-	UFUNCTION(Server, Reliable)
-	void ServerEndItem();
-	void ServerEndItem_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ClientEndItem();
-	void ClientEndItem_Implementation();
+	void Client_ItemBegin();
+	void Client_ItemBegin_Implementation();
 
 	virtual void ActivateAffect();
 

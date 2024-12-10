@@ -50,16 +50,6 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!HasAuthority())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Item BeginPlay");
-
-		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
-			this, &AItemBase::ServerItemAffect, ItemTimer, false);
-
-		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
-			this, &AItemBase::ServerItemEffect, ItemTimer, false);
-	}
 }
 
 // Called every frame
@@ -69,50 +59,14 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::ServerItemAffect_Implementation()
+void AItemBase::Server_ItemBegin_Implementation()
 {
-	ClientItemAffect();
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Server Item Affect");
+	ActivateAffect();
 }
 
-void AItemBase::ClientItemAffect_Implementation()
+void AItemBase::Client_ItemBegin_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Client Item Affect");
-}
 
-void AItemBase::ServerItemEffect_Implementation()
-{
-	ClientItemEffect();
-}
-
-void AItemBase::ClientItemEffect_Implementation()
-{
-	if (HasAuthority())
-	{
-		if (ItemBaseEffect)
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),
-				ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
-		}
-		else if (ItemParticle)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
-				ItemParticle, ItemMesh->GetComponentLocation());
-		}
-	}
-}
-
-void AItemBase::ServerEndItem_Implementation()
-{
-	ClientEndItem();
-}
-
-void AItemBase::ClientEndItem_Implementation()
-{
-	if (bIsUsedItem)
-	{
-		this->Destroy();
-	}
 }
 
 void AItemBase::ActivateAffect()

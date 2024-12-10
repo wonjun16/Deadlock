@@ -192,10 +192,6 @@ public:
 	void ServerItemUse();
 	void ServerItemUse_Implementation();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void ClientItemUse();
-	void ClientItemUse_Implementation();
-
 protected:
 
 	/** Called for movement input */

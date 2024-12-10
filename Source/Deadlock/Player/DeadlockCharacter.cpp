@@ -701,12 +701,12 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 	case 2: case 3: case 4:
 		ServerThrowAnimation();
 		GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this,
-			&ADeadlockCharacter::ServerItemUse, 0.5f, false, 1.84f);
+			&ADeadlockCharacter::ServerItemUse, 0.25f, false, 1.8f);
 
 		break;
 
 	case 5: case 6:
-		ClientItemUse();
+		ServerItemUse();
 
 		break;
 	}
@@ -778,14 +778,7 @@ void ADeadlockCharacter::ServerItemUse_Implementation()
 	if (HasAuthority())
 	{
 		bCanUseItem = true;
-		ClientItemUse();
-	}
-}
 
-void ADeadlockCharacter::ClientItemUse_Implementation()
-{
-	if (!HasAuthority())
-	{
 		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 		if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
 		{
@@ -807,25 +800,18 @@ void ADeadlockCharacter::ClientItemUse_Implementation()
 						break;
 
 					case 2: case 3: case 4:
-						UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-
 						if (CharacterSpawnItem)
 						{
-							CharacterSpawnItem->SetReplicates(true);
-							CharacterSpawnItem->SetReplicateMovement(true);
-							CharacterSpawnItem->bIsUsedItem = true;
+							UPrimitiveComponent* ItemBase = Cast<UPrimitiveComponent>(CharacterSpawnItem->GetRootComponent());
+							FVector ThrowDirection = FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y, 1.0f).GetSafeNormal();
 
-							UPrimitiveComponent* ImpulseItem = Cast<UPrimitiveComponent>(CharacterSpawnItem->ItemMesh);
-							ImpulseItem->SetSimulatePhysics(true);
-							ImpulseItem->AddImpulse(FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y,
-								1.0f).GetSafeNormal() * 700.0f, NAME_None, true);
+							ItemBase->SetSimulatePhysics(true);
+							ItemBase->AddImpulse(ThrowDirection * 700.0f, NAME_None, true);
+
+							break;
 						}
 
-						break;
-
 					case 5: case 6:
-						UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
-
 						GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
 
 						break;
