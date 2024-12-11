@@ -33,7 +33,6 @@ AItemBase::AItemBase()
 
 	bReplicates = true;
 	SetReplicateMovement(true);
-	ItemTimer = 3.0f;
 }
 
 void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -49,7 +48,7 @@ void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }
 
 // Called every frame
@@ -61,12 +60,18 @@ void AItemBase::Tick(float DeltaTime)
 
 void AItemBase::Server_ItemBegin_Implementation()
 {
-	ActivateAffect();
+	if (HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle, this, &AItemBase::Client_ItemBegin, ItemTimer, false);
+	}
 }
 
 void AItemBase::Client_ItemBegin_Implementation()
 {
-
+	if (!HasAuthority())
+	{
+		ActivateAffect();
+	}
 }
 
 void AItemBase::ActivateAffect()

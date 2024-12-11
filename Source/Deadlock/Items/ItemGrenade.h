@@ -18,5 +18,5 @@ public:
 	AItemGrenade();
 
 	void ClientItemAffect_Implementation();
-	
+
 };

@@ -52,7 +52,9 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bIsAnimZoom = Deadlockcharacter->bIsZoom;
 		bIsAnimCrouch = Deadlockcharacter->bIsCrouch;
-		bIsAnimThrow = Deadlockcharacter->bCanUseItem;
+		bIsAnimUnarmed = Deadlockcharacter->bIsUnarmed;
+		bIsAnimThrow = Deadlockcharacter->bIsThrow;
+		bIsAnimHeal = Deadlockcharacter->bIsHeal;		
 	}
 }
 

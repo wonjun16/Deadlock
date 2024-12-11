@@ -72,6 +72,8 @@ ADeadlockCharacter::ADeadlockCharacter()
 	bIsZoom = false;
 	bIsCrouched = false;
 	bCanUseItem = false;
+	bIsThrow = false;
+	bIsHeal = false;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -85,6 +87,9 @@ void ADeadlockCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >&
 	DOREPLIFETIME(ADeadlockCharacter, SpawnActor);
 	DOREPLIFETIME(ADeadlockCharacter, bIsCrouch);
 	DOREPLIFETIME(ADeadlockCharacter, bIsZoom);
+	DOREPLIFETIME(ADeadlockCharacter, bIsUnarmed);
+	DOREPLIFETIME(ADeadlockCharacter, bIsThrow);
+	DOREPLIFETIME(ADeadlockCharacter, bIsHeal);
 }
 
 void ADeadlockCharacter::BeginPlay()
@@ -692,6 +697,8 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
+	bIsUnarmed = true;
+
 	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 	switch ((int)PS->CurSelectItemIndex)
 	{
@@ -699,9 +706,10 @@ void ADeadlockCharacter::Use(const FInputActionValue& Value)
 		break;
 
 	case 2: case 3: case 4:
-		ServerThrowAnimation();
+		//ServerThrowAnimation();
+		bIsThrow = true;
 		GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this,
-			&ADeadlockCharacter::ServerItemUse, 0.25f, false, 1.8f);
+			&ADeadlockCharacter::ServerItemUse, 0.25f, false, 3.63f);
 
 		break;
 
@@ -775,10 +783,10 @@ void ADeadlockCharacter::ThrowAnimation_Implementation()
 
 void ADeadlockCharacter::ServerItemUse_Implementation()
 {
+	bIsThrow = false;
+
 	if (HasAuthority())
 	{
-		bCanUseItem = true;
-
 		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
 		if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
 		{
@@ -792,8 +800,11 @@ void ADeadlockCharacter::ServerItemUse_Implementation()
 				if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
 				{
 					UE_LOG(LogTemp, Log, TEXT("ItemIndex : %d"), PS->CurSelectItemIndex);
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
 					AItemBase* CharacterSpawnItem = GetWorld()->SpawnActor<AItemBase>(TargetItem->GetClass(),
-						GetMesh()->GetSocketLocation(TEXT("weapon")), FRotator::ZeroRotator);
+						GetMesh()->GetSocketLocation(TEXT("weapon")), FRotator::ZeroRotator, SpawnParams);
+					
 					switch ((int)PS->CurSelectItemIndex)
 					{
 					default:
@@ -802,17 +813,20 @@ void ADeadlockCharacter::ServerItemUse_Implementation()
 					case 2: case 3: case 4:
 						if (CharacterSpawnItem)
 						{
-							UPrimitiveComponent* ItemBase = Cast<UPrimitiveComponent>(CharacterSpawnItem->GetRootComponent());
 							FVector ThrowDirection = FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y, 1.0f).GetSafeNormal();
 
-							ItemBase->SetSimulatePhysics(true);
-							ItemBase->AddImpulse(ThrowDirection * 700.0f, NAME_None, true);
+							CharacterSpawnItem->CapsuleCollision->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+							CharacterSpawnItem->CapsuleCollision->SetSimulatePhysics(true);
+							CharacterSpawnItem->CapsuleCollision->AddImpulse(ThrowDirection * 700.0f, NAME_None, true);
+							CharacterSpawnItem->Server_ItemBegin();
 
 							break;
 						}
 
 					case 5: case 6:
 						GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+
+						//bIsHeal = true;
 
 						break;
 					}
