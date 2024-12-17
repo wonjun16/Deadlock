@@ -70,7 +70,7 @@ ADeadlockCharacter::ADeadlockCharacter()
 	ZoomTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ZoomTimeline"));
 
 	bIsZoom = false;
-	bIsCrouched = false;
+	bIsCrouch = false;
 	bCanUseItem = false;
 	bIsThrow = false;
 	bIsHeal = false;
@@ -514,6 +514,42 @@ void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
 	}
 }
 
+void ADeadlockCharacter::C2S_Crouch_Implementation(bool bPressed)
+{
+	S2C_Crouch(bPressed);
+}
+
+void ADeadlockCharacter::S2C_Crouch_Implementation(bool bPressed)
+{
+	if (bPressed)
+	{
+		bIsCrouch = false;
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+	else
+	{
+		bIsCrouch = true;
+		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+	}
+}
+
+void ADeadlockCharacter::C2S_ItemUse_Implementation()
+{
+}
+
+void ADeadlockCharacter::S2C_ItemUse_Implementation()
+{
+}
+
+void ADeadlockCharacter::C2S_Equip_Implementation()
+{
+}
+
+void ADeadlockCharacter::S2C_Equip_Implementation()
+{
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -650,18 +686,7 @@ void ADeadlockCharacter::StopAttack(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Crouch"));
-	if (bIsCrouch == false)
-	{
-		bIsCrouch = true;
-		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
-	}
-	else if (bIsCrouch == true)
-	{
-		bIsCrouch = false;
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	}
-
+	C2S_Crouch(bIsCrouch);
 }
 
 void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
