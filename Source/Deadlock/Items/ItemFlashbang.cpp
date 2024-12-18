@@ -2,6 +2,7 @@
 
 
 #include "ItemFlashbang.h"
+#include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Deadlock/Player/DeadlockCharacter.h"
 
@@ -36,6 +37,7 @@ void AItemFlashbang::ActivateAffect()
 			{
 				FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
 				FVector CharacterView = HitCharacter->GetActorForwardVector().GetSafeNormal();
+				UCameraComponent* CharacterCamera = HitCharacter->FollowCamera;
 
 				double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
 
@@ -45,12 +47,8 @@ void AItemFlashbang::ActivateAffect()
 					//Flash Effect
 					UE_LOG(LogTemp, Log, TEXT("Character Is Looking Flash Point"));
 
-					/*	CharacterCamera->PostProcessBlendWeight = 200.0f;
-
-						if (FlashTimelineFloatCurve)
-						{
-							FlashTimeline->AddInterpFloat(FlashTimelineFloatCurve, UpdateFlashFloat);
-						}*/
+					//CharacterCamera->PostProcessBlendWeight = 200.0f;
+					FlashEffect();
 				}
 				else
 				{

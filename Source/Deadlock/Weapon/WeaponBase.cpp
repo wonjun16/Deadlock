@@ -233,7 +233,7 @@ EWeaponType AWeaponBase::EventGrabWeapon_Implementation(ACharacter* Character)
 
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weaponleft"));
+	AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weapon"));
 
 	return WeaponType;
 }

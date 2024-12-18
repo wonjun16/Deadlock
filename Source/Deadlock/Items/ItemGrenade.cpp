@@ -14,7 +14,7 @@ AItemGrenade::AItemGrenade()
 	EItemTypeIndex = 2;
 }
 
-void AItemGrenade::ClientItemAffect_Implementation()
+void AItemGrenade::ActivateAffect()
 {
 	//Grenade Affect (Scan Character In Range, Give Damage)
 

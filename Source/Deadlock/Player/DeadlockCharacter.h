@@ -130,9 +130,6 @@ public:
 	uint8 bIsCrouch : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
-	uint8 bIsUnarmed : 1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	uint8 bIsThrow : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)

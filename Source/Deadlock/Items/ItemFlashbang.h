@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ItemBase.h"
-#include "Components/TimelineComponent.h"
 #include "ItemFlashbang.generated.h"
 
 /**
@@ -18,13 +17,8 @@ class DEADLOCK_API AItemFlashbang : public AItemBase
 public:
 	AItemFlashbang();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UTimelineComponent* FlashTimeline;
-
-	UPROPERTY(EditAnywhere)
-	UCurveFloat* FlashTimelineFloatCurve;
-
-	FOnTimelineFloat UpdateFlashFloat;
+	UFUNCTION(BlueprintImplementableEvent)
+	void FlashEffect();
 
 	virtual void ActivateAffect() override;
 

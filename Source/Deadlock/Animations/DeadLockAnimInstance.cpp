@@ -21,6 +21,7 @@ void UDeadLockAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimZoom);
 	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimCrouch);
 	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimThrow);
+	DOREPLIFETIME(UDeadLockAnimInstance, bIsAnimHeal);
 	DOREPLIFETIME(UDeadLockAnimInstance, PlayerAimPitch);
 }
 
@@ -52,7 +53,6 @@ void UDeadLockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bIsAnimZoom = Deadlockcharacter->bIsZoom;
 		bIsAnimCrouch = Deadlockcharacter->bIsCrouch;
-		bIsAnimUnarmed = Deadlockcharacter->bIsUnarmed;
 		bIsAnimThrow = Deadlockcharacter->bIsThrow;
 		bIsAnimHeal = Deadlockcharacter->bIsHeal;		
 	}

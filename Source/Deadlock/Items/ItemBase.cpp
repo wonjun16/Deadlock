@@ -17,17 +17,17 @@ AItemBase::AItemBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
-	SetRootComponent(CapsuleCollision);
-
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("ItemMesh");
-	ItemMesh->SetupAttachment(RootComponent);
+	SetRootComponent(ItemMesh);
+	
+	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
+	CapsuleCollision->SetupAttachment(RootComponent);
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	ItemMesh->SetSimulatePhysics(false);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
-	ItemBaseEffect->SetupAttachment(ItemMesh);
+	ItemBaseEffect->SetupAttachment(RootComponent);
 
 	ItemParticle = CreateDefaultSubobject<UParticleSystem>("Particle");
 
@@ -48,7 +48,6 @@ void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
