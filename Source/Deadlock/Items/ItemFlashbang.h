@@ -29,13 +29,9 @@ public:
 
 	virtual void ActivateAffect() override;
 
-private:
-	FTimeline FlashbangTimeline;
-
-	UPROPERTY(EditAnywhere, Category = "Timeline")
-	UCurveFloat* FlashbangCurve;
-
-	UCameraComponent* AffectedCamera;
+	UFUNCTION(NetMulticast, Reliable)
+	void AffectedCharacter(ADeadlockCharacter* HitCharacter);
+	void AffectedCharacter_Implementation(ADeadlockCharacter* HitCharacter);
 
 	UFUNCTION()
 	void UpdateBloomIntensityWeight(float Value);
@@ -43,4 +39,11 @@ private:
 	UFUNCTION()
 	void FinishFlahbangEffect();
 
+private:
+	FTimeline FlashbangTimeline;
+
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+	UCurveFloat* FlashbangCurve;
+
+	UCameraComponent* AffectedCamera;
 };

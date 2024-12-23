@@ -64,7 +64,6 @@ void AItemFlashbang::ActivateAffect()
 			{
 				FVector FlashbangDirection = (FlashbangLocation - HitCharacter->GetActorLocation()).GetSafeNormal();
 				FVector CharacterView = HitCharacter->GetActorForwardVector().GetSafeNormal();
-				AffectedCamera = HitCharacter->FollowCamera;
 
 				double FlashbangDotProduct = FVector::DotProduct(CharacterView, FlashbangDirection);
 
@@ -77,7 +76,7 @@ void AItemFlashbang::ActivateAffect()
 					if (FlashbangCurve)
 					{
 						UE_LOG(LogTemp, Log, TEXT("TimelineStart"));
-						FlashbangTimeline.PlayFromStart();
+						AffectedCharacter(HitCharacter);
 					}
 				}
 				else
@@ -87,17 +86,32 @@ void AItemFlashbang::ActivateAffect()
 			}
 		}
 	}
-} 
+}
+
+void AItemFlashbang::AffectedCharacter_Implementation(ADeadlockCharacter* HitCharacter)
+{
+	if (HitCharacter && HitCharacter->IsLocallyControlled())
+	{
+		AffectedCamera = HitCharacter->FollowCamera;
+		if (AffectedCamera)
+		{
+			FlashbangTimeline.PlayFromStart();
+		}
+	}
+}
 
 void AItemFlashbang::UpdateBloomIntensityWeight(float Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Timeline Value: %f"), Value);
 	if (AffectedCamera)
 	{
-		UE_LOG(LogTemp, Log, TEXT("FlashStart"));
 		AffectedCamera->PostProcessSettings.bOverride_BloomIntensity = true;
-		AffectedCamera->PostProcessSettings.BloomIntensity = Value * 200.0f;
-		UE_LOG(LogTemp, Log, TEXT("UpdateBloomIntensityWeight Updated: %f"), Value);
+		AffectedCamera->PostProcessSettings.BloomIntensity = Value * 300.0f;
+		UE_LOG(LogTemp, Log, TEXT("PostProcessBlendWeight updated to %f on %s"), Value, *GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AffectedCamera is null on %s"), *GetName());
 	}
 }
 
@@ -106,7 +120,7 @@ void AItemFlashbang::FinishFlahbangEffect()
 	if (AffectedCamera)
 	{
 		UE_LOG(LogTemp, Log, TEXT("FlashFinish"));
-		AffectedCamera->PostProcessSettings.BloomIntensity = 0.0f;
+		AffectedCamera->PostProcessSettings.BloomIntensity = 0.675f;
 		AffectedCamera->PostProcessSettings.bOverride_BloomIntensity = false;
 	}
 }
