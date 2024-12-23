@@ -59,4 +59,5 @@ void AItemGrenade::ActivateAffect()
 			}
 		}
 	}
+	Super::ActivateAffect();
 }

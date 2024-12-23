@@ -86,6 +86,7 @@ void AItemFlashbang::ActivateAffect()
 			}
 		}
 	}
+	Super::ActivateAffect();
 }
 
 void AItemFlashbang::AffectedCharacter_Implementation(ADeadlockCharacter* HitCharacter)

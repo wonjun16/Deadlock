@@ -65,6 +65,10 @@ public:
 	void Client_ItemBegin();
 	void Client_ItemBegin_Implementation();
 
+	UFUNCTION(Server, Reliable)
+	void DestroyItem();
+	void DestroyItem_Implementation();
+
 	virtual void ActivateAffect();
 
 };

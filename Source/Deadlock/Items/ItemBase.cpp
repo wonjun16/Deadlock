@@ -61,7 +61,8 @@ void AItemBase::Server_ItemBegin_Implementation()
 {
 	if (HasAuthority())
 	{
-		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle, this, &AItemBase::Client_ItemBegin, ItemTimer, false);
+		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
+			this, &AItemBase::Client_ItemBegin, ItemTimer, false);
 	}
 }
 
@@ -73,6 +74,18 @@ void AItemBase::Client_ItemBegin_Implementation()
 	}
 }
 
+void AItemBase::DestroyItem_Implementation()
+{
+	Destroy();
+}
+
 void AItemBase::ActivateAffect()
 {
+	if (ItemBaseEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),
+			ItemBaseEffect->GetAsset(), this->GetActorLocation(),
+			FRotator(0.0f, 0.0f, 1.0f), FVector(1.0f), true, true);
+	}
+	DestroyItem();
 }

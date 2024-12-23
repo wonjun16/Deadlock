@@ -12,8 +12,8 @@ AItemMedkit::AItemMedkit()
 	EItemTypeIndex = 5;
 }
 
-void AItemMedkit::EventItemAffect_Implementation()
+void AItemMedkit::ActivateAffect()
 {
-	DamageAmount = -100;
+	DamageAmount = -70;
 	UGameplayStatics::ApplyDamage(Owner, DamageAmount, Owner->GetInstigatorController(), this, 0);
 }

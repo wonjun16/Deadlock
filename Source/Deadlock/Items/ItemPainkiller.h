@@ -17,6 +17,6 @@ class DEADLOCK_API AItemPainkiller : public AItemBase
 public:
 	AItemPainkiller();
 
-	void EventItemAffect_Implementation();
+	virtual void ActivateAffect() override;
 
 };

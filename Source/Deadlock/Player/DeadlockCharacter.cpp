@@ -574,11 +574,14 @@ void ADeadlockCharacter::C2S_ItemUse_Implementation()
 						}
 
 					case 5: case 6:
-						GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+						if (CharacterSpawnItem)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+							CharacterSpawnItem->Server_ItemBegin();
+							//bIsHeal = true;
 
-						//bIsHeal = true;
-
-						break;
+							break;
+						}
 					}
 					break;
 				}
