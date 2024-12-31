@@ -778,8 +778,6 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
 	C2S_ItemUse();
-
-	//GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this, &ADeadlockCharacter::ServerItemUse, 0.25f, false, 3.63f);
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
@@ -841,14 +839,4 @@ void ADeadlockCharacter::ServerThrowAnimation_Implementation()
 void ADeadlockCharacter::ThrowAnimation_Implementation()
 {
 	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
-}
-
-void ADeadlockCharacter::ServerItemUse_Implementation()
-{
-	bIsThrow = false;
-
-	if (HasAuthority())
-	{
-		
-	}
 }

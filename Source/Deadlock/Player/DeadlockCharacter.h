@@ -218,10 +218,6 @@ public:
 	void ThrowAnimation();
 	void ThrowAnimation_Implementation();
 
-	UFUNCTION(Server, Reliable)
-	void ServerItemUse();
-	void ServerItemUse_Implementation();
-
 protected:
 
 	/** Called for movement input */
