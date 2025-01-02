@@ -70,8 +70,10 @@ ADeadlockCharacter::ADeadlockCharacter()
 	ZoomTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("ZoomTimeline"));
 
 	bIsZoom = false;
-	bIsCrouched = false;
+	bIsCrouch = false;
 	bCanUseItem = false;
+	bIsThrow = false;
+	bIsHeal = false;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -85,6 +87,8 @@ void ADeadlockCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >&
 	DOREPLIFETIME(ADeadlockCharacter, SpawnActor);
 	DOREPLIFETIME(ADeadlockCharacter, bIsCrouch);
 	DOREPLIFETIME(ADeadlockCharacter, bIsZoom);
+	DOREPLIFETIME(ADeadlockCharacter, bIsThrow);
+	DOREPLIFETIME(ADeadlockCharacter, bIsHeal);
 }
 
 void ADeadlockCharacter::BeginPlay()
@@ -509,6 +513,98 @@ void ADeadlockCharacter::S2C_Run_Implementation(bool bPressed)
 	}
 }
 
+void ADeadlockCharacter::C2S_Crouch_Implementation(bool bPressed)
+{
+	S2C_Crouch(bPressed);
+}
+
+void ADeadlockCharacter::S2C_Crouch_Implementation(bool bPressed)
+{
+	if (bPressed)
+	{
+		bIsCrouch = false;
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+	else
+	{
+		bIsCrouch = true;
+		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+	}
+}
+
+void ADeadlockCharacter::C2S_ItemUse_Implementation()
+{
+	if (HasAuthority())
+	{
+		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
+		int SelectedItem = PS->CurSelectItemIndex;
+
+		if (PS->ItemCountsArray[SelectedItem] > 0)
+		{
+			PS->CalculateItemCount(false, NULL);
+			TArray<AActor*> FoundItems;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
+
+			for (AActor* Items : FoundItems)
+			{
+				AItemBase* TargetItem = Cast<AItemBase>(Items);
+				if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
+				{
+					UE_LOG(LogTemp, Log, TEXT("ItemIndex : %d"), PS->CurSelectItemIndex);
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+					AItemBase* CharacterSpawnItem = GetWorld()->SpawnActor<AItemBase>(TargetItem->GetClass(),
+						GetMesh()->GetSocketLocation(TEXT("weapon")), FRotator::ZeroRotator, SpawnParams);
+
+					switch (SelectedItem)
+					{
+					default:
+						break;
+
+					case 2: case 3: case 4:
+						if (CharacterSpawnItem)
+						{
+							FVector ThrowDirection = FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y, 1.0f).GetSafeNormal();
+
+							CharacterSpawnItem->ItemMesh->SetSimulatePhysics(true);
+							CharacterSpawnItem->ItemMesh->AddImpulse(ThrowDirection * 700.0f, NAME_None, true);
+							CharacterSpawnItem->Server_ItemBegin();
+
+							break;
+						}
+
+					case 5: case 6:
+						if (CharacterSpawnItem)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
+							CharacterSpawnItem->Server_ItemBegin();
+							//bIsHeal = true;
+
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+	//S2C_ItemUse();
+}
+
+void ADeadlockCharacter::S2C_ItemUse_Implementation()
+{
+
+}
+
+void ADeadlockCharacter::C2S_Equip_Implementation()
+{
+}
+
+void ADeadlockCharacter::S2C_Equip_Implementation()
+{
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -645,18 +741,7 @@ void ADeadlockCharacter::StopAttack(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Crouch(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Crouch"));
-	if (bIsCrouch == false)
-	{
-		bIsCrouch = true;
-		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
-	}
-	else if (bIsCrouch == true)
-	{
-		bIsCrouch = false;
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	}
-
+	C2S_Crouch(bIsCrouch);
 }
 
 void ADeadlockCharacter::Scroll(const FInputActionValue& Value)
@@ -692,24 +777,7 @@ void ADeadlockCharacter::Grab(const FInputActionValue& Value)
 
 void ADeadlockCharacter::Use(const FInputActionValue& Value)
 {
-	TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-	switch ((int)PS->CurSelectItemIndex)
-	{
-	default:
-		break;
-
-	case 2: case 3: case 4:
-		ServerThrowAnimation();
-		GetWorldTimerManager().SetTimer(ItemUseTimerHandle, this,
-			&ADeadlockCharacter::ServerItemUse, 0.5f, false, 1.84f);
-
-		break;
-
-	case 5: case 6:
-		ClientItemUse();
-
-		break;
-	}
+	C2S_ItemUse();
 }
 
 void ADeadlockCharacter::Reload(const FInputActionValue& Value)
@@ -771,71 +839,4 @@ void ADeadlockCharacter::ServerThrowAnimation_Implementation()
 void ADeadlockCharacter::ThrowAnimation_Implementation()
 {
 	Super::GetMesh()->PlayAnimation(ThrowAnimationAsset, false);
-}
-
-void ADeadlockCharacter::ServerItemUse_Implementation()
-{
-	if (HasAuthority())
-	{
-		bCanUseItem = true;
-		ClientItemUse();
-	}
-}
-
-void ADeadlockCharacter::ClientItemUse_Implementation()
-{
-	if (!HasAuthority())
-	{
-		TObjectPtr<ADeadlockPlayerState> PS = Cast<ADeadlockPlayerState>(GetPlayerState());
-		if (PS->ItemCountsArray[PS->CurSelectItemIndex] > 0)
-		{
-			PS->CalculateItemCount(false, NULL);
-			TArray<AActor*> FoundItems;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItemBase::StaticClass(), FoundItems);
-
-			for (AActor* Items : FoundItems)
-			{
-				AItemBase* TargetItem = Cast<AItemBase>(Items);
-				if (TargetItem->EItemTypeIndex == PS->CurSelectItemIndex)
-				{
-					UE_LOG(LogTemp, Log, TEXT("ItemIndex : %d"), PS->CurSelectItemIndex);
-					AItemBase* CharacterSpawnItem = GetWorld()->SpawnActor<AItemBase>(TargetItem->GetClass(),
-						GetMesh()->GetSocketLocation(TEXT("weapon")), FRotator::ZeroRotator);
-					switch ((int)PS->CurSelectItemIndex)
-					{
-					default:
-						break;
-
-					case 2: case 3: case 4:
-						UE_LOG(LogTemp, Log, TEXT("Use Grenades Log"));
-
-						if (CharacterSpawnItem)
-						{
-							CharacterSpawnItem->SetReplicates(true);
-							CharacterSpawnItem->SetReplicateMovement(true);
-
-							UPrimitiveComponent* ImpulseItem = Cast<UPrimitiveComponent>(CharacterSpawnItem->ItemMesh);
-							ImpulseItem->SetSimulatePhysics(true);
-							ImpulseItem->AddImpulse(FVector(this->GetActorForwardVector().X, this->GetActorForwardVector().Y,
-								1.0f).GetSafeNormal() * 700.0f, NAME_None, true);
-							
-						}
-
-						break;
-
-					case 5: case 6:
-						UE_LOG(LogTemp, Log, TEXT("Use HealingItem Log"));
-
-						GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Cur HP : %f"), PS->HP));
-
-						break;
-					}
-
-					GetWorldTimerManager().ClearTimer(ItemUseTimerHandle);
-
-					break;
-				}
-			}
-		}
-	}
 }

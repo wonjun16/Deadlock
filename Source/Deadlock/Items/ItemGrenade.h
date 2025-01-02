@@ -17,6 +17,6 @@ class DEADLOCK_API AItemGrenade : public AItemBase
 public:
 	AItemGrenade();
 
-	virtual void ClientItemAffect_Implementation();
-	
+	virtual void ActivateAffect() override;
+
 };

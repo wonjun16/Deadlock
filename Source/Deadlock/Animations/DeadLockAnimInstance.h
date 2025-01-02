@@ -51,6 +51,9 @@ public:
 	uint8 bIsAnimThrow : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
+	uint8 bIsAnimHeal : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Data")
 	float PlayerAimPitch;
 
 private:

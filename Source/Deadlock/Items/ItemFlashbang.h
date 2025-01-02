@@ -10,22 +10,40 @@
 /**
  * 
  */
+
+class UCurveFloat;
+class UCameraComponent;
+
 UCLASS()
 class DEADLOCK_API AItemFlashbang : public AItemBase
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
 public:
 	AItemFlashbang();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UTimelineComponent* FlashTimeline;
+	virtual void ActivateAffect() override;
 
-	UPROPERTY(EditAnywhere)
-	UCurveFloat* FlashTimelineFloatCurve;
+	UFUNCTION(NetMulticast, Reliable)
+	void AffectedCharacter(ADeadlockCharacter* HitCharacter);
+	void AffectedCharacter_Implementation(ADeadlockCharacter* HitCharacter);
 
-	FOnTimelineFloat UpdateFlashFloat;
+	UFUNCTION()
+	void UpdateBloomIntensityWeight(float Value);
 
-	void EventItemAffect_Implementation();
+	UFUNCTION()
+	void FinishFlahbangEffect();
 
+private:
+	FTimeline FlashbangTimeline;
+
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+	UCurveFloat* FlashbangCurve;
+
+	UCameraComponent* AffectedCamera;
 };

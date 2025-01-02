@@ -17,6 +17,6 @@ class DEADLOCK_API AItemMedkit : public AItemBase
 public:
 	AItemMedkit();
 
-	void EventItemAffect_Implementation();
+	virtual void ActivateAffect() override;
 
 };

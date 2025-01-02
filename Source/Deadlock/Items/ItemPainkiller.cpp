@@ -12,9 +12,9 @@ AItemPainkiller::AItemPainkiller()
 	EItemTypeIndex = 6;
 }
 
-void AItemPainkiller::EventItemAffect_Implementation()
+void AItemPainkiller::ActivateAffect()
 {
 	DamageAmount = -30;
-	UGameplayStatics::ApplyDamage(Owner, DamageAmount, Owner->GetInstigatorController(), this, 0);
-	EndItemEvent();
+	UGameplayStatics::ApplyDamage(Owner,
+		DamageAmount, Owner->GetInstigatorController(), this, 0);
 }

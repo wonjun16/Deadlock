@@ -17,23 +17,22 @@ AItemBase::AItemBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
-	SetRootComponent(CapsuleCollision);
-
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("ItemMesh");
-	ItemMesh->SetupAttachment(RootComponent);
+	SetRootComponent(ItemMesh);
+	
+	CapsuleCollision = CreateDefaultSubobject<UCapsuleComponent>("CapsuleCollision");
+	CapsuleCollision->SetupAttachment(RootComponent);
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	ItemMesh->SetSimulatePhysics(false);
 
 	ItemBaseEffect = CreateDefaultSubobject<UNiagaraComponent>("ItemEffect");
-	ItemBaseEffect->SetupAttachment(ItemMesh);
+	ItemBaseEffect->SetupAttachment(RootComponent);
 
 	ItemParticle = CreateDefaultSubobject<UParticleSystem>("Particle");
 
 	bReplicates = true;
 	SetReplicateMovement(true);
-	bIsCanBeDetroy = false;
 }
 
 void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -41,20 +40,14 @@ void AItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AItemBase, EItemTypeIndex);
-	DOREPLIFETIME(AItemBase, CurrentItemCount);
 	DOREPLIFETIME(AItemBase, DamageAmount);
+	DOREPLIFETIME(AItemBase, bIsUsedItem);
 }
 
 // Called when the game starts or when spawned
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
-			this, &AItemBase::EventItemAffect, ItemTimer, false);
-	}
 }
 
 // Called every frame
@@ -64,40 +57,35 @@ void AItemBase::Tick(float DeltaTime)
 
 }
 
-void AItemBase::PlayItemEffect_Implementation()
+void AItemBase::Server_ItemBegin_Implementation()
 {
 	if (HasAuthority())
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ItemParticle, ItemMesh->GetComponentLocation());
-		
+		GetWorld()->GetTimerManager().SetTimer(ItemTriggerTimerHandle,
+			this, &AItemBase::Client_ItemBegin, ItemTimer, false);
 	}
 }
 
-void AItemBase::ServerPlayEffect_Implementation()
+void AItemBase::Client_ItemBegin_Implementation()
 {
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemBaseEffect->GetAsset(), ItemMesh->GetComponentLocation());
-	PlayItemEffect();
-}
-
-
-void AItemBase::EventItemAffect_Implementation()
-{
-	//ClientItemAffect();
-	ServerPlayEffect();
-}
-
-void AItemBase::ClientItemAffect_Implementation()
-{
-	EventItemAffect();
-	//ServerPlayEffect();
-}
-
-void AItemBase::EndItemEvent_Implementation()
-{
-	if (bIsCanBeDetroy)
+	if (!HasAuthority())
 	{
-		this->Destroy();
+		ActivateAffect();
 	}
+}
+
+void AItemBase::DestroyItem_Implementation()
+{
+	Destroy();
+}
+
+void AItemBase::ActivateAffect()
+{
+	if (ItemBaseEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),
+			ItemBaseEffect->GetAsset(), this->GetActorLocation(),
+			FRotator(0.0f, 0.0f, 1.0f), FVector(1.0f), true, true);
+	}
+	DestroyItem();
 }

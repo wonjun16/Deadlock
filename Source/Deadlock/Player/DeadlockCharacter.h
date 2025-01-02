@@ -129,6 +129,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
 	uint8 bIsCrouch : 1;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	uint8 bIsThrow : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated)
+	uint8 bIsHeal : 1;
+
 	UFUNCTION(Server, Reliable)
 	void C2S_Drop();
 	void C2S_Drop_Implementation();
@@ -170,6 +176,30 @@ public:
 	void S2C_Run_Implementation(bool bPressed);
 
 	UFUNCTION(Server, Reliable)
+	void C2S_Crouch(bool bPressed);
+	void C2S_Crouch_Implementation(bool bPressed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Crouch(bool bPressed);
+	void S2C_Crouch_Implementation(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void C2S_ItemUse();
+	void C2S_ItemUse_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_ItemUse();
+	void S2C_ItemUse_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_Equip();
+	void C2S_Equip_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void S2C_Equip();
+	void S2C_Equip_Implementation();
+
+	UFUNCTION(Server, Reliable)
 	void S2CSetCharacterLocation(const TArray<FVector>& SpawnLocations);
 	void S2CSetCharacterLocation_Implementation(const TArray<FVector>& SpawnLocations);
 
@@ -187,14 +217,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void ThrowAnimation();
 	void ThrowAnimation_Implementation();
-
-	UFUNCTION(Server, Reliable)
-	void ServerItemUse();
-	void ServerItemUse_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ClientItemUse();
-	void ClientItemUse_Implementation();
 
 protected:
 
